@@ -1,0 +1,128 @@
+import json
+from typing import Dict, Any, Optional
+from datetime import datetime, timezone
+from .types import CollectBasicInfoResponse, ClassifyCategoryResponse
+from .root_graph import Node
+
+class StateManager:
+    """Manages state updates based on LLM responses"""
+    
+    @staticmethod
+    def parse_llm_response(llm_response: str, node: Node) -> Dict[str, Any]:
+        """
+        Parse LLM response and return structured data
+        """
+        try:
+            # Parse JSON response
+            response_data = json.loads(llm_response)
+            
+            # Validate response based on node type
+            if node.node_id == "collect_basic_info":
+                validated_response = CollectBasicInfoResponse(**response_data)
+                return validated_response.model_dump()
+            elif node.node_id == "classify_category":
+                validated_response = ClassifyCategoryResponse(**response_data)
+                return validated_response.model_dump()
+            else:
+                # For other nodes, return raw data for now
+                return response_data
+                
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from LLM: {e}")
+        except Exception as e:
+            raise ValueError(f"Error parsing LLM response: {e}")
+    
+    @staticmethod
+    def update_state(current_state: Dict[str, Any], llm_data: Dict[str, Any], node: Node) -> Dict[str, Any]:
+        """
+        Update current state with data from LLM response
+        """
+        updated_state = current_state.copy()
+        
+        # Update state based on node type
+        if node.node_id == "collect_basic_info":
+            # Handle user_name
+            if llm_data.get("user_name") and llm_data["user_name"] != "unavailable":
+                updated_state["user_name"] = llm_data["user_name"]
+            elif llm_data.get("user_name") == "unavailable":
+                updated_state["user_name"] = "unavailable"
+            elif "user_name" in updated_state:
+                # Сохраняем уже существующее имя, если новое не пришло
+                pass
+            # Handle user_age
+            if llm_data.get("user_age") is not None and llm_data["user_age"] != "unavailable":
+                updated_state["user_age"] = llm_data["user_age"]
+            elif llm_data.get("user_age") == "unavailable":
+                updated_state["user_age"] = "unavailable"
+            elif "user_age" in updated_state:
+                # Сохраняем уже существующий возраст, если новый не пришёл
+                pass
+            # Если user_age is None, не обновляем (оставляем существующее значение или None)
+        
+        elif node.node_id == "classify_category":
+            if llm_data.get("goal_type"):
+                updated_state["goal_type"] = llm_data["goal_type"]
+        elif node.node_id == "career_goal":
+            if llm_data.get("career_goal") and llm_data["career_goal"] != "unavailable":
+                updated_state["career_goal"] = llm_data["career_goal"]
+            elif llm_data.get("career_goal") == "unavailable":
+                updated_state["career_goal"] = "unavailable"
+        elif node.node_id == "career_obstacles":
+            if llm_data.get("career_obstacles") and llm_data["career_obstacles"] != "unavailable":
+                updated_state["career_obstacles"] = llm_data["career_obstacles"]
+            elif llm_data.get("career_obstacles") == "unavailable":
+                updated_state["career_obstacles"] = "unavailable"
+        elif node.node_id == "career_to_plan":
+            pass
+        elif node.node_id == "generate_plan":
+            if llm_data.get("plan"):
+                updated_state["plan"] = llm_data["plan"]
+        elif node.node_id == "relationships_people":
+            if llm_data.get("relation_people") and llm_data["relation_people"] != "unavailable":
+                updated_state["relation_people"] = llm_data["relation_people"]
+            elif llm_data.get("relation_people") == "unavailable":
+                updated_state["relation_people"] = "unavailable"
+        elif node.node_id == "relationships_issues":
+            if llm_data.get("relation_issues") and llm_data["relation_issues"] != "unavailable":
+                updated_state["relation_issues"] = llm_data["relation_issues"]
+            elif llm_data.get("relation_issues") == "unavailable":
+                updated_state["relation_issues"] = "unavailable"
+        elif node.node_id == "relationships_to_plan":
+            pass
+        elif node.node_id == "self_growth_goal":
+            if llm_data.get("self_growth_goal") and llm_data["self_growth_goal"] != "unavailable":
+                updated_state["self_growth_goal"] = llm_data["self_growth_goal"]
+            elif llm_data.get("self_growth_goal") == "unavailable":
+                updated_state["self_growth_goal"] = "unavailable"
+        elif node.node_id == "self_growth_obstacles":
+            if llm_data.get("self_growth_obstacles") and llm_data["self_growth_obstacles"] != "unavailable":
+                updated_state["self_growth_obstacles"] = llm_data["self_growth_obstacles"]
+            elif llm_data.get("self_growth_obstacles") == "unavailable":
+                updated_state["self_growth_obstacles"] = "unavailable"
+        elif node.node_id == "self_growth_to_plan":
+            pass
+        elif node.node_id == "no_goal_reason":
+            if llm_data.get("no_goal_reason") and llm_data["no_goal_reason"] != "unavailable":
+                updated_state["no_goal_reason"] = llm_data["no_goal_reason"]
+            elif llm_data.get("no_goal_reason") == "unavailable":
+                updated_state["no_goal_reason"] = "unavailable"
+        elif node.node_id == "no_goal_to_plan":
+            pass
+        
+        # Update timestamp
+        updated_state["updated_at"] = datetime.now(timezone.utc)
+        
+        return updated_state
+    
+    @staticmethod
+    def get_next_node(llm_data: Dict[str, Any], current_node: Node, updated_state: Dict[str, Any]) -> str:
+        """
+        Determine next node based on LLM response and state
+        """
+        if current_node.node_id == "collect_basic_info":
+            # Если не хватает хотя бы одного поля — остаёмся в collect_basic_info
+            name = updated_state.get("user_name")
+            age = updated_state.get("user_age")
+            if (not name or name == "") or (not age or age == ""):
+                return "collect_basic_info"
+        return llm_data.get("next", current_node.node_id) 
