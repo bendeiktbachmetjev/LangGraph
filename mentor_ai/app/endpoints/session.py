@@ -16,6 +16,18 @@ class EnhancedJSONEncoder(json.JSONEncoder):
             return obj.isoformat()
         return super().default(obj)
 
+def to_serializable(obj):
+    if isinstance(obj, dict):
+        return {k: to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [to_serializable(i) for i in obj]
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    else:
+        return obj
+
 router = APIRouter()
 
 @router.post("/session", response_model=SessionResponse)
@@ -63,7 +75,4 @@ async def get_full_state(session_id: str = Path(..., description="Session ID")):
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
-    return JSONResponse(
-        content={"session_id": session_id, "state": state},
-        dumps=lambda obj, **kwargs: json.dumps(obj, cls=EnhancedJSONEncoder, **kwargs)
-    ) 
+    return JSONResponse({"session_id": session_id, "state": to_serializable(state)}) 
