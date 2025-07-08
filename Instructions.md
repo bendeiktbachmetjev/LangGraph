@@ -84,7 +84,7 @@ mentor_ai/
 
 ---
 
-## 3. Flow Definition (Markdown Modules Embedded Here)
+## 3. Flow Definition 
 
 ---
 

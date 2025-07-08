@@ -1,6 +1,4 @@
-from pymongo import MongoClient
-from pymongo.database import Database
-from pymongo.collection import Collection
+from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Optional, Dict, Any
 import logging
 from datetime import datetime
@@ -10,65 +8,60 @@ from mentor_ai.app.models import MongoDBDocument, SessionState
 logger = logging.getLogger(__name__)
 
 class MongoDBManager:
-    """MongoDB connection and operations manager"""
+    """MongoDB connection and operations manager (async, motor)"""
     
     def __init__(self):
-        self.client: Optional[MongoClient] = None
-        self.db: Optional[Database] = None
-        self.sessions_collection: Optional[Collection] = None
+        self.client: Optional[AsyncIOMotorClient] = None
+        self.db = None
+        self.sessions_collection = None
         
     async def connect(self):
-        """Connect to MongoDB"""
+        """Connect to MongoDB (async motor)"""
         try:
-            self.client = MongoClient(settings.MONGODB_URI)
-            # Test connection
-            self.client.admin.command('ping')
-            
+            self.client = AsyncIOMotorClient(settings.MONGODB_URI)
             self.db = self.client[settings.MONGODB_DATABASE]
             self.sessions_collection = self.db.sessions
-            
-            logger.info("✅ Successfully connected to MongoDB")
-            
+            # Проверка соединения
+            await self.db.command('ping')
+            logger.info("✅ Successfully connected to MongoDB (motor)")
         except Exception as e:
             logger.error(f"❌ Failed to connect to MongoDB: {e}")
             raise
-    
+
     async def disconnect(self):
-        """Disconnect from MongoDB"""
+        """Disconnect from MongoDB (motor)"""
         if self.client:
             self.client.close()
-            logger.info("Disconnected from MongoDB")
-    
+            logger.info("Disconnected from MongoDB (motor)")
+
     async def create_session(self, session_id: str) -> bool:
-        """Create a new session document"""
+        """Create a new session document (async motor)"""
         try:
             session_doc = MongoDBDocument(
                 session_id=session_id,
                 phase="incomplete"
             )
-            
-            result = self.sessions_collection.insert_one(session_doc.dict())
+            result = await self.sessions_collection.insert_one(session_doc.dict())
             logger.info(f"Created session: {session_id}")
-            return True
-            
+            return result.acknowledged
         except Exception as e:
             logger.error(f"Failed to create session {session_id}: {e}")
             return False
-    
+
     async def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """Get session by ID"""
+        """Get session by ID (async motor)"""
         try:
-            session = self.sessions_collection.find_one({"session_id": session_id})
+            session = await self.sessions_collection.find_one({"session_id": session_id})
             return session
         except Exception as e:
             logger.error(f"Failed to get session {session_id}: {e}")
             return None
-    
+
     async def update_session(self, session_id: str, update_data: Dict[str, Any]) -> bool:
-        """Update session data"""
+        """Update session data (async motor)"""
         try:
             update_data["updated_at"] = datetime.utcnow()
-            result = self.sessions_collection.update_one(
+            result = await self.sessions_collection.update_one(
                 {"session_id": session_id},
                 {"$set": update_data}
             )
@@ -76,9 +69,9 @@ class MongoDBManager:
         except Exception as e:
             logger.error(f"Failed to update session {session_id}: {e}")
             return False
-    
+
     async def save_plan(self, session_id: str, goals: list, topics: list, summary: str) -> bool:
-        """Save generated plan to session"""
+        """Save generated plan to session (async motor)"""
         try:
             update_data = {
                 "goals": goals,
@@ -87,15 +80,12 @@ class MongoDBManager:
                 "phase": "plan_ready",
                 "updated_at": datetime.utcnow()
             }
-            
-            result = self.sessions_collection.update_one(
+            result = await self.sessions_collection.update_one(
                 {"session_id": session_id},
                 {"$set": update_data}
             )
-            
             logger.info(f"Saved plan for session: {session_id}")
             return result.modified_count > 0
-            
         except Exception as e:
             logger.error(f"Failed to save plan for session {session_id}: {e}")
             return False
