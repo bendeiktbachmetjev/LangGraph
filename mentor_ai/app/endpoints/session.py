@@ -4,6 +4,17 @@ from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.models import SessionResponse
 from fastapi import Path
 from fastapi.responses import JSONResponse
+import json
+from bson import ObjectId
+from datetime import datetime
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 router = APIRouter()
 
@@ -52,7 +63,7 @@ async def get_full_state(session_id: str = Path(..., description="Session ID")):
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
-    # Remove or convert _id to avoid JSON serialization error
-    if "_id" in state:
-        state["_id"] = str(state["_id"])
-    return JSONResponse({"session_id": session_id, "state": state}) 
+    return JSONResponse(
+        content={"session_id": session_id, "state": state},
+        dumps=lambda obj, **kwargs: json.dumps(obj, cls=EnhancedJSONEncoder, **kwargs)
+    ) 
