@@ -52,4 +52,7 @@ async def get_full_state(session_id: str = Path(..., description="Session ID")):
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
+    # Remove or convert _id to avoid JSON serialization error
+    if "_id" in state:
+        state["_id"] = str(state["_id"])
     return JSONResponse({"session_id": session_id, "state": state}) 
