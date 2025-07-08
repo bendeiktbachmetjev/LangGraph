@@ -40,3 +40,16 @@ async def get_user_topics(session_id: str = Path(..., description="Session ID"))
         raise HTTPException(status_code=404, detail="Session not found")
     topics = state.get("plan") or state.get("topics")
     return JSONResponse({"session_id": session_id, "topics": topics}) 
+
+@router.get("/state/{session_id}")
+async def get_full_state(session_id: str = Path(..., description="Session ID")):
+    """
+    Get the full internal state for a given session.
+    This endpoint is intended for debugging and integration purposes.
+    Returns the entire state object stored in MongoDB for the session.
+    If the session is not found, returns 404.
+    """
+    state = await mongodb_manager.get_session(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return JSONResponse({"session_id": session_id, "state": state}) 
