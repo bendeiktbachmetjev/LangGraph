@@ -61,10 +61,10 @@ def get_career_goal_node():
         assistant_prompt="What is your main career goal? For example, a desired position, promotion, new field, or something else.",
         outputs={
             "reply": str,
-            "state.career_goal": str,
+            "state.goals": str,
             "next": str
         },
-        next_node=lambda state: "career_obstacles" if state.get("career_goal") else "career_goal"
+        next_node=lambda state: "career_obstacles" if state.get("goals") else "career_goal"
     )
 
 def get_career_obstacles_node():
@@ -120,14 +120,14 @@ def get_relationships_people_node():
 def get_relationships_issues_node():
     return Node(
         node_id="relationships_issues",
-        system_prompt="You are helping the user identify the main issues or challenges in their relationships. If the answer is unclear or missing, politely ask again.",
-        assistant_prompt="What are the main issues or challenges you are facing in these relationships? For example, lack of communication, trust, time, or something else?",
+        system_prompt="Help the user formulate a goal to improve their relationships, based on the described issue. The output should be a clear, actionable goal, not just a description of the problem.",
+        assistant_prompt="What goal would you like to set to improve this situation? For example: 'Improve communication with my partner', 'Build more trust in my family', etc.",
         outputs={
             "reply": str,
-            "state.relation_issues": str,
+            "state.goals": str,  # This is now a goal to resolve the issue, not the issue itself
             "next": str
         },
-        next_node=lambda state: "relationships_to_plan" if state.get("relation_issues") else "relationships_issues"
+        next_node=lambda state: "relationships_to_plan" if state.get("goals") else "relationships_issues"
     )
 
 def get_relationships_to_plan_node():
@@ -161,10 +161,10 @@ def get_self_growth_goal_node():
         assistant_prompt="What is your main self-improvement goal? For example, building confidence, developing new skills, improving habits, or something else?",
         outputs={
             "reply": str,
-            "state.self_growth_goal": str,
+            "state.goals": str,
             "next": str
         },
-        next_node=lambda state: "self_growth_obstacles" if state.get("self_growth_goal") else "self_growth_goal"
+        next_node=lambda state: "self_growth_obstacles" if state.get("goals") else "self_growth_goal"
     )
 
 def get_self_growth_obstacles_node():
