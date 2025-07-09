@@ -12,9 +12,9 @@ class CollectBasicInfoResponse(LLMResponse):
         default=None, 
         description="Extracted user name or null if not provided"
     )
-    user_age: Optional[Union[int, None]] = Field(
+    user_age: Optional[Union[int, str, None]] = Field(
         default=None, 
-        description="Extracted user age (number) or null if not provided"
+        description="Extracted user age (number), 'unknown' if refused, or null if not provided"
     )
     
     class Config:

@@ -40,7 +40,7 @@ Please respond in JSON format with EXACTLY this structure:
 {{
   "reply": "Your response to the user",
   "user_name": "extracted name or null if not provided",
-  "user_age": "extracted age (number) or null if not provided",
+  "user_age": "extracted age (number) or 'unknown' if refused, or null if not provided",
   "next": "next node to go to"
 }}
 
@@ -49,10 +49,11 @@ CRITICAL RULES:
 2. If user_name is missing in state and user_age is missing in state, your reply MUST politely ask for BOTH name and age, and set next to "collect_basic_info"
 3. If user_name is missing in state, but user_age is present, your reply MUST politely ask ONLY for name, and set next to "collect_basic_info"
 4. If user_age is missing in state, but user_name is present, your reply MUST politely ask ONLY for age, and set next to "collect_basic_info"
-5. If both are provided (или unavailable), your reply MUST include a greeting AND IMMEDIATELY ask: 'Do you currently have a main personal goal? If yes, what kind of goal is it? Is it about career, self-growth, relationships, or do you feel you have no goal right now?' and set next to "classify_category"
+5. If both are provided (или unavailable/unknown), your reply MUST include a greeting AND IMMEDIATELY ask: 'Do you currently have a main personal goal? If yes, what kind of goal is it? Is it about career, self-growth, relationships, or do you feel you have no goal right now?' and set next to "classify_category"
 6. DO NOT ask about occupation, work, location, or anything else
 7. ONLY ask for name and age (или цель, если оба поля уже есть)
-8. If user refuses to provide info, set value to "unavailable" and proceed to next node
+8. If user refuses to provide name, set user_name to "unavailable" and stay on this node.
+9. If user refuses to provide age, set user_age to "unknown" (string, not null) and proceed to next node.
 """
     elif node.node_id == "classify_category":
         json_instructions = """
