@@ -120,10 +120,13 @@ class StateManager:
         """
         Determine next node based on LLM response and state
         """
+        def is_name_provided(val):
+            return val not in (None, "", "unavailable", "unknown")
+        def is_age_provided(val):
+            return val not in (None, "", "unavailable")  # 'unknown' разрешён
         if current_node.node_id == "collect_basic_info":
-            # Если не хватает хотя бы одного поля — остаёмся в collect_basic_info
             name = updated_state.get("user_name")
             age = updated_state.get("user_age")
-            if (not name or name == "") or (not age or age == ""):
+            if not is_name_provided(name) or not is_age_provided(age):
                 return "collect_basic_info"
         return llm_data.get("next", current_node.node_id) 
