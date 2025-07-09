@@ -11,8 +11,9 @@ def test_generate_llm_prompt_collect_basic_info():
     # Check basic structure
     assert "System:" in prompt
     assert node.system_prompt in prompt
-    assert "Assistant:" in prompt
-    assert node.assistant_prompt in prompt
+    # Assistant Prompt больше не проверяем
+    # assert "Assistant:" in prompt
+    # assert node.assistant_prompt in prompt
     assert "User:" in prompt
     assert user_message in prompt
     assert "Current state:" in prompt

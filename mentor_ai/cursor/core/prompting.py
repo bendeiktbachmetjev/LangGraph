@@ -8,7 +8,7 @@ def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) ->
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
     # Assistant prompt (what the bot says to the user)
-    assistant = f"Assistant: {node.assistant_prompt}"
+    # assistant = f"Assistant: {node.assistant_prompt}"  # Удалено
     # User message (what the user replied)
     user = f"User: {user_message}"
     # Optionally, include state for LLM context (except sensitive fields)
@@ -299,5 +299,5 @@ CRITICAL RULES:
         json_instructions = ""
     
     # Compose full prompt
-    prompt = "\n".join([system, assistant, user, state_str, json_instructions])
+    prompt = "\n".join([system, user, state_str, json_instructions])
     return prompt 
