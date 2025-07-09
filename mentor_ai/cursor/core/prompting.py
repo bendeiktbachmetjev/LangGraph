@@ -189,14 +189,14 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   \"reply\": \"Your response to the user\",
-  \"relation_issues\": \"extracted issues as a string or null if not provided\",
+  \"goals\": ["goal 1", "goal 2", ...],
   \"next\": \"relationships_issues | relationships_to_plan\"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main relationship issues or challenges.
-2. If relation_issues is missing or unclear, politely ask again and set next to \"relationships_issues\".
-3. If relation_issues is provided, acknowledge and set next to \"relationships_to_plan\".
-4. Do NOT ask about people, goals, or anything else at this step.
+1. ONLY extract the user's main relationship goal(s) as a list of clear, actionable goals (not just a description of the problem).
+2. If goals is missing or unclear, politely ask again and set next to \"relationships_issues\".
+3. If goals is provided, acknowledge and set next to \"relationships_to_plan\".
+4. Do NOT ask about people, issues, or anything else at this step.
 """
     elif node.node_id == "relationships_to_plan":
         json_instructions = """

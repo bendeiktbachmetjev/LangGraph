@@ -84,10 +84,10 @@ class StateManager:
             elif llm_data.get("relation_people") == "unavailable":
                 updated_state["relation_people"] = "unavailable"
         elif node.node_id == "relationships_issues":
-            if llm_data.get("relation_issues") and llm_data["relation_issues"] != "unavailable":
-                updated_state["relation_issues"] = llm_data["relation_issues"]
-            elif llm_data.get("relation_issues") == "unavailable":
-                updated_state["relation_issues"] = "unavailable"
+            if llm_data.get("goals") and llm_data["goals"] != "unavailable":
+                updated_state["goals"] = llm_data["goals"]
+            elif llm_data.get("goals") == "unavailable":
+                updated_state["goals"] = []
         elif node.node_id == "relationships_to_plan":
             pass
         elif node.node_id == "self_growth_goal":
