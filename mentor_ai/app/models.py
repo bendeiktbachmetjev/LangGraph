@@ -57,6 +57,7 @@ class SessionState(BaseModel):
     phase: Literal["incomplete", "plan_ready"] = "incomplete"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    history: List[dict] = Field(default_factory=list, description="Chat history: list of {'role': 'user'|'assistant', 'content': str}")
 
 class MongoDBDocument(BaseModel):
     """MongoDB document model"""
@@ -66,4 +67,5 @@ class MongoDBDocument(BaseModel):
     summary: Optional[str] = None
     phase: Literal["incomplete", "plan_ready"] = "incomplete"
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow) 
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    history: List[dict] = Field(default_factory=list, description="Chat history: list of {'role': 'user'|'assistant', 'content': str}") 

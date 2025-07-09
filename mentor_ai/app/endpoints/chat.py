@@ -30,6 +30,10 @@ async def chat_with_session(
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     
+    # Ensure history exists
+    if "history" not in state or not isinstance(state["history"], list):
+        state["history"] = []
+    
     # Determine current node (default: collect_basic_info)
     node_id = state.get("current_node", "collect_basic_info")
     user_message = request.message
@@ -37,6 +41,10 @@ async def chat_with_session(
     updated_state = state
     next_node = node_id
     first_iteration = True
+
+    # Добавляем сообщение пользователя в историю (только для первого шага)
+    if user_message:
+        updated_state["history"].append({"role": "user", "content": user_message})
 
     while True:
         try:
@@ -48,27 +56,22 @@ async def chat_with_session(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
         
+        # После получения ответа от LLM добавляем его в историю (только если есть reply)
+        if reply:
+            updated_state["history"].append({"role": "assistant", "content": reply})
+
         # Update state in DB after each node
         updated_state["current_node"] = next_node
         await mongodb_manager.update_session(session_id, updated_state)
 
         # Определяем, нужен ли пользовательский ввод для следующего узла
-        # Если это первый шаг — всегда возвращаем reply
-        # Если следующий узел требует пользовательского ввода — выходим из цикла
-        # Для простоты: если reply не пустой и не автогенерированный — возвращаем
-        # (Можно доработать: добавить флаг в Node, что требуется user input)
         if first_iteration:
             first_iteration = False
         else:
-            # Если reply не пустой — значит, LLM ждёт ответа пользователя
             if reply:
                 break
-        # Если reply пустой — значит, можно переходить дальше автоматически
-        # (или если реализован специальный флаг в Node — использовать его)
-        # Здесь можно добавить более строгую проверку по типу узла
-        user_message = ""  # После первого шага user_message больше не нужен
+        user_message = ""
         node_id = next_node
-        # Safety: ограничение на количество автоматических переходов (чтобы не зациклиться)
         if node_id == "exit_to_plan":
             break
     

@@ -39,7 +39,8 @@ class MongoDBManager:
         try:
             session_doc = MongoDBDocument(
                 session_id=session_id,
-                phase="incomplete"
+                phase="incomplete",
+                history=[]  # Инициализация истории чата
             )
             result = await self.sessions_collection.insert_one(session_doc.dict())
             logger.info(f"Created session: {session_id}")

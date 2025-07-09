@@ -4,16 +4,30 @@ from .root_graph import Node
 def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) -> str:
     """
     Generate a prompt for LLM based on the current node, state, and user message.
+    Now uses full chat history for context.
     """
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
-    # Assistant prompt (what the bot says to the user)
-    # assistant = f"Assistant: {node.assistant_prompt}"  # Удалено
-    # User message (what the user replied)
-    user = f"User: {user_message}"
+    
+    # Собираем историю сообщений
+    history_lines = []
+    history = state.get("history", [])
+    for msg in history:
+        if not isinstance(msg, dict):
+            continue
+        role = msg.get("role")
+        content = msg.get("content")
+        if not content:
+            continue
+        if role == "user":
+            history_lines.append(f"User: {content}")
+        elif role == "assistant":
+            history_lines.append(f"Assistant: {content}")
+    
     # Optionally, include state for LLM context (except sensitive fields)
     state_str = f"Current state: {state}" if state else ""
     
+    # JSON instructions (как раньше)
     if node.node_id == "collect_basic_info":
         json_instructions = f"""
 IMPORTANT: You are in the collect_basic_info node. Your ONLY task is to extract user_name and user_age.
@@ -299,5 +313,5 @@ CRITICAL RULES:
         json_instructions = ""
     
     # Compose full prompt
-    prompt = "\n".join([system, user, state_str, json_instructions])
+    prompt = "\n".join([system] + history_lines + ([state_str] if state_str else []) + [json_instructions])
     return prompt 
