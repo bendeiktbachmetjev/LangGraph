@@ -68,10 +68,10 @@ class StateManager:
             elif llm_data.get("career_goal") == "unavailable":
                 updated_state["career_goal"] = "unavailable"
         elif node.node_id == "career_obstacles":
-            if llm_data.get("career_obstacles") and llm_data["career_obstacles"] != "unavailable":
-                updated_state["career_obstacles"] = llm_data["career_obstacles"]
-            elif llm_data.get("career_obstacles") == "unavailable":
-                updated_state["career_obstacles"] = "unavailable"
+            if llm_data.get("goals") and llm_data["goals"] != "unavailable":
+                updated_state["goals"] = llm_data["goals"]
+            elif llm_data.get("goals") == "unavailable":
+                updated_state["goals"] = []
         elif node.node_id == "career_to_plan":
             pass
         elif node.node_id == "generate_plan":
@@ -96,10 +96,10 @@ class StateManager:
             elif llm_data.get("self_growth_goal") == "unavailable":
                 updated_state["self_growth_goal"] = "unavailable"
         elif node.node_id == "self_growth_obstacles":
-            if llm_data.get("self_growth_obstacles") and llm_data["self_growth_obstacles"] != "unavailable":
-                updated_state["self_growth_obstacles"] = llm_data["self_growth_obstacles"]
-            elif llm_data.get("self_growth_obstacles") == "unavailable":
-                updated_state["self_growth_obstacles"] = "unavailable"
+            if llm_data.get("goals") and llm_data["goals"] != "unavailable":
+                updated_state["goals"] = llm_data["goals"]
+            elif llm_data.get("goals") == "unavailable":
+                updated_state["goals"] = []
         elif node.node_id == "self_growth_to_plan":
             pass
         elif node.node_id == "no_goal_reason":

@@ -70,14 +70,14 @@ def get_career_goal_node():
 def get_career_obstacles_node():
     return Node(
         node_id="career_obstacles",
-        system_prompt="You are helping the user identify the main obstacles or challenges preventing them from achieving their career goal. If the answer is unclear or missing, politely ask again.",
-        assistant_prompt="What are the main obstacles or challenges that might prevent you from reaching your career goal? For example, lack of experience, skills, confidence, or something else.",
+        system_prompt="You are helping the user turn their main career obstacles into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
+        assistant_prompt="Based on the main obstacles in your career, what positive goals can you set to overcome them? Please list 2–3 concrete goals.",
         outputs={
             "reply": str,
-            "state.career_obstacles": str,
+            "goals": list,
             "next": str
         },
-        next_node=lambda state: "career_to_plan" if state.get("career_obstacles") else "career_obstacles"
+        next_node=lambda state: "career_to_plan" if state.get("goals") else "career_obstacles"
     )
 
 def get_career_to_plan_node():
@@ -120,11 +120,11 @@ def get_relationships_people_node():
 def get_relationships_issues_node():
     return Node(
         node_id="relationships_issues",
-        system_prompt="Help the user formulate a goal to improve their relationships, based on the described issue. The output should be a clear, actionable goal, not just a description of the problem.",
-        assistant_prompt="What goal would you like to set to improve this situation? For example: 'Improve communication with my partner', 'Build more trust in my family', etc.",
+        system_prompt="You are helping the user turn their main relationship issues into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
+        assistant_prompt="Based on your main relationship issues, what positive goals can you set to improve these relationships? Please list 2–3 concrete goals.",
         outputs={
             "reply": str,
-            "state.goals": str,  # This is now a goal to resolve the issue, not the issue itself
+            "goals": list,
             "next": str
         },
         next_node=lambda state: "relationships_to_plan" if state.get("goals") else "relationships_issues"
@@ -170,14 +170,14 @@ def get_self_growth_goal_node():
 def get_self_growth_obstacles_node():
     return Node(
         node_id="self_growth_obstacles",
-        system_prompt="You are helping the user identify the main obstacles or challenges preventing them from achieving their self-improvement goal. If the answer is unclear or missing, politely ask again.",
-        assistant_prompt="What are the main obstacles or challenges that might prevent you from reaching your self-improvement goal? For example, lack of time, motivation, support, or something else?",
+        system_prompt="You are helping the user turn their main self-growth obstacles into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
+        assistant_prompt="Based on your main self-growth challenges, what positive goals can you set to overcome them? Please list 2–3 concrete goals.",
         outputs={
             "reply": str,
-            "state.self_growth_obstacles": str,
+            "goals": list,
             "next": str
         },
-        next_node=lambda state: "self_growth_to_plan" if state.get("self_growth_obstacles") else "self_growth_obstacles"
+        next_node=lambda state: "self_growth_to_plan" if state.get("goals") else "self_growth_obstacles"
     )
 
 def get_self_growth_to_plan_node():

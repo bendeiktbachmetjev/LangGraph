@@ -98,14 +98,14 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Your response to the user",
-  "career_obstacles": "extracted obstacles as a string or null if not provided",
+  "goals": ["Goal 1", "Goal 2", ...],
   "next": "career_obstacles | career_to_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main career obstacles or challenges.
-2. If career_obstacles is missing or unclear, politely ask again and set next to "career_obstacles".
-3. If career_obstacles is provided, acknowledge and set next to "career_to_plan".
-4. Do NOT ask about goals, skills, or anything else at this step.
+1. ONLY extract the user's main career obstacles and turn them into 2–3 positive, actionable goals (not just a description of the problem).
+2. If goals is missing or unclear, politely ask again and set next to "career_obstacles".
+3. If goals is provided, acknowledge and set next to "career_to_plan".
+4. Do NOT ask about obstacles, skills, or anything else at this step.
 """
     elif node.node_id == "career_to_plan":
         json_instructions = """
@@ -203,15 +203,15 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  \"reply\": \"Your response to the user\",
-  \"goals\": ["goal 1", "goal 2", ...],
-  \"next\": \"relationships_issues | relationships_to_plan\"
+  "reply": "Your response to the user",
+  "goals": ["Goal 1", "Goal 2", ...],
+  "next": "relationships_issues | relationships_to_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main relationship goal(s) as a list of clear, actionable goals (not just a description of the problem).
-2. If goals is missing or unclear, politely ask again and set next to \"relationships_issues\".
-3. If goals is provided, acknowledge and set next to \"relationships_to_plan\".
-4. Do NOT ask about people, issues, or anything else at this step.
+1. ONLY extract the user's main relationship issues and turn them into 2–3 positive, actionable goals (not just a description of the problem).
+2. If goals is missing or unclear, politely ask again and set next to "relationships_issues".
+3. If goals is provided, acknowledge and set next to "relationships_to_plan".
+4. Do NOT ask about issues, people, or anything else at this step.
 """
     elif node.node_id == "relationships_to_plan":
         json_instructions = """
@@ -254,14 +254,14 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Your response to the user",
-  "self_growth_obstacles": "extracted obstacles as a string or null if not provided",
+  "goals": ["Goal 1", "Goal 2", ...],
   "next": "self_growth_obstacles | self_growth_to_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main self-improvement obstacles or challenges.
-2. If self_growth_obstacles is missing or unclear, politely ask again and set next to "self_growth_obstacles".
-3. If self_growth_obstacles is provided, acknowledge and set next to "self_growth_to_plan".
-4. Do NOT ask about goals, skills, or anything else at this step.
+1. ONLY extract the user's main self-growth obstacles and turn them into 2–3 positive, actionable goals (not just a description of the problem).
+2. If goals is missing or unclear, politely ask again and set next to "self_growth_obstacles".
+3. If goals is provided, acknowledge and set next to "self_growth_to_plan".
+4. Do NOT ask about obstacles, skills, or anything else at this step.
 """
     elif node.node_id == "self_growth_to_plan":
         json_instructions = """
