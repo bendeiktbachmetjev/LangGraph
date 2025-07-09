@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Path, Depends, Request
 from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.models import ChatRequest, ChatResponse
-from mentor_ai.development.core import GraphProcessor
+from mentor_ai.cursor.core import GraphProcessor
 import firebase_admin
 from firebase_admin import auth
 
