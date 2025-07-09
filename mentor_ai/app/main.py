@@ -5,6 +5,8 @@ import logging
 from dotenv import load_dotenv
 from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.endpoints import session_router, chat_router
+import firebase_admin
+from firebase_admin import credentials
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -12,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+# Initialize Firebase Admin SDK
+cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "MentorAIFirebase.json")
+if not firebase_admin._apps:
+    cred = credentials.Certificate(cred_path)
+    firebase_admin.initialize_app(cred)
 
 # Create FastAPI app
 app = FastAPI(

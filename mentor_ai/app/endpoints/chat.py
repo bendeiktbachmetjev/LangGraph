@@ -1,14 +1,28 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Depends, Request
 from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.models import ChatRequest, ChatResponse
-from mentor_ai.cursor.core import GraphProcessor
+from mentor_ai.development.core import GraphProcessor
+import firebase_admin
+from firebase_admin import auth
 
 router = APIRouter()
+
+async def get_current_user(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing auth token")
+    id_token = auth_header.split(" ")[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        return decoded_token  # Можно вернуть uid, email и т.д.
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid auth token")
 
 @router.post("/chat/{session_id}", response_model=ChatResponse)
 async def chat_with_session(
     session_id: str = Path(..., description="Session ID"),
-    request: ChatRequest = ...
+    request: ChatRequest = ..., 
+    user=Depends(get_current_user)
 ):
     """Process user message for a given session_id with automatic node transitions"""
     # Get current state from MongoDB
