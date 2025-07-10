@@ -41,6 +41,7 @@ class StatusResponse(BaseModel):
 class SessionState(BaseModel):
     """Internal session state model"""
     session_id: str
+    user_uid: Optional[str] = None  # User UID from Firebase
     user_name: Optional[str] = None
     user_age: Optional[int] = None
     goal_type: Optional[Literal["career", "self_growth", "relationships", "no_goal"]] = None
@@ -62,6 +63,7 @@ class SessionState(BaseModel):
 class MongoDBDocument(BaseModel):
     """MongoDB document model"""
     session_id: str
+    user_uid: Optional[str] = None  # User UID from Firebase
     goals: List[str] = Field(default_factory=list)
     topics: List[str] = Field(default_factory=list)
     summary: Optional[str] = None
