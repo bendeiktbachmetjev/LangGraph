@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Request
 from uuid import uuid4
 from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.models import SessionResponse
@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 import json
 from bson import ObjectId
 from datetime import datetime
+import firebase_admin
+from firebase_admin import auth
 
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -31,10 +33,20 @@ def to_serializable(obj):
 router = APIRouter()
 
 @router.post("/session", response_model=SessionResponse)
-async def create_session():
+async def create_session(request: Request):
     """Create a new onboarding session and return session_id"""
+    # Получаем токен пользователя
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing auth token")
+    id_token = auth_header.split(" ")[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        user_uid = decoded_token.get("uid")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid auth token")
     session_id = str(uuid4())
-    success = await mongodb_manager.create_session(session_id)
+    success = await mongodb_manager.create_session(session_id, user_uid=user_uid)
     if not success:
         raise HTTPException(status_code=500, detail="Failed to create session")
     return SessionResponse(session_id=session_id, message="Session created successfully")
