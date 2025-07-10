@@ -29,6 +29,8 @@ async def chat_with_session(
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
+    if state.get("user_uid") != user.get("uid"):
+        raise HTTPException(status_code=403, detail="Forbidden: session does not belong to user")
     
     # Ensure history exists
     if "history" not in state or not isinstance(state["history"], list):

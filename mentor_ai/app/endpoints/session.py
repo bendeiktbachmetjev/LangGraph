@@ -30,6 +30,17 @@ def to_serializable(obj):
     else:
         return obj
 
+def get_user_uid_from_request(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing auth token")
+    id_token = auth_header.split(" ")[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        return decoded_token.get("uid")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid auth token")
+
 router = APIRouter()
 
 @router.post("/session", response_model=SessionResponse)
@@ -52,11 +63,13 @@ async def create_session(request: Request):
     return SessionResponse(session_id=session_id, message="Session created successfully")
 
 @router.get("/goal/{session_id}")
-async def get_user_goal(session_id: str = Path(..., description="Session ID")):
-    """Get the user's main goal for the session (career_goal, self_growth_area, relation_issues, no_goal_reason)"""
+async def get_user_goal(session_id: str = Path(..., description="Session ID"), request: Request = None):
+    user_uid = get_user_uid_from_request(request)
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
+    if state.get("user_uid") != user_uid:
+        raise HTTPException(status_code=403, detail="Forbidden: session does not belong to user")
     # Определяем цель в зависимости от ветки
     goal = state.get("career_goal") or state.get("self_growth_goal") or state.get("relation_issues") or state.get("no_goal_reason")
     
@@ -68,23 +81,28 @@ async def get_user_goal(session_id: str = Path(..., description="Session ID")):
     return JSONResponse({"session_id": session_id, "goal": goal})
 
 @router.get("/topics/{session_id}")
-async def get_user_topics(session_id: str = Path(..., description="Session ID")):
-    """Get the user's 12-week plan topics for the session"""
+async def get_user_topics(session_id: str = Path(..., description="Session ID"), request: Request = None):
+    user_uid = get_user_uid_from_request(request)
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
+    if state.get("user_uid") != user_uid:
+        raise HTTPException(status_code=403, detail="Forbidden: session does not belong to user")
     topics = state.get("plan") or state.get("topics")
     return JSONResponse({"session_id": session_id, "topics": topics}) 
 
 @router.get("/state/{session_id}")
-async def get_full_state(session_id: str = Path(..., description="Session ID")):
+async def get_full_state(session_id: str = Path(..., description="Session ID"), request: Request = None):
+    user_uid = get_user_uid_from_request(request)
+    state = await mongodb_manager.get_session(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if state.get("user_uid") != user_uid:
+        raise HTTPException(status_code=403, detail="Forbidden: session does not belong to user")
     """
     Get the full internal state for a given session.
     This endpoint is intended for debugging and integration purposes.
     Returns the entire state object stored in MongoDB for the session.
     If the session is not found, returns 404.
     """
-    state = await mongodb_manager.get_session(session_id)
-    if not state:
-        raise HTTPException(status_code=404, detail="Session not found")
     return JSONResponse({"session_id": session_id, "state": to_serializable(state)}) 
