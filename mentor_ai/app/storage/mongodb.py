@@ -34,17 +34,16 @@ class MongoDBManager:
             self.client.close()
             logger.info("Disconnected from MongoDB (motor)")
 
-    async def create_session(self, session_id: str, user_uid: Optional[str] = None) -> bool:
+    async def create_session(self, session_id: str) -> bool:
         """Create a new session document (async motor)"""
         try:
             session_doc = MongoDBDocument(
                 session_id=session_id,
-                user_uid=user_uid,
                 phase="incomplete",
                 history=[]  # Инициализация истории чата
             )
             result = await self.sessions_collection.insert_one(session_doc.dict())
-            logger.info(f"Created session: {session_id} for user: {user_uid}")
+            logger.info(f"Created session: {session_id}")
             return result.acknowledged
         except Exception as e:
             logger.error(f"Failed to create session {session_id}: {e}")
