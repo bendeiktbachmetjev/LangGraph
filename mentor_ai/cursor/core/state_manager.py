@@ -79,7 +79,7 @@ class StateManager:
                 logger.error(f"Invalid plan structure in generate_plan: {plan}")
             if llm_data.get("onboarding_chat_summary"):
                 updated_state["onboarding_chat_summary"] = llm_data["onboarding_chat_summary"]
-            updated_state["phase"] = "plan_ready"
+            # phase больше не обновляем здесь
         elif node.node_id == "week1_chat":
             if llm_data.get("week1_history"):
                 updated_state["week1_history"] = llm_data["week1_history"]
