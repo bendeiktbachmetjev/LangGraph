@@ -147,8 +147,34 @@ CRITICAL RULES:
 4. next must always be "week1_chat".
 """
     elif node.node_id == "week1_chat":
-        json_instructions = f"""
-IMPORTANT: You are in the week1_chat node. Your task is to mentor the user for Week 1.\n\nContext:\n- Onboarding summary: {state.get('onboarding_chat_summary', '')}\n- Week 1 topic: {state.get('plan', {}).get('week_1_topic', '')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user, focused on Week 1 topic and onboarding summary, encouraging discussion and reflection.\",\n  \"week1_history\": [ ... updated chat history ... ],\n  \"next\": \"week1_chat\"\n}}\n\nCRITICAL RULES:\n1. Use onboarding_chat_summary and week_1_topic to personalize your response.\n2. Encourage the user to discuss and reflect on the topic.\n3. Save all messages in week1_history.\n4. Stay in this node for ongoing chat.\n5. Do NOT ask about previous onboarding steps.\n"""
+        week1_history = state.get("week1_history", [])
+        json_instructions = f'''
+IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, focused on Week 1 topic and onboarding summary. No line breaks.",
+  "week1_history": {week1_history if week1_history else []},
+  "next": "week1_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Let's start Week 1! This week we will focus on persuasion.",
+  "week1_history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 1."}}
+  ],
+  "next": "week1_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short and without line breaks.
+3. All fields must be present and non-empty.
+4. All strings must not contain unescaped quotes or special characters.
+5. next must always be "week1_chat".
+'''
     elif node.node_id == "relationships_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
