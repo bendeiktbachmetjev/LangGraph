@@ -72,12 +72,13 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Motivate the user and immediately ask about the main goal in their career. If goal is clear, IMMEDIATELY ask about obstacle of achieving the goal.",
+  "reply": "Motivate the user and ask ONLY about their main career goal. Do NOT ask about obstacles or challenges yet.",
   "next": "career_obstacles"
 }
 CRITICAL RULES:
-1. Your reply MUST end with a clear question, like 'What are the main obstacles or challenges you face in your career right now?'.
-2. Set next to 'career_obstacles'.
+1. Your reply MUST end with a clear question: 'What is your main career goal right now?'.
+2. Do NOT ask about obstacles, challenges, or anything else at this step.
+3. Set next to 'career_obstacles'.
 """
     elif node.node_id == "career_obstacles":
         json_instructions = """
