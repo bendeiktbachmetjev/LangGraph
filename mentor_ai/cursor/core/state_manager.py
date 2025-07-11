@@ -77,7 +77,12 @@ class StateManager:
         elif node.node_id == "generate_plan":
             if llm_data.get("plan"):
                 updated_state["plan"] = llm_data["plan"]
+            if llm_data.get("onboarding_chat_summary"):
+                updated_state["onboarding_chat_summary"] = llm_data["onboarding_chat_summary"]
             updated_state["phase"] = "plan_ready"
+        elif node.node_id == "week1_chat":
+            if llm_data.get("week1_history"):
+                updated_state["week1_history"] = llm_data["week1_history"]
         elif node.node_id == "relationships_people":
             if llm_data.get("relation_people") and llm_data["relation_people"] != "unavailable":
                 updated_state["relation_people"] = llm_data["relation_people"]

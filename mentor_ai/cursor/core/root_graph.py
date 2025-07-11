@@ -232,11 +232,12 @@ def get_no_goal_to_plan_node():
 def get_generate_plan_node():
     return Node(
         node_id="generate_plan",
-        system_prompt="You are an expert coach. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context.",
-        assistant_prompt="Based on your answers, I will now generate a 12-week personalized plan. Each week will focus on a specific topic or technique to help you reach your goal.",
+        system_prompt="You are an expert coach. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context. Also, provide a concise summary of the onboarding chat (3-5 sentences) as onboarding_chat_summary.",
+        assistant_prompt="Based on your answers, I will now generate a 12-week personalized plan. Each week will focus on a specific topic or technique to help you reach your goal. Also, please provide a summary of our onboarding chat.",
         outputs={
             "reply": str,
             "plan": dict,  # {"week_1_topic": str, ..., "week_12_topic": str}
+            "onboarding_chat_summary": str,
             "next": "plan_ready"
         },
         next_node=lambda state: "plan_ready"
@@ -245,12 +246,26 @@ def get_generate_plan_node():
 def get_plan_ready_node():
     return Node(
         node_id="plan_ready",
-        system_prompt="You are finishing the session. Congratulate the user, summarize that the plan is ready, wish them success, and clearly instruct the user to close this chat and go to the My Coach section.",
-        assistant_prompt="Your personalized 12-week plan is ready! Wishing you success on your journey. Please close this chat and go to the My Coach section to continue working with your plan. If you need support or want to review your plan, you can always return to My Coach.",
+        system_prompt="You are finishing the session. Congratulate the user, summarize that the plan is ready, wish them success, and clearly instruct the user to close this chat and go to the My Coach section. Then, automatically start the Week 1 chat.",
+        assistant_prompt="Your personalized 12-week plan is ready! Wishing you success on your journey. Please close this chat and go to the My Coach section to continue working with your plan. If you need support or want to review your plan, you can always return to My Coach. Now, let's start your Week 1 chat!",
         outputs={
-            "reply": str
+            "reply": str,
+            "next": "week1_chat"
         },
-        next_node=None
+        next_node=lambda state: "week1_chat"
+    )
+
+def get_week1_chat_node():
+    return Node(
+        node_id="week1_chat",
+        system_prompt="You are the user's mentor for Week 1. Use the onboarding_chat_summary and the topic for week 1 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week1_history.",
+        assistant_prompt="Let's begin Week 1! This week's topic is: {week1_topic}. Based on your onboarding summary: {onboarding_chat_summary}. Let's discuss your thoughts and plans for this week.",
+        outputs={
+            "reply": str,
+            "week1_history": list,
+            "next": "week1_chat"  # Stay in this node for ongoing chat
+        },
+        next_node=lambda state: "week1_chat"
     )
 
 # Graph definition (for now, only the first node)
@@ -274,5 +289,6 @@ root_graph = {
     "no_goal_to_plan": get_no_goal_to_plan_node(),
     "generate_plan": get_generate_plan_node(),
     "plan_ready": get_plan_ready_node(),
+    "week1_chat": get_week1_chat_node(),
     # Other nodes will be added here later
 } 

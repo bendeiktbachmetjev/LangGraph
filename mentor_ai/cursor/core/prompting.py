@@ -120,51 +120,10 @@ CRITICAL RULES:
 """
     elif node.node_id == "generate_plan":
         json_instructions = f"""
-IMPORTANT: You are in the generate_plan node. Your task is to create a 12-week personalized plan for the user based on their state (goal, obstacles, etc.).
-
-Current state context:
-- Goal type: {state.get('goal_type', 'unknown')}
-- Career goal: {state.get('career_goal', 'not specified')}
-- Career obstacles: {state.get('career_obstacles', 'not specified')}
-- Relationship people: {state.get('relation_people', 'not specified')}
-- Relationship issues: {state.get('relation_issues', 'not specified')}
-- Self-growth goal: {state.get('self_growth_goal', 'not specified')}
-- Self-growth obstacles: {state.get('self_growth_obstacles', 'not specified')}
-- No goal reason: {state.get('no_goal_reason', 'not specified')}
-
-Please respond in JSON format with EXACTLY this structure:
-{{
-  "reply": "Your response to the user (short intro, e.g. 'Here is your 12-week plan!')",
-  "plan": {{
-    "week_1_topic": "Build confidence through daily practice",
-    "week_2_topic": "Overcome fear of judgment gradually",
-    "week_3_topic": "Develop self-awareness and reflection skills",
-    "week_4_topic": "Build resilience against challenges",
-    "week_5_topic": "Maintain positive mindset daily",
-    "week_6_topic": "Set clear personal growth goals",
-    "week_7_topic": "Practice self-encouragement techniques",
-    "week_8_topic": "Develop strong self-discipline habits",
-    "week_9_topic": "Learn assertive communication skills",
-    "week_10_topic": "Accept and appreciate yourself fully",
-    "week_11_topic": "Build healthy self-esteem foundation",
-    "week_12_topic": "Reflect on progress and plan future"
-  }},
-  "next": "plan_ready"
-}}
-
-CRITICAL RULES:
-1. Use the user's state (goal, obstacles, etc.) to personalize the topics based on their goal_type.
-2. For career goals: focus on professional development, networking, skill-building, etc.
-3. For relationship goals: focus on communication, trust-building, conflict resolution, etc.
-4. For self-growth goals: focus on personal development, confidence, habits, mindset, etc.
-5. For no-goal: focus on exploration, self-discovery, finding purpose, etc.
-6. Each week must have a unique, relevant topic or technique.
-7. Topics must be actionable and practical for the user's context.
-8. Each topic should be EXACTLY 7 words maximum - keep it concise and clear. Count words carefully!
-9. Goals should be summarized in 4 words maximum for display purposes.
-10. Do NOT ask any questions. Only generate the plan.
-11. Set next to "plan_ready".
-"""
+IMPORTANT: You are in the generate_plan node. Your task is to create a 12-week personalized plan for the user based on their state (goal, obstacles, etc.).\n\nAdditionally, provide a concise summary of the entire onboarding chat (3-5 sentences) as onboarding_chat_summary.\n\nCurrent state context:\n- Goal type: {state.get('goal_type', 'unknown')}\n- Career goal: {state.get('career_goal', 'not specified')}\n- Career obstacles: {state.get('career_obstacles', 'not specified')}\n- Relationship people: {state.get('relation_people', 'not specified')}\n- Relationship issues: {state.get('relation_issues', 'not specified')}\n- Self-growth goal: {state.get('self_growth_goal', 'not specified')}\n- Self-growth obstacles: {state.get('self_growth_obstacles', 'not specified')}\n- No goal reason: {state.get('no_goal_reason', 'not specified')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user (short intro, e.g. 'Here is your 12-week plan!')\",\n  \"plan\": {{\n    \"week_1_topic\": \"...\",\n    ...\n    \"week_12_topic\": \"...\"\n  }},\n  \"onboarding_chat_summary\": \"Summary of the onboarding chat in 3-5 sentences\",\n  \"next\": \"plan_ready\"\n}}\n\nCRITICAL RULES:\n1. Use the user's state (goal, obstacles, etc.) to personalize the topics based on their goal_type.\n2. For career goals: focus on professional development, networking, skill-building, etc.\n3. For relationship goals: focus on communication, trust-building, conflict resolution, etc.\n4. For self-growth goals: focus on personal development, confidence, habits, mindset, etc.\n5. For no-goal: focus on exploration, self-discovery, finding purpose, etc.\n6. Each week must have a unique, relevant topic or technique.\n7. Topics must be actionable and practical for the user's context.\n8. Each topic should be EXACTLY 7 words maximum - keep it concise and clear. Count words carefully!\n9. Goals should be summarized in 4 words maximum for display purposes.\n10. Do NOT ask any questions. Only generate the plan.\n11. Set next to \"plan_ready\".\n12. The onboarding_chat_summary must be a concise, clear summary of the user's onboarding chat, suitable for mentor context.\n"""
+    elif node.node_id == "week1_chat":
+        json_instructions = f"""
+IMPORTANT: You are in the week1_chat node. Your task is to mentor the user for Week 1.\n\nContext:\n- Onboarding summary: {state.get('onboarding_chat_summary', '')}\n- Week 1 topic: {state.get('plan', {}).get('week_1_topic', '')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user, focused on Week 1 topic and onboarding summary, encouraging discussion and reflection.\",\n  \"week1_history\": [ ... updated chat history ... ],\n  \"next\": \"week1_chat\"\n}}\n\nCRITICAL RULES:\n1. Use onboarding_chat_summary and week_1_topic to personalize your response.\n2. Encourage the user to discuss and reflect on the topic.\n3. Save all messages in week1_history.\n4. Stay in this node for ongoing chat.\n5. Do NOT ask about previous onboarding steps.\n"""
     elif node.node_id == "plan_ready":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
