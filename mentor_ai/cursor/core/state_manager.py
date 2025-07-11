@@ -91,6 +91,8 @@ class StateManager:
         elif node.node_id == "relationships_issues":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":
                 updated_state["goals"] = llm_data["goals"]
+                # Если goals определены, сразу готовимся к генерации плана
+                updated_state["next"] = "generate_plan"
             elif llm_data.get("goals") == "unavailable":
                 updated_state["goals"] = []
         elif node.node_id == "relationships_to_plan":

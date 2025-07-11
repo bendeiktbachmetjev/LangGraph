@@ -194,21 +194,20 @@ IMPORTANT: Respond in JSON format with EXACTLY this structure:
 CRITICAL RULES:
 1. ONLY extract with whom the user wants to improve relationships.
 2. If relation_people is missing or unclear, politely ask again and set next to "relationships_people".
-3. If relation_people is provided, acknowledge and set next to "relationships_issues".
-4. Do NOT ask about issues, goals, or anything else at this step.
+3. If relation_people is provided, acknowledge, ask what issues does the user have with these poeple and set next to "relationships_issues".
 """
     elif node.node_id == "relationships_issues":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user for sharing their relationship issues. Clearly explain that a personalized plan will be generated next. If issues are unclear, politely ask again.",
   "goals": ["Goal 1", "Goal 2", ...],
-  "next": "relationships_issues | relationships_to_plan"
+  "next": "relationships_issues | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's main relationship issues and turn them into 2–3 positive, actionable goals (not just a description of the problem).
-2. If goals is missing or unclear, politely ask again and set next to "relationships_issues".
-3. If goals is provided, acknowledge and set next to "relationships_to_plan".
+2. If goals is missing or unclear, politely ask again and set next to 'relationships_issues'.
+3. If goals is provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about issues, people, or anything else at this step.
 """
     elif node.node_id == "relationships_to_plan":
