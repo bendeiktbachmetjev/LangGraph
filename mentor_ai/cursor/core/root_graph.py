@@ -166,17 +166,6 @@ def get_no_goal_reason_node():
         next_node=lambda state: "no_goal_to_plan" if state.get("no_goal_reason") else "no_goal_reason"
     )
 
-def get_no_goal_to_plan_node():
-    return Node(
-        node_id="no_goal_to_plan",
-        system_prompt="You are finishing the no-goal information collection. Thank the user and inform them that a personalized exploration plan will be generated next.",
-        outputs={
-            "reply": str,
-            "next": "generate_plan"
-        },
-        next_node=lambda state: "generate_plan"
-    )
-
 def get_generate_plan_node():
     return Node(
         node_id="generate_plan",
@@ -217,7 +206,6 @@ root_graph = {
     "self_growth_obstacles": get_self_growth_obstacles_node(),
     "no_goal_intro": get_no_goal_intro_node(),
     "no_goal_reason": get_no_goal_reason_node(),
-    "no_goal_to_plan": get_no_goal_to_plan_node(),
     "generate_plan": get_generate_plan_node(),
     "week1_chat": get_week1_chat_node(),
     # Other nodes will be added here later

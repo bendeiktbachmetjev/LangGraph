@@ -112,10 +112,10 @@ class StateManager:
         elif node.node_id == "no_goal_reason":
             if llm_data.get("no_goal_reason") and llm_data["no_goal_reason"] != "unavailable":
                 updated_state["no_goal_reason"] = llm_data["no_goal_reason"]
+                # Если причина определена, сразу готовимся к генерации плана
+                updated_state["next"] = "generate_plan"
             elif llm_data.get("no_goal_reason") == "unavailable":
                 updated_state["no_goal_reason"] = "unavailable"
-        elif node.node_id == "no_goal_to_plan":
-            pass
         
         # Update timestamp
         updated_state["updated_at"] = datetime.now(timezone.utc)

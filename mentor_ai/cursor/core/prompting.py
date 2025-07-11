@@ -274,26 +274,15 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user for sharing their reason for not having a goal. Clearly explain that a personalized exploration plan will be generated next. If the reason is unclear, politely ask again.",
   "no_goal_reason": "extracted reason as a string or null if not provided",
-  "next": "no_goal_reason | no_goal_to_plan"
+  "next": "no_goal_reason | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's reason for not having a specific goal.
-2. If no_goal_reason is missing or unclear, politely ask again and set next to "no_goal_reason".
-3. If no_goal_reason is provided, acknowledge and set next to "no_goal_to_plan".
+2. If no_goal_reason is missing or unclear, politely ask again and set next to 'no_goal_reason'.
+3. If no_goal_reason is provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about goals, skills, or anything else at this step.
-"""
-    elif node.node_id == "no_goal_to_plan":
-        json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
-{
-  "reply": "Thank the user and clearly explain that a personalized exploration plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
-  "next": "generate_plan"
-}
-CRITICAL RULES:
-1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
-2. Set next to 'generate_plan'.
 """
     else:
         json_instructions = ""
