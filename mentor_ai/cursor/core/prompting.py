@@ -97,7 +97,7 @@ IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanati
 
 Strictly follow this order and structure:
 {
-  "reply": "Short congratulation and instruction to start Week 1 chat. No more than 2 sentences. No line breaks.",
+  "reply": "Shortly reflect on the onboarding chat, thank for sharing the info and tell a person that his plan was created and he can close this chat window.",
   "plan": {
     "week_1_topic": "...",
     "week_2_topic": "...",
