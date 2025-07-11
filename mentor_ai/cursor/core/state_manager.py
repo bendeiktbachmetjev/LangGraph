@@ -128,10 +128,15 @@ class StateManager:
         def is_name_provided(val):
             return val not in (None, "", "unavailable", "unknown")
         def is_age_provided(val):
-            return val not in (None, "", "unavailable")  # 'unknown' разрешён
+            return val not in (None, "", "unavailable")
         if current_node.node_id == "collect_basic_info":
             name = updated_state.get("user_name")
             age = updated_state.get("user_age")
-            if not is_name_provided(name) or not is_age_provided(age):
+            # Если нет имени — остаёмся в collect_basic_info
+            if not is_name_provided(name):
                 return "collect_basic_info"
+            # Если есть имя, но нет возраста — остаёмся в collect_basic_info
+            if age is None or age == "":
+                return "collect_basic_info"
+            # Если есть имя и возраст (или возраст == 'unknown'), идём дальше
         return llm_data.get("next", current_node.node_id) 

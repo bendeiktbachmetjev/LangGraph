@@ -45,14 +45,11 @@ Please respond in JSON format with EXACTLY this structure:
 }}
 
 CRITICAL RULES:
-1. ONLY extract user_name and user_age - nothing else
-2. If user_name is missing in state and user_age is missing in state, your reply MUST politely ask for BOTH name and age, and set next to "collect_basic_info"
-3. If user_name is missing in state, but user_age is present, your reply MUST politely ask ONLY for name, and set next to "collect_basic_info"
-4. If user_age is missing in state, but user_name is present, your reply MUST politely ask ONLY for age, and set next to "collect_basic_info"
-5. If both are provided (or unavailable/unknown), your reply MUST thank the user and smoothly transition to the next step: ask if the user currently has a main personal goal, and if so, which area it relates to — career, self-growth, relationships, or maybe they have no goal at all. Proceed to classify_category.
-6. DO NOT ask about occupation, work, location, or anything else
-7. ONLY ask for name and age
-8. If user refuses to provide age, set user_age to "unknown" (string, not null) and proceed to next node.
+1. ONLY extract user_name and user_age - nothing else.
+2. If user_name is missing, your reply MUST politely ask ONLY for name, and set next to 'collect_basic_info'.
+3. If user_name is present and user_age is missing, your reply MUST politely ask ONLY for age (user may refuse; if so, set user_age to 'unknown'), and set next to 'collect_basic_info'.
+4. If user_name is present and user_age is present (or 'unknown'), your reply MUST thank the user and IMMEDIATELY ask if they currently have a main personal goal, and if so, which area it relates to — career, self-growth, relationships, or maybe they have no goal at all. Set next to 'classify_category'.
+5. DO NOT ask about occupation, work, location, or anything else.
 """
     elif node.node_id == "classify_category":
         json_instructions = """
