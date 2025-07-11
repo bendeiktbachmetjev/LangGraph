@@ -41,9 +41,12 @@ class GraphProcessor:
             # Call LLM
             llm_response = llm_client.call_llm(prompt)
             logger.debug(f"LLM response: {llm_response}")
-            
-            # Parse LLM response
-            llm_data = StateManager.parse_llm_response(llm_response, node)
+            try:
+                # Parse LLM response
+                llm_data = StateManager.parse_llm_response(llm_response, node)
+            except Exception as e:
+                logger.error(f"RAW LLM RESPONSE (for debug): {llm_response}")
+                raise
             logger.debug(f"Parsed LLM data: {llm_data}")
             
             # Update state

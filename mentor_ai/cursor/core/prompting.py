@@ -120,19 +120,55 @@ CRITICAL RULES:
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
-IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object.
+IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
-Respond in JSON format with EXACTLY this structure:
+Strictly follow this order and structure:
 {
-  \"reply\": \"Your response to the user (congratulations, summary, etc. — confirm that the plan is ready and instruct to start Week 1 chat)\",
-  \"plan\": { ... },
-  \"onboarding_chat_summary\": \"...\",
-  \"next\": \"week1_chat\"
+  "reply": "Short congratulation and instruction to start Week 1 chat. No more than 2 sentences. No line breaks.",
+  "plan": {
+    "week_1_topic": "...",
+    "week_2_topic": "...",
+    "week_3_topic": "...",
+    "week_4_topic": "...",
+    "week_5_topic": "...",
+    "week_6_topic": "...",
+    "week_7_topic": "...",
+    "week_8_topic": "...",
+    "week_9_topic": "...",
+    "week_10_topic": "...",
+    "week_11_topic": "...",
+    "week_12_topic": "..."
+  },
+  "onboarding_chat_summary": "Summary of onboarding chat, max 3 sentences, no line breaks.",
+  "next": "week1_chat"
 }
+
+EXAMPLE:
+{
+  "reply": "Congratulations! Your 12-week plan is ready. Please start Week 1 chat.",
+  "plan": {
+    "week_1_topic": "Wheel of Life",
+    "week_2_topic": "Zone of Genius",
+    "week_3_topic": "Networking",
+    "week_4_topic": "Feedback",
+    "week_5_topic": "Time Management",
+    "week_6_topic": "Personal Branding",
+    "week_7_topic": "Mentorship",
+    "week_8_topic": "Emotional Intelligence",
+    "week_9_topic": "Goal Setting",
+    "week_10_topic": "Resilience",
+    "week_11_topic": "Strategic Thinking",
+    "week_12_topic": "Review & Celebrate"
+  },
+  "onboarding_chat_summary": "You want to grow in your career. Your main goal is to become a CTO. You are motivated and ready to start.",
+  "next": "week1_chat"
+}
+
 CRITICAL RULES:
-1. Generate a 12-week personalized plan and a concise onboarding summary.
-2. Congratulate the user, confirm that the plan is ready, and clearly instruct them to start Week 1 chat.
-3. Set next to 'week1_chat'.
+1. Only output the JSON object, nothing else.
+2. reply and onboarding_chat_summary must be short and without line breaks.
+3. All 12 week topics must be present and non-empty.
+4. next must always be "week1_chat".
 """
     elif node.node_id == "week1_chat":
         json_instructions = f"""

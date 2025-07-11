@@ -3,6 +3,9 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from .types import CollectBasicInfoResponse, ClassifyCategoryResponse
 from .root_graph import Node
+import logging
+
+logger = logging.getLogger(__name__)
 
 class StateManager:
     """Manages state updates based on LLM responses"""
@@ -75,8 +78,12 @@ class StateManager:
         elif node.node_id == "career_to_plan":
             pass
         elif node.node_id == "generate_plan":
-            if llm_data.get("plan"):
-                updated_state["plan"] = llm_data["plan"]
+            # Проверяем, что plan — dict и содержит 12 тем
+            plan = llm_data.get("plan")
+            if isinstance(plan, dict) and len(plan) == 12 and all(plan.get(f"week_{i}_topic") for i in range(1, 13)):
+                updated_state["plan"] = plan
+            else:
+                logger.error(f"Invalid plan structure in generate_plan: {plan}")
             if llm_data.get("onboarding_chat_summary"):
                 updated_state["onboarding_chat_summary"] = llm_data["onboarding_chat_summary"]
             updated_state["phase"] = "plan_ready"
