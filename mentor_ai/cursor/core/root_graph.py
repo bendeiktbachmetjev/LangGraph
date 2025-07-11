@@ -39,27 +39,27 @@ def get_classify_category_node():
         }.get(state.get("goal_type"), "classify_category")
     )
 
-def get_career_intro_node():
-    return Node(
-        node_id="career_intro",
-        system_prompt="You are introducing the career goal section. Motivate the user and immediately ask about the main obstacles in their career.",
-        outputs={
-            "reply": str,
-            "next": "career_obstacles"
-        },
-        next_node=lambda state: "career_obstacles"
-    )
-
 def get_career_obstacles_node():
     return Node(
         node_id="career_obstacles",
-        system_prompt="You are helping the user turn their main career obstacles into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
+        system_prompt="You are introducing the career goal section. Motivate the user and immediately ask about the main career goals.",
+        outputs={
+            "reply": str,
+            "next": "career_intro"
+        },
+        next_node=lambda state: "career_intro"
+    )
+
+def get_career_intro_node():
+    return Node(
+        node_id="career_intro",
+        system_prompt="You are helping the user turn their main career goals into positive, actionable obstacles. If the answer is unclear or missing, politely ask again.",
         outputs={
             "reply": str,
             "goals": list,
             "next": str
         },
-        next_node=lambda state: "career_to_plan" if state.get("goals") else "career_obstacles"
+        next_node=lambda state: "career_to_plan" if state.get("goals") else "career_intro"
     )
 
 def get_career_to_plan_node():
@@ -228,8 +228,8 @@ def get_week1_chat_node():
 root_graph = {
     "collect_basic_info": get_collect_basic_info_node(),
     "classify_category": get_classify_category_node(),
-    "career_intro": get_career_intro_node(),
     "career_obstacles": get_career_obstacles_node(),
+    "career_intro": get_career_intro_node(),
     "career_to_plan": get_career_to_plan_node(),
     "relationships_intro": get_relationships_intro_node(),
     "relationships_people": get_relationships_people_node(),
