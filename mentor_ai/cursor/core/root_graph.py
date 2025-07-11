@@ -143,17 +143,6 @@ def get_self_growth_obstacles_node():
         next_node=lambda state: "self_growth_to_plan" if state.get("goals") else "self_growth_obstacles"
     )
 
-def get_self_growth_to_plan_node():
-    return Node(
-        node_id="self_growth_to_plan",
-        system_prompt="You are finishing the self-growth information collection. Thank the user and inform them that a personalized plan will be generated next.",
-        outputs={
-            "reply": str,
-            "next": "generate_plan"
-        },
-        next_node=lambda state: "generate_plan"
-    )
-
 def get_no_goal_intro_node():
     return Node(
         node_id="no_goal_intro",
@@ -226,7 +215,6 @@ root_graph = {
     "self_growth_intro": get_self_growth_intro_node(),
     "self_growth_goal": get_self_growth_goal_node(),
     "self_growth_obstacles": get_self_growth_obstacles_node(),
-    "self_growth_to_plan": get_self_growth_to_plan_node(),
     "no_goal_intro": get_no_goal_intro_node(),
     "no_goal_reason": get_no_goal_reason_node(),
     "no_goal_to_plan": get_no_goal_to_plan_node(),

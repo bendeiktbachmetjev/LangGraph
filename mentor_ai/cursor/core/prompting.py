@@ -259,17 +259,6 @@ CRITICAL RULES:
 3. If obstacles are provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about obstacles, skills, or anything else at this step.
 """
-    elif node.node_id == "self_growth_to_plan":
-        json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
-{
-  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
-  "next": "generate_plan"
-}
-CRITICAL RULES:
-1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
-2. Set next to 'generate_plan'.
-"""
     elif node.node_id == "no_goal_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
