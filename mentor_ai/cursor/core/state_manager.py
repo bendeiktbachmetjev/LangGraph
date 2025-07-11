@@ -103,10 +103,12 @@ class StateManager:
             elif llm_data.get("self_growth_goal") == "unavailable":
                 updated_state["self_growth_goal"] = "unavailable"
         elif node.node_id == "self_growth_obstacles":
-            if llm_data.get("goals") and llm_data["goals"] != "unavailable":
-                updated_state["goals"] = llm_data["goals"]
-            elif llm_data.get("goals") == "unavailable":
-                updated_state["goals"] = []
+            if llm_data.get("obstacles") and llm_data["obstacles"] != "unavailable":
+                updated_state["obstacles"] = llm_data["obstacles"]
+                # Если obstacles определены, сразу готовимся к генерации плана
+                updated_state["next"] = "generate_plan"
+            elif llm_data.get("obstacles") == "unavailable":
+                updated_state["obstacles"] = []
         elif node.node_id == "self_growth_to_plan":
             pass
         elif node.node_id == "no_goal_reason":

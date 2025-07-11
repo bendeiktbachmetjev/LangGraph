@@ -237,27 +237,26 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Your response to the user",
-  "self_growth_goal": "extracted self-improvement goal as a string or null if not provided",
-  "next": "self_growth_goal | self_growth_obstacles"
+  "goals": ["Goal 1", "Goal 2", ...],
+  "next": "self_growth_goal or self_growth_obstacles"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main self-improvement goal.
-2. If self_growth_goal is missing or unclear, politely ask again and set next to "self_growth_goal".
-3. If self_growth_goal is provided, acknowledge and set next to "self_growth_obstacles".
-4. Do NOT ask about obstacles, skills, or anything else at this step.
+1. ONLY extract the user's main self-improvement goals.
+2. If "goals" is missing or unclear, politely ask again and set next to "self_growth_goal".
+3. If "goals" is provided, acknowledge, ask about obstacles and set next to "self_growth_obstacles".
 """
     elif node.node_id == "self_growth_obstacles":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
-  "goals": ["Goal 1", "Goal 2", ...],
-  "next": "self_growth_obstacles | self_growth_to_plan"
+  "reply": "Thank the user for sharing their self-growth obstacles. Clearly explain that a personalized plan will be generated next. If obstacles are unclear, politely ask again.",
+  "obstacles": ["Obstacle 1", "Obstacle 2", ...],
+  "next": "self_growth_obstacles | generate_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main self-growth obstacles and turn them into 2–3 positive, actionable goals (not just a description of the problem).
-2. If goals is missing or unclear, politely ask again and set next to "self_growth_obstacles".
-3. If goals is provided, acknowledge and set next to "self_growth_to_plan".
+1. ONLY extract the user's main self-growth obstacles and turn them into 2–3 positive, actionable points (not just a description of the problem).
+2. If obstacles is missing or unclear, politely ask again and set next to 'self_growth_obstacles'.
+3. If obstacles are provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about obstacles, skills, or anything else at this step.
 """
     elif node.node_id == "self_growth_to_plan":
