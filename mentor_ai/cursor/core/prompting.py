@@ -68,41 +68,30 @@ CRITICAL RULES:
 3. If goal_type is clear, your reply MUST include a transition and the first question of the next category (for example: 'Great! Let's talk about your career. What is your main career goal?').
 4. Only use the allowed values for goal_type and next.
 """
-    elif node.node_id == "career_obstacles":
-        json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
-{
-  "reply": "Motivate the user and immediately ask about the main career goals.",
-  "next": "career_intro"
-}
-CRITICAL RULES:
-1. Your reply MUST end with a clear question: 'What is your main career goal right now?'.
-2. Set next to 'career_intro'.
-"""
     elif node.node_id == "career_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
-  "goals": ["Goal 1", "Goal 2", ...],
-  "next": "career_intro | career_to_plan"
+  "reply": "Motivate the user and immediately ask about the main goal in their career. If goal is clear, IMMEDIATELY ask about obstacle of achieving the goal.",
+  "next": "career_obstacles"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main career goals and turn them into 2–3 positive, actionable obstacles (not just a description of the problem).
-2. If goals is missing or unclear, politely ask again and set next to "career_intro".
-3. If goals is provided, acknowledge and set next to "career_to_plan".
-4. Do NOT ask about obstacles, skills, or anything else at this step.
+1. Your reply MUST end with a clear question, like 'What are the main obstacles or challenges you face in your career right now?'.
+2. Set next to 'career_obstacles'.
 """
-    elif node.node_id == "career_to_plan":
+    elif node.node_id == "career_obstacles":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
-  "next": "generate_plan"
+  "reply": "Thank the user for sharing obstacles. Clearly explain that a personalized plan will be generated next. If obstacles are unclear, politely ask again.",
+  "goals": ["Obstacle 1", "Obstacle 2", ...],
+  "next": "career_obstacles | generate_plan"
 }
 CRITICAL RULES:
-1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
-2. Set next to 'generate_plan'.
+1. ONLY extract the user's main career obstacles and turn them into 2–3 positive, actionable points.
+2. If goals is missing or unclear, politely ask again and set next to 'career_obstacles'.
+3. If goals is provided, acknowledge and set next to 'generate_plan'.
+4. Do NOT ask about obstacles, skills, or anything else at this step.
 """
     elif node.node_id == "generate_plan":
         json_instructions = """

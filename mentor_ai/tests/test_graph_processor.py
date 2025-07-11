@@ -70,55 +70,46 @@ def test_process_node_classify_category(mock_llm_client):
     mock_llm_client.call_llm.assert_called_once() 
 
 @patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_obstacles(mock_llm_client):
-    """Test processing career_obstacles node with automatic transition"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Let\'s talk about your career! In the next steps, I\'ll ask a few questions to help you clarify your career goals and challenges. Ready?", "next": "career_intro"}'
-    node_id = "career_obstacles"
+def test_process_node_career_intro(mock_llm_client):
+    """Test processing career_intro node with automatic transition"""
+    # Mock LLM response
+    mock_llm_client.call_llm.return_value = '{"reply": "Let\'s talk about your career! In the next steps, I\'ll ask a few questions to help you clarify your career goals and challenges. Ready?", "next": "career_goal"}'
+
+    node_id = "career_intro"
     user_message = ""
     current_state = {"session_id": "test123"}
+
     reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
+
     assert "career" in reply.lower()
     assert updated_state["session_id"] == "test123"
-    assert next_node == "career_intro"
+    assert next_node == "career_goal"
     mock_llm_client.call_llm.assert_called_once()
 
 @patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_intro_success(mock_llm_client):
-    """Test processing career_intro node with valid goals"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Thank you for sharing your goals.", "goals": ["Become CTO"], "next": "career_to_plan"}'
-    node_id = "career_intro"
-    user_message = "I want to become a CTO."
-    current_state = {"session_id": "test123"}
-    reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
-    assert "goal" in reply.lower() or "thank" in reply.lower()
-    assert updated_state["goals"] == ["Become CTO"]
-    assert next_node == "career_to_plan"
-    mock_llm_client.call_llm.assert_called_once()
-
-@patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_intro_clarify(mock_llm_client):
-    """Test processing career_intro node with unclear answer (should clarify)"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Could you clarify your main goals?", "goals": null, "next": "career_intro"}'
-    node_id = "career_intro"
-    user_message = "I don't know, maybe something..."
-    current_state = {"session_id": "test123"}
-    reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
-    assert "clarify" in reply.lower() or "goal" in reply.lower()
-    assert "goals" not in updated_state or updated_state["goals"] is None
-    assert next_node == "career_intro"
-    mock_llm_client.call_llm.assert_called_once()
-
-@patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_to_plan(mock_llm_client):
-    """Test processing career_to_plan node with automatic transition"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Thank you for sharing all the details! Now I\'ll prepare a personalized career plan for you.", "next": "generate_plan"}'
-    node_id = "career_to_plan"
-    user_message = ""
+def test_process_node_career_obstacles_success(mock_llm_client):
+    """Test processing career_obstacles node with valid obstacles"""
+    mock_llm_client.call_llm.return_value = '{"reply": "Thank you for sharing your obstacles. I will now generate a personalized plan for you.", "goals": ["Lack of experience", "Low confidence"], "next": "generate_plan"}'
+    node_id = "career_obstacles"
+    user_message = "I lack experience and confidence."
     current_state = {"session_id": "test123"}
     reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
     assert "thank" in reply.lower() and "plan" in reply.lower()
-    assert updated_state["session_id"] == "test123"
+    assert updated_state["goals"] == ["Lack of experience", "Low confidence"]
     assert next_node == "generate_plan"
+    mock_llm_client.call_llm.assert_called_once()
+
+@patch('mentor_ai.cursor.core.graph_processor.llm_client')
+def test_process_node_career_obstacles_clarify(mock_llm_client):
+    """Test processing career_obstacles node with unclear answer (should clarify)"""
+    mock_llm_client.call_llm.return_value = '{"reply": "Could you clarify your main obstacles?", "goals": null, "next": "career_obstacles"}'
+    node_id = "career_obstacles"
+    user_message = "I don't know, maybe something..."
+    current_state = {"session_id": "test123"}
+    reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
+    assert "clarify" in reply.lower() or "obstacle" in reply.lower()
+    assert "goals" not in updated_state or updated_state["goals"] is None
+    assert next_node == "career_obstacles"
     mock_llm_client.call_llm.assert_called_once()
 
 @patch('mentor_ai.cursor.core.graph_processor.llm_client')
