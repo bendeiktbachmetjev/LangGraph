@@ -42,24 +42,12 @@ def get_classify_category_node():
 def get_career_intro_node():
     return Node(
         node_id="career_intro",
-        system_prompt="You are introducing the career goal section. Motivate the user and explain that you will ask a few questions to help clarify their career goals.",
+        system_prompt="You are introducing the career goal section. Motivate the user and immediately ask about the main obstacles in their career.",
         outputs={
             "reply": str,
-            "next": "career_goal"
+            "next": "career_obstacles"
         },
-        next_node=lambda state: "career_goal"
-    )
-
-def get_career_goal_node():
-    return Node(
-        node_id="career_goal",
-        system_prompt="You are helping the user clarify their main career goal. If the answer is unclear or missing, politely ask again.",
-        outputs={
-            "reply": str,
-            "state.goals": str,
-            "next": str
-        },
-        next_node=lambda state: "career_obstacles" if state.get("goals") else "career_goal"
+        next_node=lambda state: "career_obstacles"
     )
 
 def get_career_obstacles_node():
@@ -241,7 +229,6 @@ root_graph = {
     "collect_basic_info": get_collect_basic_info_node(),
     "classify_category": get_classify_category_node(),
     "career_intro": get_career_intro_node(),
-    "career_goal": get_career_goal_node(),
     "career_obstacles": get_career_obstacles_node(),
     "career_to_plan": get_career_to_plan_node(),
     "relationships_intro": get_relationships_intro_node(),

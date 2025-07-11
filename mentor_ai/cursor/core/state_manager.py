@@ -65,11 +65,6 @@ class StateManager:
         elif node.node_id == "classify_category":
             if llm_data.get("goal_type"):
                 updated_state["goal_type"] = llm_data["goal_type"]
-        elif node.node_id == "career_goal":
-            if llm_data.get("career_goal") and llm_data["career_goal"] != "unavailable":
-                updated_state["career_goal"] = llm_data["career_goal"]
-            elif llm_data.get("career_goal") == "unavailable":
-                updated_state["career_goal"] = "unavailable"
         elif node.node_id == "career_obstacles":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":
                 updated_state["goals"] = llm_data["goals"]

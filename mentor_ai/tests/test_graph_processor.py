@@ -87,32 +87,6 @@ def test_process_node_career_intro(mock_llm_client):
     mock_llm_client.call_llm.assert_called_once()
 
 @patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_goal_success(mock_llm_client):
-    """Test processing career_goal node with valid goal"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Great, your goal is to become a CTO!", "career_goal": "Become a CTO", "next": "career_obstacles"}'
-    node_id = "career_goal"
-    user_message = "I want to become a CTO."
-    current_state = {"session_id": "test123"}
-    reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
-    assert "cto" in reply.lower()
-    assert updated_state["career_goal"] == "Become a CTO"
-    assert next_node == "career_obstacles"
-    mock_llm_client.call_llm.assert_called_once()
-
-@patch('mentor_ai.cursor.core.graph_processor.llm_client')
-def test_process_node_career_goal_clarify(mock_llm_client):
-    """Test processing career_goal node with unclear answer (should clarify)"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Could you clarify your main career goal?", "career_goal": null, "next": "career_goal"}'
-    node_id = "career_goal"
-    user_message = "I don't know, maybe something..."
-    current_state = {"session_id": "test123"}
-    reply, updated_state, next_node = GraphProcessor.process_node(node_id, user_message, current_state)
-    assert "clarify" in reply.lower() or "goal" in reply.lower()
-    assert "career_goal" not in updated_state or updated_state["career_goal"] is None
-    assert next_node == "career_goal"
-    mock_llm_client.call_llm.assert_called_once()
-
-@patch('mentor_ai.cursor.core.graph_processor.llm_client')
 def test_process_node_career_obstacles_success(mock_llm_client):
     """Test processing career_obstacles node with valid obstacles"""
     mock_llm_client.call_llm.return_value = '{"reply": "Thank you for sharing your obstacles.", "career_obstacles": "Lack of experience and confidence", "next": "exit_to_plan"}'

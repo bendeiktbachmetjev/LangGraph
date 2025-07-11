@@ -49,49 +49,35 @@ CRITICAL RULES:
 2. If user_name is missing in state and user_age is missing in state, your reply MUST politely ask for BOTH name and age, and set next to "collect_basic_info"
 3. If user_name is missing in state, but user_age is present, your reply MUST politely ask ONLY for name, and set next to "collect_basic_info"
 4. If user_age is missing in state, but user_name is present, your reply MUST politely ask ONLY for age, and set next to "collect_basic_info"
-5. If both are provided (или unavailable/unknown), your reply MUST include a greeting AND IMMEDIATELY ask: 'Do you currently have a main personal goal? If yes, what kind of goal is it? Is it about career, self-growth, relationships, or do you feel you have no goal right now?' and set next to "classify_category"
+5. If both are provided (or unavailable/unknown), your reply MUST thank the user and smoothly transition to the next step: ask if the user currently has a main personal goal, and if so, which area it relates to — career, self-growth, relationships, or maybe they have no goal at all. Proceed to classify_category.
 6. DO NOT ask about occupation, work, location, or anything else
-7. ONLY ask for name and age (или цель, если оба поля уже есть)
-8. If user refuses to provide name, set user_name to "unavailable" and stay on this node.
-9. If user refuses to provide age, set user_age to "unknown" (string, not null) and proceed to next node.
+7. ONLY ask for name and age
+8. If user refuses to provide age, set user_age to "unknown" (string, not null) and proceed to next node.
 """
     elif node.node_id == "classify_category":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Your response to the user. If goal_type is clear, IMMEDIATELY ask the first question of the corresponding category (career, self-growth, relationships, or no-goal).",
   "goal_type": "career | self_growth | relationships | no_goal",
   "next": "career_intro | self_growth_intro | relationships_intro | no_goal_intro"
 }
 CRITICAL RULES:
 1. Analyze the user's answer and set goal_type accordingly.
-2. If unclear, politely clarify and set next to "classify_category".
-3. Only use the allowed values for goal_type and next.
+2. If unclear, politely clarify and set next to 'classify_category'.
+3. If goal_type is clear, your reply MUST include a transition and the first question of the next category (for example: 'Great! Let's talk about your career. What is your main career goal?').
+4. Only use the allowed values for goal_type and next.
 """
     elif node.node_id == "career_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
-  "next": "career_goal"
+  "reply": "Motivate the user and immediately ask about the main obstacles in their career.",
+  "next": "career_obstacles"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just motivate and explain that you will ask about career goals next.
-2. Set next to "career_goal".
-"""
-    elif node.node_id == "career_goal":
-        json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
-{
-  "reply": "Your response to the user",
-  "career_goal": "extracted career goal as a string or null if not provided",
-  "next": "career_goal | career_obstacles"
-}
-CRITICAL RULES:
-1. ONLY extract the user's main career goal.
-2. If career_goal is missing or unclear, politely ask again and set next to "career_goal".
-3. If career_goal is provided, acknowledge and set next to "career_obstacles".
-4. Do NOT ask about obstacles, skills, or anything else at this step.
+1. Your reply MUST end with a clear question: 'What are the main obstacles or challenges you face in your career right now?'.
+2. Set next to 'career_obstacles'.
 """
     elif node.node_id == "career_obstacles":
         json_instructions = """
@@ -111,12 +97,12 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
   "next": "generate_plan"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just thank the user and inform them that a personalized plan will be generated next.
-2. Set next to "generate_plan".
+1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
+2. Set next to 'generate_plan'.
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
@@ -177,25 +163,25 @@ IMPORTANT: You are in the week1_chat node. Your task is to mentor the user for W
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  \"reply\": \"Your response to the user\",
-  \"next\": \"relationships_people\"
+  "reply": "Motivate the user and IMMEDIATELY ask with whom they want to improve relationships.",
+  "next": "relationships_people"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just motivate and explain that you will ask about relationships next.
-2. Set next to \"relationships_people\".
+1. Do NOT just motivate. Your reply MUST end with a clear question: 'With whom would you like to improve your relationships?'.
+2. Set next to 'relationships_people'.
 """
     elif node.node_id == "relationships_people":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  \"reply\": \"Your response to the user\",
-  \"relation_people\": \"extracted people as a string or null if not provided\",
-  \"next\": \"relationships_people | relationships_issues\"
+  "reply": "Your response to the user",
+  "relation_people": "extracted people as a string or null if not provided",
+  "next": "relationships_people | relationships_issues"
 }
 CRITICAL RULES:
 1. ONLY extract with whom the user wants to improve relationships.
-2. If relation_people is missing or unclear, politely ask again and set next to \"relationships_people\".
-3. If relation_people is provided, acknowledge and set next to \"relationships_issues\".
+2. If relation_people is missing or unclear, politely ask again and set next to "relationships_people".
+3. If relation_people is provided, acknowledge and set next to "relationships_issues".
 4. Do NOT ask about issues, goals, or anything else at this step.
 """
     elif node.node_id == "relationships_issues":
@@ -216,23 +202,23 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
   "next": "generate_plan"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just thank the user and inform them that a personalized plan will be generated next.
-2. Set next to "generate_plan".
+1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
+2. Set next to 'generate_plan'.
 """
     elif node.node_id == "self_growth_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Motivate the user and IMMEDIATELY ask about their main self-improvement goal.",
   "next": "self_growth_goal"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just motivate and explain that you will ask about self-improvement goals next.
-2. Set next to "self_growth_goal".
+1. Do NOT just motivate. Your reply MUST end with a clear question: 'What is your main self-improvement goal?'.
+2. Set next to 'self_growth_goal'.
 """
     elif node.node_id == "self_growth_goal":
         json_instructions = """
@@ -266,23 +252,23 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
   "next": "generate_plan"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just thank the user and inform them that a personalized plan will be generated next.
-2. Set next to "generate_plan".
+1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
+2. Set next to 'generate_plan'.
 """
     elif node.node_id == "no_goal_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Be supportive and IMMEDIATELY ask why the user currently has no goal.",
   "next": "no_goal_reason"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just be supportive and explain that you'll help them explore possibilities.
-2. Set next to "no_goal_reason".
+1. Do NOT just support. Your reply MUST end with a clear question: 'What do you think is the main reason you don't have a specific goal right now?'.
+2. Set next to 'no_goal_reason'.
 """
     elif node.node_id == "no_goal_reason":
         json_instructions = """
@@ -302,12 +288,12 @@ CRITICAL RULES:
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
+  "reply": "Thank the user and clearly explain that a personalized exploration plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
   "next": "generate_plan"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just thank the user and inform them that a personalized exploration plan will be generated next.
-2. Set next to "generate_plan".
+1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
+2. Set next to 'generate_plan'.
 """
     else:
         json_instructions = ""
