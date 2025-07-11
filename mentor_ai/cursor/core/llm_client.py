@@ -27,7 +27,7 @@ class LLMClient:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a helpful assistant that always responds in valid JSON format."
+                        "content": "You are a helpful assistant that always responds in valid JSON format. Where reply is needed, shortly (1 sentence) reflect on the user's message. Provide ALL YOUR OUTPUTS ONLY IN JSON FORMAT"
                     },
                     {
                         "role": "user", 
