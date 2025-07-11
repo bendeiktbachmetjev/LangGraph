@@ -120,7 +120,9 @@ CRITICAL RULES:
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object.
+
+Respond in JSON format with EXACTLY this structure:
 {
   \"reply\": \"Your response to the user (congratulations, summary, etc. — confirm that the plan is ready and instruct to start Week 1 chat)\",
   \"plan\": { ... },
