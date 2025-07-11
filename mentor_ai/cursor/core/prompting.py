@@ -144,21 +144,20 @@ CRITICAL RULES:
 4. next must always be "week1_chat".
 """
     elif node.node_id == "week1_chat":
-        week1_history = state.get("week1_history", [])
         json_instructions = f'''
 IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
 Strictly follow this order and structure:
 {{
   "reply": "Short, focused on Week 1 topic and onboarding summary. No line breaks.",
-  "week1_history": {week1_history if week1_history else []},
+  "history": {history if history else []},
   "next": "week1_chat"
 }}
 
 EXAMPLE:
 {{
   "reply": "Let's start Week 1! This week we will focus on persuasion.",
-  "week1_history": [
+  "history": [
     {{"role": "user", "content": "Hello!"}},
     {{"role": "assistant", "content": "Welcome to Week 1."}}
   ],

@@ -80,9 +80,12 @@ class StateManager:
             if llm_data.get("onboarding_chat_summary"):
                 updated_state["onboarding_chat_summary"] = llm_data["onboarding_chat_summary"]
             updated_state["phase"] = "week1"
+            # Clear onboarding history after plan generation, since summary is already saved
+            updated_state["history"] = []
         elif node.node_id == "week1_chat":
-            if llm_data.get("week1_history"):
-                updated_state["week1_history"] = llm_data["week1_history"]
+            # Append new week1 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "relationships_people":
             if llm_data.get("relation_people") and llm_data["relation_people"] != "unavailable":
                 updated_state["relation_people"] = llm_data["relation_people"]
