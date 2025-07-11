@@ -214,22 +214,11 @@ def get_no_goal_to_plan_node():
 def get_generate_plan_node():
     return Node(
         node_id="generate_plan",
-        system_prompt="You are an expert coach. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context. Also, provide a concise summary of the onboarding chat (3-5 sentences) as onboarding_chat_summary.",
+        system_prompt="You are an expert coach. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context. Also, provide a concise summary of the onboarding chat (3-5 sentences) as onboarding_chat_summary. When you finish, congratulate the user, confirm that the plan is ready, and clearly instruct them to start Week 1 chat.",
         outputs={
             "reply": str,
             "plan": dict,  # {"week_1_topic": str, ..., "week_12_topic": str}
             "onboarding_chat_summary": str,
-            "next": "plan_ready"
-        },
-        next_node=lambda state: "plan_ready"
-    )
-
-def get_plan_ready_node():
-    return Node(
-        node_id="plan_ready",
-        system_prompt="You are finishing the session. Congratulate the user, summarize that the plan is ready, wish them success, and clearly instruct the user to close this chat and go to the My Coach section. Then, automatically start the Week 1 chat.",
-        outputs={
-            "reply": str,
             "next": "week1_chat"
         },
         next_node=lambda state: "week1_chat"
@@ -267,7 +256,6 @@ root_graph = {
     "no_goal_reason": get_no_goal_reason_node(),
     "no_goal_to_plan": get_no_goal_to_plan_node(),
     "generate_plan": get_generate_plan_node(),
-    "plan_ready": get_plan_ready_node(),
     "week1_chat": get_week1_chat_node(),
     # Other nodes will be added here later
 } 

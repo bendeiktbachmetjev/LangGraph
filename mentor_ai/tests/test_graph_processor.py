@@ -154,7 +154,7 @@ def test_process_node_career_to_plan(mock_llm_client):
 @patch('mentor_ai.cursor.core.graph_processor.llm_client')
 def test_process_node_generate_plan(mock_llm_client):
     """Test processing generate_plan node with 12 personalized topics"""
-    mock_llm_client.call_llm.return_value = '{"reply": "Here is your 12-week plan!","plan": {"week_1_topic": "Wheel of Life","week_2_topic": "Zone of Genius","week_3_topic": "Networking","week_4_topic": "Feedback","week_5_topic": "Time Management","week_6_topic": "Personal Branding","week_7_topic": "Mentorship","week_8_topic": "Emotional Intelligence","week_9_topic": "Goal Setting","week_10_topic": "Resilience","week_11_topic": "Strategic Thinking","week_12_topic": "Review & Celebrate"},"next": "plan_ready"}'
+    mock_llm_client.call_llm.return_value = '{"reply": "Here is your 12-week plan!","plan": {"week_1_topic": "Wheel of Life","week_2_topic": "Zone of Genius","week_3_topic": "Networking","week_4_topic": "Feedback","week_5_topic": "Time Management","week_6_topic": "Personal Branding","week_7_topic": "Mentorship","week_8_topic": "Emotional Intelligence","week_9_topic": "Goal Setting","week_10_topic": "Resilience","week_11_topic": "Strategic Thinking","week_12_topic": "Review & Celebrate"},"next": "week1_chat"}'
     node_id = "generate_plan"
     user_message = ""
     current_state = {"session_id": "test123", "goal_type": "career", "career_goal": "Become a CTO"}
@@ -164,5 +164,5 @@ def test_process_node_generate_plan(mock_llm_client):
     assert len(updated_state["plan"]) == 12
     assert updated_state["plan"]["week_1_topic"] == "Wheel of Life"
     assert updated_state["plan"]["week_12_topic"] == "Review & Celebrate"
-    assert next_node == "plan_ready"
+    assert next_node == "week1_chat"
     mock_llm_client.call_llm.assert_called_once()

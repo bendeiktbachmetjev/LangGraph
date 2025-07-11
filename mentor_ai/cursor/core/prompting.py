@@ -119,20 +119,22 @@ CRITICAL RULES:
 2. Set next to "generate_plan".
 """
     elif node.node_id == "generate_plan":
-        json_instructions = f"""
-IMPORTANT: You are in the generate_plan node. Your task is to create a 12-week personalized plan for the user based on their state (goal, obstacles, etc.).\n\nAdditionally, provide a concise summary of the entire onboarding chat (3-5 sentences) as onboarding_chat_summary.\n\nCurrent state context:\n- Goal type: {state.get('goal_type', 'unknown')}\n- Career goal: {state.get('career_goal', 'not specified')}\n- Career obstacles: {state.get('career_obstacles', 'not specified')}\n- Relationship people: {state.get('relation_people', 'not specified')}\n- Relationship issues: {state.get('relation_issues', 'not specified')}\n- Self-growth goal: {state.get('self_growth_goal', 'not specified')}\n- Self-growth obstacles: {state.get('self_growth_obstacles', 'not specified')}\n- No goal reason: {state.get('no_goal_reason', 'not specified')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user (short intro, e.g. 'Here is your 12-week plan!')\",\n  \"plan\": {{\n    \"week_1_topic\": \"...\",\n    ...\n    \"week_12_topic\": \"...\"\n  }},\n  \"onboarding_chat_summary\": \"Summary of the onboarding chat in 3-5 sentences\",\n  \"next\": \"plan_ready\"\n}}\n\nCRITICAL RULES:\n1. Use the user's state (goal, obstacles, etc.) to personalize the topics based on their goal_type.\n2. For career goals: focus on professional development, networking, skill-building, etc.\n3. For relationship goals: focus on communication, trust-building, conflict resolution, etc.\n4. For self-growth goals: focus on personal development, confidence, habits, mindset, etc.\n5. For no-goal: focus on exploration, self-discovery, finding purpose, etc.\n6. Each week must have a unique, relevant topic or technique.\n7. Topics must be actionable and practical for the user's context.\n8. Each topic should be EXACTLY 7 words maximum - keep it concise and clear. Count words carefully!\n9. Goals should be summarized in 4 words maximum for display purposes.\n10. Do NOT ask any questions. Only generate the plan.\n11. Set next to \"plan_ready\".\n12. The onboarding_chat_summary must be a concise, clear summary of the user's onboarding chat, suitable for mentor context.\n"""
-    elif node.node_id == "week1_chat":
-        json_instructions = f"""
-IMPORTANT: You are in the week1_chat node. Your task is to mentor the user for Week 1.\n\nContext:\n- Onboarding summary: {state.get('onboarding_chat_summary', '')}\n- Week 1 topic: {state.get('plan', {}).get('week_1_topic', '')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user, focused on Week 1 topic and onboarding summary, encouraging discussion and reflection.\",\n  \"week1_history\": [ ... updated chat history ... ],\n  \"next\": \"week1_chat\"\n}}\n\nCRITICAL RULES:\n1. Use onboarding_chat_summary and week_1_topic to personalize your response.\n2. Encourage the user to discuss and reflect on the topic.\n3. Save all messages in week1_history.\n4. Stay in this node for ongoing chat.\n5. Do NOT ask about previous onboarding steps.\n"""
-    elif node.node_id == "plan_ready":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
-  \"reply\": \"Your response to the user (congratulations, summary, etc.)\"
+  \"reply\": \"Your response to the user (congratulations, summary, etc. — confirm that the plan is ready and instruct to start Week 1 chat)\",
+  \"plan\": { ... },
+  \"onboarding_chat_summary\": \"...\",
+  \"next\": \"week1_chat\"
 }
 CRITICAL RULES:
-1. Do NOT ask any questions. Just congratulate the user and confirm the plan is ready.
+1. Generate a 12-week personalized plan and a concise onboarding summary.
+2. Congratulate the user, confirm that the plan is ready, and clearly instruct them to start Week 1 chat.
+3. Set next to 'week1_chat'.
 """
+    elif node.node_id == "week1_chat":
+        json_instructions = f"""
+IMPORTANT: You are in the week1_chat node. Your task is to mentor the user for Week 1.\n\nContext:\n- Onboarding summary: {state.get('onboarding_chat_summary', '')}\n- Week 1 topic: {state.get('plan', {}).get('week_1_topic', '')}\n\nPlease respond in JSON format with EXACTLY this structure:\n{{\n  \"reply\": \"Your response to the user, focused on Week 1 topic and onboarding summary, encouraging discussion and reflection.\",\n  \"week1_history\": [ ... updated chat history ... ],\n  \"next\": \"week1_chat\"\n}}\n\nCRITICAL RULES:\n1. Use onboarding_chat_summary and week_1_topic to personalize your response.\n2. Encourage the user to discuss and reflect on the topic.\n3. Save all messages in week1_history.\n4. Stay in this node for ongoing chat.\n5. Do NOT ask about previous onboarding steps.\n"""
     elif node.node_id == "relationships_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
