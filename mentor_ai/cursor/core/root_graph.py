@@ -169,7 +169,12 @@ def get_no_goal_reason_node():
 def get_generate_plan_node():
     return Node(
         node_id="generate_plan",
-        system_prompt="You are an expert coach. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context. Also, provide a concise summary of the onboarding chat (3-5 sentences) as onboarding_chat_summary. When you finish, congratulate the user, confirm that the plan is ready, and clearly instruct them to start Week 1 chat.",
+        system_prompt=(
+            "1. Based on the user's state (goals, obstacles, etc.), generate a 12-week personalized plan. Each week should have a unique topic or technique relevant to the user's context.\n"
+            "2. Provide a concise summary of the onboarding chat (3-5 sentences) as onboarding_chat_summary.\n"
+            "3. In the reply field, briefly reflect on the whole onboarding conversation: mention the main points and gently inform them that they can now close this chat and the 'My Coach' section is available.\n"
+            "Be warm, supportive, and clear."
+        ),
         outputs={
             "reply": str,
             "plan": dict,  # {"week_1_topic": str, ..., "week_12_topic": str}
