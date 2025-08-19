@@ -34,20 +34,7 @@ class MongoDBManager:
             self.client.close()
             logger.info("Disconnected from MongoDB (motor)")
 
-    async def create_session(self, session_id: str) -> bool:
-        """Create a new session document (async motor)"""
-        try:
-            session_doc = MongoDBDocument(
-                session_id=session_id,
-                phase="incomplete",
-                history=[]  # Инициализация истории чата
-            )
-            result = await self.sessions_collection.insert_one(session_doc.dict())
-            logger.info(f"Created session: {session_id}")
-            return result.acknowledged
-        except Exception as e:
-            logger.error(f"Failed to create session {session_id}: {e}")
-            return False
+
 
     async def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get session by ID (async motor)"""
@@ -89,6 +76,33 @@ class MongoDBManager:
             return result.modified_count > 0
         except Exception as e:
             logger.error(f"Failed to save plan for session {session_id}: {e}")
+            return False
+
+    async def get_user_session(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """Get session by user ID (async motor)"""
+        try:
+            session = await self.sessions_collection.find_one({"user_id": user_id})
+            return session
+        except Exception as e:
+            logger.error(f"Failed to get session for user {user_id}: {e}")
+            return None
+
+    async def create_session(self, session_id: str, user_id: str) -> bool:
+        """Create a new session document with user ID (async motor)"""
+        try:
+            session_doc = {
+                "session_id": session_id,
+                "user_id": user_id,
+                "phase": "incomplete",
+                "history": [],  # Инициализация истории чата
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            result = await self.sessions_collection.insert_one(session_doc)
+            logger.info(f"Created session: {session_id} for user: {user_id}")
+            return result.acknowledged
+        except Exception as e:
+            logger.error(f"Failed to create session {session_id} for user {user_id}: {e}")
             return False
 
 # Global MongoDB manager instance
