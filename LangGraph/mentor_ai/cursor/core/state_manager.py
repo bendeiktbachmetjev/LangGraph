@@ -105,6 +105,14 @@ class StateManager:
             # Persist structured job circumstances if provided
             if isinstance(llm_data.get("job_circumstances"), dict):
                 updated_state["job_circumstances"] = llm_data["job_circumstances"]
+        elif node.node_id == "improve_skills":
+            # Save skills/interests/activities if provided
+            if isinstance(llm_data.get("skills"), list):
+                updated_state["skills"] = llm_data["skills"]
+            if isinstance(llm_data.get("interests"), list):
+                updated_state["interests"] = llm_data["interests"]
+            if isinstance(llm_data.get("activities"), list):
+                updated_state["activities"] = llm_data["activities"]
         elif node.node_id == "self_growth_goal":
             if llm_data.get("self_growth_goal") and llm_data["self_growth_goal"] != "unavailable":
                 updated_state["self_growth_goal"] = llm_data["self_growth_goal"]

@@ -103,17 +103,37 @@ IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
     "salary_satisfaction": "satisfied | not_satisfied | neutral | null",
     "job_satisfaction": "satisfied | not_satisfied | neutral | null"
   },
-  "next": "improve_intro | improve_obstacles"
+  "next": "improve_intro | improve_skills"
 }
 CRITICAL RULES:
 1. Goal: understand the user's current work context (who they are, their position, industry, salary if shared, and whether they are satisfied with pay and job overall).
 2. Extract details from the user's message into job_circumstances. If a field is absent, set it to null.
 3. Ask ONLY about missing fields. Do NOT ask about obstacles yet.
 4. Decide yourself when information is sufficient to move on:
-   - If role, position, and job_satisfaction are present (salary optional) → set next to 'improve_obstacles'.
-   - OR if the user explicitly signals they don't want to share more details now (e.g., "that's enough", "prefer to move on", "not comfortable sharing salary") → acknowledge and set next to 'improve_obstacles'.
-   - OR if the user sounds ready to proceed (e.g., asks for next steps) → set next to 'improve_obstacles'.
+   - If role, position, and job_satisfaction are present (salary optional) → set next to 'improve_skills'.
+   - OR if the user explicitly signals they don't want to share more details now (e.g., "that's enough", "prefer to move on", "not comfortable sharing salary") → acknowledge and set next to 'improve_skills'.
+   - OR if the user sounds ready to proceed (e.g., asks for next steps) → set next to 'improve_skills'.
    - Otherwise, keep next as 'improve_intro' and politely ask for the most important missing item.
+5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
+"""
+
+    elif node.node_id == "improve_skills":
+        json_instructions = """
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
+{
+  "reply": "Warm, concise and human. Reflect briefly and ask only for missing details. No line breaks.",
+  "skills": ["skill 1", "skill 2", "..."],
+  "interests": ["interest 1", "interest 2", "..."],
+  "activities": ["activity 1", "activity 2", "..."],
+  "next": "improve_skills | improve_obstacles"
+}
+CRITICAL RULES:
+1. Goal: understand the user's strengths and interests beyond the job: practical skills, topics they enjoy, and what they do in free time.
+2. Extract items from the user's message into arrays. Use concise noun phrases. If something is absent, use an empty array.
+3. Ask ONLY for the most important missing piece (e.g., "What skills do you use most confidently?" or "What do you enjoy doing in your free time?"). Avoid long lists of questions.
+4. Decide yourself when information is sufficient:
+   - If at least one of skills or interests is non-empty and the user appears ready to proceed (or explicitly asks to move on) → set next to 'improve_obstacles'.
+   - Otherwise, keep next as 'improve_skills'.
 5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "improve_obstacles":

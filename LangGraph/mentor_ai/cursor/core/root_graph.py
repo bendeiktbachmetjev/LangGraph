@@ -32,34 +32,49 @@ def get_classify_category_node():
             "next": str
         },
         next_node=lambda state: {
-            "career_improve": "career_intro",
-            "career_change": "career_intro", 
-            "career_find": "career_intro",
+            "career_improve": "improve_intro",
+            "career_change": "improve_intro", 
+            "career_find": "improve_intro",
             "no_goal": "no_goal_intro"
         }.get(state.get("goal_type"), "classify_category")
     )
 
-def get_career_intro_node():
+def get_improve_intro_node():
     return Node(
-        node_id="career_intro",
+        node_id="improve_intro",
         system_prompt="You are introducing the career goal section. Based on the user's goal_type (career_improve, career_change, or career_find), ask the appropriate question about their specific career situation.",
         outputs={
             "reply": str,
-            "next": "career_obstacles"
+            "job_circumstances": dict,
+            "next": str
         },
-        next_node=lambda state: "career_obstacles"
+        next_node=lambda state: "improve_skills"
     )
 
-def get_career_obstacles_node():
+def get_improve_skills_node():
     return Node(
-        node_id="career_obstacles",
+        node_id="improve_skills",
+        system_prompt="Understand user's broader strengths and interests: skills they possess, interests they enjoy, and activities they do in free time.",
+        outputs={
+            "reply": str,
+            "skills": list,
+            "interests": list,
+            "activities": list,
+            "next": str
+        },
+        next_node=lambda state: "improve_obstacles" if (state.get("skills") or state.get("interests")) else "improve_skills"
+    )
+
+def get_improve_obstacles_node():
+    return Node(
+        node_id="improve_obstacles",
         system_prompt="You are helping the user turn their main career obstacles into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
         outputs={
             "reply": str,
             "goals": list,
             "next": str
         },
-        next_node=lambda state: "generate_plan" if state.get("goals") else "career_obstacles"
+        next_node=lambda state: "generate_plan" if state.get("goals") else "improve_obstacles"
     )
 
 def get_relationships_intro_node():
@@ -200,8 +215,9 @@ def get_week1_chat_node():
 root_graph = {
     "collect_basic_info": get_collect_basic_info_node(),
     "classify_category": get_classify_category_node(),
-    "career_intro": get_career_intro_node(),
-    "career_obstacles": get_career_obstacles_node(),
+    "improve_intro": get_improve_intro_node(),
+    "improve_skills": get_improve_skills_node(),
+    "improve_obstacles": get_improve_obstacles_node(),
     "relationships_intro": get_relationships_intro_node(),
     "relationships_people": get_relationships_people_node(),
     "relationships_issues": get_relationships_issues_node(),
