@@ -64,6 +64,7 @@ class StateManager:
         
         elif node.node_id == "classify_category":
             if llm_data.get("goal_type"):
+                # Persist normalized 4-way classification
                 updated_state["goal_type"] = llm_data["goal_type"]
         elif node.node_id == "career_obstacles":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":

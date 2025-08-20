@@ -57,13 +57,11 @@ Please respond in JSON format with EXACTLY this structure:
 }}
 
 CRITICAL RULES:
-1. ONLY extract user_name and user_age - nothing else.
+1. Extract exactly two fields: user_name and user_age.
 2. ALWAYS check the current state before asking questions:
    - If user_name is missing AND you haven't asked for it yet, ask ONLY for name
    - If user_name is present but user_age is missing AND you haven't asked for age yet, ask ONLY for age
    - If both are present, move to the next step
-3. NEVER accuse the user of not answering a question you haven't asked yet.
-4. If the user provides information, acknowledge it and ask for the next missing piece.
 5. If user_name is present and user_age is present (or 'unknown'), your reply MUST thank the user and IMMEDIATELY ask about their work situation and goals. Present these 4 options tactfully: "Do you currently have a job? Which of these options suits you better: 1) I have a job and want to improve in my current role, 2) I have a job but want to change my career field completely, 3) I don't have a job and want to find my path, 4) I feel lost and don't know what I want yet." Set next to 'classify_category'.
 6. IMPORTANT: Extract name from phrases like "I'm John", "My name is John", "John", etc. If user says "Hi, I'm John", extract "John" as user_name.
 7. IMPORTANT: Extract age from phrases like "I'm 23", "I am 23 years old", "23", etc. If user says "I'm 23", extract "23" as user_age.
@@ -73,21 +71,21 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {{
   "reply": "Your response to the user. If goal_type is clear, IMMEDIATELY ask the first question of the corresponding category.",
-  "goal_type": "career_improve | career_change | career_find | no_goal",
-  "next": "career_intro | career_intro | career_intro | no_goal_intro"
+  "goal_type": "improve | change | find | lost",
+  "next": "improve_intro | change_intro | find_intro | lost_intro"
 }}
 
 User message: "{user_message}"
 
 CRITICAL RULES:
 1. Based on the user's message, set goal_type:
-   - "improve" or "current role" → "career_improve"
-   - "change" or "new field" → "career_change" 
-   - "don't have job" or "find path" → "career_find"
-   - "lost" or "don't know" → "no_goal"
+   - mentions like "improve", "current role", "grow in current job" → "improve"
+   - mentions like "change", "switch field", "new career" → "change" 
+   - mentions like "no job", "find path", "searching my path" → "find"
+   - mentions like "lost", "don't know", "unsure" → "lost"
 2. If unclear, politely clarify and set next to 'classify_category'.
 3. If goal_type is clear, your reply MUST include a transition and the first question of the next category.
-4. All career-related options should go to 'career_intro'.
+4. Set next strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to goal_type in the same order.
 5. goal_type MUST be a string, never null.
 6. NEVER accuse the user of not answering a question you haven't asked yet.
 7. If the user provides their goal preference, acknowledge it and move to the appropriate next step.

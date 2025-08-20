@@ -22,7 +22,7 @@ class CollectBasicInfoResponse(LLMResponse):
         extra = "forbid" 
 
 class ClassifyCategoryResponse(LLMResponse):
-    goal_type: str  # 'career_improve' | 'career_change' | 'career_find' | 'no_goal'
+    goal_type: str  # 'improve' | 'change' | 'find' | 'lost'
     
     class Config:
         extra = "forbid" 
