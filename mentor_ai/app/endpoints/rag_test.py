@@ -269,3 +269,86 @@ async def test_agent_with_rag():
             "error": f"Test failed: {str(e)}",
             "message": "Agent RAG test failed"
         }
+
+@router.post("/rag/test/plan")
+async def test_plan_generation_with_rag():
+    """Test plan generation with RAG knowledge"""
+    try:
+        from ...cursor.core.graph_processor import GraphProcessor
+        from ...cursor.core.root_graph import root_graph
+        
+        # Test state with retrieved chunks
+        test_state = {
+            "session_id": "test_plan_rag",
+            "user_name": "John",
+            "user_age": 28,
+            "goal_type": "career_improve",
+            "career_goal": "Become a team leader",
+            "skills": ["communication", "project management", "teamwork"],
+            "goals": ["Improve leadership skills", "Build team management experience", "Develop strategic thinking"],
+            "retrieved_chunks": [
+                {
+                    "title": "Creative Management for Creative Teams - Section 86",
+                    "content": "Goal setting, Looking, Listening, Empathising, Questioning, Giving feedback, Intuiting, Checking. Most of these appear on any standard list of coaching skills.",
+                    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf"
+                },
+                {
+                    "title": "Creative Management for Creative Teams - Section 87", 
+                    "content": "Coaching is a goal-focused approach, so the ability to elicit clear, well-defined and emotionally engaging goals from a coachee is one of the most important skills.",
+                    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf"
+                },
+                {
+                    "title": "Creative Management for Creative Teams - Section 88",
+                    "content": "SMART goals (Specific, Measurable, Attractive, Realistic and Timed). A coach will typically have the habit of thinking and asking questions from a goal-focused mindset.",
+                    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf"
+                }
+            ]
+        }
+        
+        # Test generate_plan node
+        if "generate_plan" in root_graph:
+            try:
+                reply, updated_state, next_node = GraphProcessor.process_node(
+                    "generate_plan",
+                    "Generate my 12-week plan using the coaching knowledge from the retrieved chunks",
+                    test_state
+                )
+                
+                plan = updated_state.get("plan", {})
+                reply_text = updated_state.get("reply", "")
+                
+                # Check if all 12 weeks are present
+                week_keys = [f"week_{i}_topic" for i in range(1, 13)]
+                missing_weeks = [week for week in week_keys if week not in plan]
+                
+                return {
+                    "success": True,
+                    "next_node": next_node,
+                    "plan_weeks_count": len(plan),
+                    "all_12_weeks_present": len(missing_weeks) == 0,
+                    "missing_weeks": missing_weeks,
+                    "plan": plan,
+                    "reply": reply_text,
+                    "retrieved_chunks_used": len(test_state.get("retrieved_chunks", [])),
+                    "message": "Plan generation with RAG test completed"
+                }
+                
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": f"Plan generation failed: {str(e)}",
+                    "message": "Plan generation test failed"
+                }
+        else:
+            return {
+                "success": False,
+                "error": "generate_plan node not found",
+                "message": "Plan generation node not available"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Test failed: {str(e)}",
+            "message": "Plan generation test failed"
+        }
