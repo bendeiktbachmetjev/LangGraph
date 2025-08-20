@@ -7,7 +7,9 @@ import requests
 import json
 import time
 
-BASE_URL = "http://localhost:8000"
+# Use Railway URL by default, fallback to localhost for development
+import os
+BASE_URL = os.getenv("RAG_API_URL", "https://spotted-mom-production.up.railway.app")
 
 def test_rag_status():
     """Test RAG status endpoint"""
@@ -67,7 +69,11 @@ def test_rag_search(query, top_k=3):
 
 def main():
     """Run all tests"""
-    print("🚀 Starting RAG API Tests\n")
+    print("🚀 Starting RAG API Tests")
+    print(f"📍 Using API URL: {BASE_URL}")
+    print("💡 To test local server: RAG_API_URL=http://localhost:8000 python test_rag_frontend.py")
+    print("💡 To test Railway: RAG_API_URL=https://spotted-mom-production.up.railway.app python test_rag_frontend.py")
+    print()
     
     # Test status
     if not test_rag_status():

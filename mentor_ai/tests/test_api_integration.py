@@ -1,8 +1,9 @@
 import pytest
 import requests
 import time
+import os
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = os.getenv("API_URL", "http://localhost:8000")
 
 def test_full_flow():
     # 1. Create session
