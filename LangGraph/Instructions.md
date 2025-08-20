@@ -111,9 +111,9 @@ Do you currently have a main personal goal? If yes, what kind of goal is it?
 - reply: string
 - state.goal_type: "career" | "self_growth" | "relationships" | "no_goal" (determined by LLM analysis)
 - next:
-    if state.goal_type == "career" → career_intro
+    if state.goal_type == "career" → improve_intro
     if state.goal_type == "self_growth" → self_growth_intro
-    if state.goal_type == "relationships" → relationships_intro
+    if state.goal_type == "relationships" → change_intro
     if state.goal_type == "no_goal" → no_goal_intro
 
 # Node: exit_to_plan
@@ -185,7 +185,7 @@ Ask what is preventing the user from reaching that goal and extract obstacles fr
 What are the 2–3 main obstacles preventing you from achieving that career goal?
 ## Outputs
 - reply: string
-- state.career_obstacles: list (extracted by LLM from natural response)
+- state.improve_obstacles: list (extracted by LLM from natural response)
 - next: exit_to_plan
 
 3.4 modules/relationships.md

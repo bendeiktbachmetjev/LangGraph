@@ -90,20 +90,19 @@ class StateManager:
             # Append new week1 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-        elif node.node_id == "relationships_people":
+        elif node.node_id == "change_skills":
             if llm_data.get("relation_people") and llm_data["relation_people"] != "unavailable":
                 updated_state["relation_people"] = llm_data["relation_people"]
             elif llm_data.get("relation_people") == "unavailable":
                 updated_state["relation_people"] = "unavailable"
-        elif node.node_id == "relationships_issues":
+        elif node.node_id == "change_obstacles":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":
                 updated_state["goals"] = llm_data["goals"]
                 # Если goals определены, сразу готовимся к генерации плана
                 updated_state["next"] = "generate_plan"
             elif llm_data.get("goals") == "unavailable":
                 updated_state["goals"] = []
-        elif node.node_id == "relationships_to_plan":
-            pass
+
         elif node.node_id == "improve_intro":
             # Persist structured job circumstances if provided
             if isinstance(llm_data.get("job_circumstances"), dict):

@@ -77,11 +77,11 @@ def test_full_onboarding_flow():
     assert resp.status_code == 200
     chat_data = resp.json()
     print("Reply after goal type:", chat_data["reply"])
-    # Должен быть вопрос из career_intro (или аналогичной ветки)
+    # Должен быть вопрос из improve_intro (или аналогичной ветки)
     assert "job" in chat_data["reply"].lower() or "position" in chat_data["reply"].lower() or "role" in chat_data["reply"].lower() 
 
 def test_carrier_intro_flow():
-    """CarrierIntroTest: Полный flow до career_intro и проверка перехода к career_goal"""
+    """CarrierIntroTest: Полный flow до improve_intro и проверка перехода к career_goal"""
     # 1. Create session
     resp = requests.post(f"{BASE_URL}/session")
     assert resp.status_code == 200
@@ -111,7 +111,7 @@ def test_carrier_intro_flow():
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
     assert resp.status_code == 200
     chat_data = resp.json()
-    # Должно быть интро-сообщение из career_intro
+    # Должно быть интро-сообщение из improve_intro
     assert "career" in chat_data["reply"].lower()
     # CarrierIntroTest завершён успешно 
 
@@ -138,7 +138,7 @@ def test_career_category_clarification():
     chat_data = resp.json()
     # Бот должен переспросить, а не перейти к intro
     assert "goal" in chat_data["reply"].lower() or "could you clarify" in chat_data["reply"].lower() or "not sure" in chat_data["reply"].lower() or "please specify" in chat_data["reply"].lower()
-    # Не должен быть переход к career_intro/self_growth_intro/...
+    # Не должен быть переход к improve_intro/self_growth_intro/...
     assert not ("career" in chat_data["reply"].lower() and "steps" in chat_data["reply"].lower()) 
 
 def test_career_full_flow_http():
@@ -180,7 +180,7 @@ def test_career_full_flow_http():
     chat_data = resp.json()
     assert "obstacle" in chat_data["reply"].lower() or "challenge" in chat_data["reply"].lower()
 
-    # 5. career_obstacles: неясный ответ (должен быть переспрос)
+    # 5. improve_obstacles: неясный ответ (должен быть переспрос)
     chat_payload = {"message": "I don't know, maybe something..."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
@@ -188,7 +188,7 @@ def test_career_full_flow_http():
     chat_data = resp.json()
     assert "obstacle" in chat_data["reply"].lower() or "clarify" in chat_data["reply"].lower()
 
-    # 6. career_obstacles: валидный ответ
+    # 6. improve_obstacles: валидный ответ
     chat_payload = {"message": "Lack of experience and confidence."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
@@ -227,7 +227,7 @@ def test_career_to_plan_http():
     chat_data = resp.json()
     assert "obstacle" in chat_data["reply"].lower() or "challenge" in chat_data["reply"].lower()
 
-    # 4. career_obstacles
+    # 4. improve_obstacles
     chat_payload = {"message": "Lack of experience and confidence."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
@@ -262,7 +262,7 @@ def test_real_generate_plan_http():
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
     assert resp.status_code == 200
 
-    # 4. career_obstacles
+    # 4. improve_obstacles
     chat_payload = {"message": "Lack of experience and confidence."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
@@ -318,7 +318,7 @@ def test_get_goal_http():
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
     assert resp.status_code == 200
 
-    # 4. career_obstacles
+    # 4. improve_obstacles
     chat_payload = {"message": "Lack of experience and confidence."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
@@ -370,7 +370,7 @@ def test_get_topics_http():
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)
     assert resp.status_code == 200
 
-    # 4. career_obstacles
+    # 4. improve_obstacles
     chat_payload = {"message": "Lack of experience and confidence."}
     time.sleep(0.5)
     resp = requests.post(f"{BASE_URL}/chat/{session_id}", json=chat_payload)

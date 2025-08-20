@@ -79,50 +79,39 @@ def get_improve_obstacles_node():
         next_node=lambda state: "generate_plan" if state.get("goals") else "improve_obstacles"
     )
 
-def get_relationships_intro_node():
+def get_change_intro_node():
     return Node(
-        node_id="relationships_intro",
+        node_id="change_intro",
         system_prompt="You are introducing the relationships goal section. Motivate the user and explain that you will ask a few questions to help clarify their relationship goals.",
         outputs={
             "reply": str,
-            "next": "relationships_people"
+            "next": "change_skills"
         },
-        next_node=lambda state: "relationships_people"
+        next_node=lambda state: "change_skills"
     )
 
-def get_relationships_people_node():
+def get_change_skills_node():
     return Node(
-        node_id="relationships_people",
+        node_id="change_skills",
         system_prompt="You are helping the user clarify with whom they want to improve relationships. If the answer is unclear or missing, politely ask again.",
         outputs={
             "reply": str,
             "state.relation_people": str,
             "next": str
         },
-        next_node=lambda state: "relationships_issues" if state.get("relation_people") else "relationships_people"
+        next_node=lambda state: "change_obstacles" if state.get("relation_people") else "change_skills"
     )
 
-def get_relationships_issues_node():
+def get_change_obstacles_node():
     return Node(
-        node_id="relationships_issues",
+        node_id="change_obstacles",
         system_prompt="You are helping the user turn their main relationship issues into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
         outputs={
             "reply": str,
             "goals": list,
             "next": str
         },
-        next_node=lambda state: "relationships_to_plan" if state.get("goals") else "relationships_issues"
-    )
-
-def get_relationships_to_plan_node():
-    return Node(
-        node_id="relationships_to_plan",
-        system_prompt="You are finishing the relationships information collection. Thank the user and inform them that a personalized plan will be generated next.",
-        outputs={
-            "reply": str,
-            "next": "generate_plan"
-        },
-        next_node=lambda state: "generate_plan"
+        next_node=lambda state: "generate_plan" if state.get("goals") else "change_obstacles"
     )
 
 def get_self_growth_intro_node():
@@ -157,7 +146,7 @@ def get_self_growth_obstacles_node():
             "goals": list,
             "next": str
         },
-        next_node=lambda state: "self_growth_to_plan" if state.get("goals") else "self_growth_obstacles"
+        next_node=lambda state: "generate_plan" if state.get("goals") else "self_growth_obstacles"
     )
 
 def get_no_goal_intro_node():
@@ -220,10 +209,9 @@ root_graph = {
     "improve_intro": get_improve_intro_node(),
     "improve_skills": get_improve_skills_node(),
     "improve_obstacles": get_improve_obstacles_node(),
-    "relationships_intro": get_relationships_intro_node(),
-    "relationships_people": get_relationships_people_node(),
-    "relationships_issues": get_relationships_issues_node(),
-    "relationships_to_plan": get_relationships_to_plan_node(),
+    "change_intro": get_change_intro_node(),
+    "change_skills": get_change_skills_node(),
+    "change_obstacles": get_change_obstacles_node(),
     "self_growth_intro": get_self_growth_intro_node(),
     "self_growth_goal": get_self_growth_goal_node(),
     "self_growth_obstacles": get_self_growth_obstacles_node(),

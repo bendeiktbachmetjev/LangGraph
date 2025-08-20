@@ -47,7 +47,7 @@ class SessionState(BaseModel):
     values: Optional[List[str]] = None
     career_now: Optional[str] = None
     career_goal: Optional[str] = None
-    career_obstacles: Optional[List[str]] = None
+    improve_obstacles: Optional[List[str]] = None
     relation_people: Optional[str] = None
     relation_issues: Optional[str] = None
     self_growth_area: Optional[str] = None

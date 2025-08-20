@@ -238,59 +238,49 @@ CRITICAL RULES:
 7. All strings must not contain unescaped quotes or special characters.
 8. next must always be "week1_chat".
 '''
-    elif node.node_id == "relationships_intro":
+    elif node.node_id == "change_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Motivate the user and IMMEDIATELY ask with whom they want to improve relationships.",
-  "next": "relationships_people"
+  "next": "change_skills"
 }
 CRITICAL RULES:
 1. Do NOT just motivate. Your reply MUST end with a clear question: 'With whom would you like to improve your relationships?'.
-2. Set next to 'relationships_people'.
+2. Set next to 'change_skills'.
 """
-    elif node.node_id == "relationships_people":
+    elif node.node_id == "change_skills":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Your response to the user",
   "relation_people": "extracted people as a string or null if not provided",
-  "next": "relationships_people | relationships_issues"
+  "next": "change_skills | change_obstacles"
 }
 CRITICAL RULES:
 1. ONLY extract with whom the user wants to improve relationships.
-2. If relation_people is missing or unclear, politely ask again and set next to "relationships_people".
-3. If relation_people is provided, acknowledge, ask what issues does the user have with these people and set next to "relationships_issues".
+2. If relation_people is missing or unclear, politely ask again and set next to "change_skills".
+3. If relation_people is provided, acknowledge, ask what issues does the user have with these people and set next to "change_obstacles".
 4. NEVER accuse the user of not answering a question you haven't asked yet.
 5. If the user provides the people they want to improve relationships with, acknowledge it and move to the next step.
 """
-    elif node.node_id == "relationships_issues":
+    elif node.node_id == "change_obstacles":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Thank the user for sharing their relationship issues. Clearly TELL that a personalized plan will be generated next. If issues are unclear, politely ask again.",
   "goals": ["Goal 1", "Goal 2", ...],
-  "next": "relationships_issues | generate_plan"
+  "next": "change_obstacles | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's main relationship issues to "goals" in JSON file (but don't include "goals" in the reply)
-2. If goals is missing or unclear, politely ask again and set next to 'relationships_issues'.
+2. If goals is missing or unclear, politely ask again and set next to 'change_obstacles'.
 3. If goals is provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about issues, people, or anything else at this step.
 5. NEVER accuse the user of not answering a question you haven't asked yet.
 6. If the user provides their relationship issues, acknowledge them and move to the next step.
 """
-    elif node.node_id == "relationships_to_plan":
-        json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
-{
-  "reply": "Thank the user and clearly explain that a personalized plan will be generated next. Optionally, briefly explain what will happen after the plan (Week 1 chat).",
-  "next": "generate_plan"
-}
-CRITICAL RULES:
-1. Do NOT just thank. Your reply MUST explain that a plan will be generated and what the next step is.
-2. Set next to 'generate_plan'.
-"""
+
     elif node.node_id == "self_growth_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
