@@ -99,8 +99,9 @@ class RegRetriever:
         all_chunks = []
         for query in queries:
             try:
-                # Get embedding for query
+                # Get embedding for query using the same method as search()
                 query_embedding = self._get_embedding(query)
+                logger.debug(f"Generated embedding for query: {query}")
                 
                 # Search vector store
                 chunks = self.vector_store.search(
@@ -113,6 +114,8 @@ class RegRetriever:
                 
             except Exception as e:
                 logger.error(f"Error searching for query '{query}': {e}")
+                import traceback
+                logger.error(f"Full traceback: {traceback.format_exc()}")
         
         # Remove duplicates and limit results
         unique_chunks = self._deduplicate_chunks(all_chunks)
