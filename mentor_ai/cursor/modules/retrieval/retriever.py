@@ -32,11 +32,26 @@ class RegRetriever:
         """
         try:
             if not self._is_initialized:
-                self.vector_store.load(index_path)
-                self._is_initialized = True
-                logger.info(f"Initialized retriever with index from {index_path}")
-        except FileNotFoundError:
-            logger.warning(f"Index not found at {index_path}. Retriever will return empty results.")
+                import os
+                logger.info(f"Checking if index path exists: {index_path}")
+                logger.info(f"Current working directory: {os.getcwd()}")
+                logger.info(f"Directory contents: {os.listdir('.')}")
+                
+                if os.path.exists(index_path):
+                    logger.info(f"Index path exists. Contents: {os.listdir(index_path)}")
+                    self.vector_store.load(index_path)
+                    self._is_initialized = True
+                    logger.info(f"Successfully initialized retriever with index from {index_path}")
+                else:
+                    logger.error(f"Index path does not exist: {index_path}")
+                    self._is_initialized = True  # Mark as initialized to avoid repeated warnings
+        except FileNotFoundError as e:
+            logger.warning(f"Index not found at {index_path}: {e}")
+            self._is_initialized = True  # Mark as initialized to avoid repeated warnings
+        except Exception as e:
+            logger.error(f"Error initializing retriever: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             self._is_initialized = True  # Mark as initialized to avoid repeated warnings
     
     def retrieve(self, state: Dict[str, Any], user_message: str = "") -> RetrievalResult:
@@ -252,13 +267,16 @@ class RegRetriever:
             if not self._is_initialized:
                 import os
                 index_path = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
+                logger.info(f"Attempting to initialize retriever with index path: {index_path}")
                 self.initialize(index_path)
             
             # Get embedding for query
             query_embedding = self._get_embedding(query)
+            logger.info(f"Generated embedding for query: {query}")
             
             # Search vector store
             chunks = self.vector_store.search(query_embedding, top_k=top_k)
+            logger.info(f"Vector store returned {len(chunks)} chunks")
             
             # Convert to dictionary format for API response
             results = []
@@ -271,10 +289,13 @@ class RegRetriever:
                 }
                 results.append(result)
             
+            logger.info(f"Returning {len(results)} search results")
             return results
             
         except Exception as e:
             logger.error(f"Error in search: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             # Return mock data for testing
             return [
                 {
