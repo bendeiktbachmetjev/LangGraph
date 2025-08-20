@@ -109,7 +109,11 @@ CRITICAL RULES:
 1. Goal: understand the user's current work context (who they are, their position, industry, salary if shared, and whether they are satisfied with pay and job overall).
 2. Extract details from the user's message into job_circumstances. If a field is absent, set it to null.
 3. Ask ONLY about missing fields. Do NOT ask about obstacles yet.
-4. If role, position, and job_satisfaction are all present (salary fields optional), set next to 'improve_obstacles'; otherwise set next to 'improve_intro'.
+4. Decide yourself when information is sufficient to move on:
+   - If role, position, and job_satisfaction are present (salary optional) → set next to 'improve_obstacles'.
+   - OR if the user explicitly signals they don't want to share more details now (e.g., "that's enough", "prefer to move on", "not comfortable sharing salary") → acknowledge and set next to 'improve_obstacles'.
+   - OR if the user sounds ready to proceed (e.g., asks for next steps) → set next to 'improve_obstacles'.
+   - Otherwise, keep next as 'improve_intro' and politely ask for the most important missing item.
 5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "improve_obstacles":
