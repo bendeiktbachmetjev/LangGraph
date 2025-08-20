@@ -102,6 +102,64 @@ async def rag_status():
         "status": "operational" if settings.REG_ENABLED else "disabled"
     }
 
+@router.get("/rag/debug")
+async def rag_debug():
+    """Debug endpoint to check index files and paths"""
+    import os
+    import json
+    
+    debug_info = {
+        "current_working_directory": os.getcwd(),
+        "rag_enabled": settings.REG_ENABLED,
+        "index_path": settings.RAG_INDEX_PATH,
+        "corpus_path": settings.RAG_CORPUS_PATH,
+        "directory_contents": {},
+        "index_files": {}
+    }
+    
+    # Check current directory contents
+    try:
+        debug_info["directory_contents"]["current"] = os.listdir(".")
+    except Exception as e:
+        debug_info["directory_contents"]["current_error"] = str(e)
+    
+    # Check if RAG directory exists
+    try:
+        if os.path.exists("RAG"):
+            debug_info["directory_contents"]["rag"] = os.listdir("RAG")
+            if os.path.exists("RAG/index"):
+                debug_info["directory_contents"]["rag_index"] = os.listdir("RAG/index")
+        else:
+            debug_info["directory_contents"]["rag"] = "RAG directory not found"
+    except Exception as e:
+        debug_info["directory_contents"]["rag_error"] = str(e)
+    
+    # Check specific index files
+    index_files = ["chunks.json", "embeddings.npy", "metadata.json"]
+    for filename in index_files:
+        file_path = f"RAG/index/{filename}"
+        try:
+            if os.path.exists(file_path):
+                file_size = os.path.getsize(file_path)
+                debug_info["index_files"][filename] = {
+                    "exists": True,
+                    "size": file_size,
+                    "path": file_path
+                }
+            else:
+                debug_info["index_files"][filename] = {
+                    "exists": False,
+                    "path": file_path
+                }
+        except Exception as e:
+            debug_info["index_files"][filename] = {
+                "exists": False,
+                "error": str(e),
+                "path": file_path
+            }
+    
+    return debug_info
+
 @router.post("/rag/test/dev", response_model=RAGTestResponse)
 async def test_rag_search_dev(request: RAGTestRequest):
     """Test RAG search functionality without authentication (development only)"""
