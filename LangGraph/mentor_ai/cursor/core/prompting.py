@@ -71,30 +71,23 @@ CRITICAL RULES:
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {{
   "reply": "Your response to the user. If goal_type is clear, IMMEDIATELY ask the first question of the corresponding category.",
-  "goal_type": "improve | change | find | lost",
+  "goal_type": "One of the four FULL DESCRIPTIONS listed in CRITICAL RULES (copy verbatim)",
   "next": "improve_intro | change_intro | find_intro | lost_intro"
 }}
 
 User message: "{user_message}"
 
-CATEGORIES (choose the closest one):
-• improve — Strengthen your current path: discover and amplify your best strengths in your existing role, grow where you already are.
-• change — Reroute based on your talents: transition to a new role/field that aligns better with your natural abilities.
-• find — Explore your strengths first: you may not have a job now; identify your core strengths and interests to choose a direction.
-• lost — Find meaningful goals: you feel uncertain or overwhelmed; clarify life and professional goals step by step.
-
 CRITICAL RULES:
-1. Map the user's intent to the closest category:
-   - Mentions of improving/growing in the current job → "improve"
-   - Mentions of switching/changing field or career → "change"
-   - Mentions of having no job or wanting to discover strengths/path → "find"
-   - Mentions of being lost/unsure/don't know what to do → "lost"
-2. If unclear, politely clarify and set next to 'classify_category'.
+1. goal_type MUST be EXACTLY one of these full descriptions (copy verbatim):
+   - "Improve in the current job: discover and develop your strongest qualities in your existing role, and grow where you already are."
+   - "Change the job: transition to a new role or field that better matches your talents and natural abilities."
+   - "Find strengths without a job: explore your core strengths and interests first to choose a meaningful direction."
+   - "Feel lost: clarify life and professional goals step by step and define a path forward."
+2. Determine which description fits best based on the user's intent. If unclear, politely ask a short clarifying question and set next to 'classify_category'.
 3. If goal_type is clear, your reply MUST include a short transition and the first question of the next category.
-4. Set next strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to goal_type in the same order.
-5. goal_type MUST be a non-empty string.
-6. NEVER accuse the user of not answering a question you haven't asked yet.
-7. If the user provides their goal preference, acknowledge it and move to the appropriate next step.
+4. Set next strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to the selected description in the same order as above.
+5. NEVER accuse the user of not answering a question you haven't asked yet.
+6. All strings must be short and without line breaks.
 """
     elif node.node_id == "career_intro":
         json_instructions = """
