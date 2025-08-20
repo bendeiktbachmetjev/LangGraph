@@ -45,39 +45,25 @@ async def chat_with_session(
     reply = None
     updated_state = state
     next_node = node_id
-    first_iteration = True
 
-    # Добавляем сообщение пользователя в историю (только для первого шага)
+    # Append user message to history once
     if user_message:
         updated_state["history"].append({"role": "user", "content": user_message})
 
-    while True:
-        try:
-            reply, updated_state, next_node = GraphProcessor.process_node(
-                node_id=next_node,
-                user_message=user_message if first_iteration else "",
-                current_state=updated_state
-            )
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
-        
-        # После получения ответа от LLM добавляем его в историю (только если есть reply)
-        if reply:
-            updated_state["history"].append({"role": "assistant", "content": reply})
+    # Process exactly one node per request to avoid double assistant messages
+    try:
+        reply, updated_state, next_node = GraphProcessor.process_node(
+            node_id=next_node,
+            user_message=user_message,
+            current_state=updated_state
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
 
-        # Update state in DB after each node
-        updated_state["current_node"] = next_node
-        await mongodb_manager.update_session(session_id, updated_state)
+    if reply:
+        updated_state["history"].append({"role": "assistant", "content": reply})
 
-        # Определяем, нужен ли пользовательский ввод для следующего узла
-        if first_iteration:
-            first_iteration = False
-        else:
-            if reply:
-                break
-        user_message = ""
-        node_id = next_node
-        if node_id == "exit_to_plan":
-            break
-    
-    return ChatResponse(reply=reply, session_id=session_id) 
+    updated_state["current_node"] = next_node
+    await mongodb_manager.update_session(session_id, updated_state)
+
+    return ChatResponse(reply=reply, session_id=session_id)
