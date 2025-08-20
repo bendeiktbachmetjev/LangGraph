@@ -94,7 +94,15 @@ class MongoDBManager:
                 "session_id": session_id,
                 "user_id": user_id,
                 "phase": "incomplete",
-                "history": [],  # Инициализация истории чата
+                # Initialize chat history with the assistant's first welcome message
+                "history": [
+                    {
+                        "role": "assistant",
+                        "content": "Hi there! 👋 This is your onboarding chat. Feel free to introduce yourself. May I ask your name and your age?"
+                    }
+                ],
+                # Explicitly start from the first node
+                "current_node": "collect_basic_info",
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow()
             }
