@@ -212,3 +212,60 @@ async def test_rag_search_dev(request: RAGTestRequest):
             status_code=500, 
             detail=f"RAG search failed: {str(e)}"
         )
+
+@router.post("/rag/test/agent")
+async def test_agent_with_rag():
+    """Test full agent flow with RAG integration"""
+    try:
+        from ...cursor.core.graph_processor import GraphProcessor
+        from ...cursor.core.root_graph import root_graph
+        
+        # Simulate a complete user journey with RAG
+        test_state = {
+            "session_id": "test_railway_rag_agent",
+            "user_name": "John",
+            "user_age": 28,
+            "goal_type": "career_improve",
+            "career_goal": "Become a team leader",
+            "skills": ["communication", "project management", "teamwork"],
+            "goals": ["Improve leadership skills", "Build team management experience", "Develop strategic thinking"]
+        }
+        
+        # Test retrieve_reg node
+        if "retrieve_reg" in root_graph:
+            try:
+                reply, updated_state, next_node = GraphProcessor.process_node(
+                    "retrieve_reg",
+                    "I want to improve my leadership and team management skills",
+                    test_state
+                )
+                
+                retrieved_chunks = updated_state.get("retrieved_chunks", [])
+                
+                return {
+                    "success": True,
+                    "next_node": next_node,
+                    "retrieved_chunks_count": len(retrieved_chunks),
+                    "retrieved_chunks": retrieved_chunks[:3],  # Show first 3 chunks
+                    "message": "Agent RAG integration test completed successfully"
+                }
+                
+            except Exception as e:
+                return {
+                    "success": False,
+                    "error": f"Agent RAG test failed: {str(e)}",
+                    "message": "Agent RAG integration test failed"
+                }
+        else:
+            return {
+                "success": False,
+                "error": "retrieve_reg node not found",
+                "message": "RAG node not available in agent"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Test failed: {str(e)}",
+            "message": "Agent RAG test failed"
+        }
