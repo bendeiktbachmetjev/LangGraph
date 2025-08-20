@@ -133,9 +133,10 @@ CRITICAL RULES:
 2. Additionally capture “exciting topics” — things that strongly energize the user (non‑sexual meaning): problems they are obsessed with, topics that make their eyes light up, areas they find especially “sexy” intellectually. Save them to 'exciting_topics'.
 3. Extract items from the user's message into arrays. Use concise noun phrases. If something is absent, use an empty array.
 4. Ask ONLY for the most important missing piece (e.g., "What skills do you use most confidently?", "What do you enjoy in your free time?", or "What topics really excite you?"). Avoid long lists of questions.
-5. Decide yourself when information is sufficient:
-   - If at least one of skills or interests is non-empty and the user appears ready to proceed (or explicitly asks to move on) → set next to 'improve_obstacles'.
-   - Otherwise, keep next as 'improve_skills'.
+5. Decide yourself when information is sufficient to proceed:
+   - If any TWO of these are non-empty: skills, interests, activities, exciting_topics → set next to 'improve_obstacles'.
+   - OR if the user signals readiness to move on, or further probing brings diminishing returns → set next to 'improve_obstacles'.
+   - Otherwise, keep next as 'improve_skills' and ask for the single most valuable missing piece.
 6. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "improve_obstacles":
