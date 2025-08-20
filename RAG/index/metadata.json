@@ -1,8 +1,18 @@
 {
   "version": "1.0",
   "store_type": "SimpleVectorStore",
-  "total_documents": 5,
+  "total_documents": 21,
   "embedding_dimension": 1536,
-  "created_at": 1755718979.05826,
-  "embedding_model": "text-embedding-3-small"
+  "created_at": 1755719521.1152902,
+  "embedding_model": "text-embedding-3-small",
+  "categories": [
+    "goal-setting",
+    "project-management",
+    "time-management",
+    "creativity",
+    "productivity",
+    "coaching",
+    "leadership",
+    "communication"
+  ]
 }

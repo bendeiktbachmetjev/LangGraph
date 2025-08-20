@@ -1,67 +1,296 @@
 [
   {
     "id": "chunk_1",
-    "content": "Effective coaching involves active listening and asking powerful questions that help clients discover their own solutions. The key is to create a safe space where clients feel comfortable exploring their thoughts and feelings.",
-    "title": "Coaching Techniques",
+    "content": "Active listening involves fully concentrating on what is being said rather than just passively hearing the message. Use techniques like paraphrasing, asking clarifying questions, and providing nonverbal feedback.",
+    "title": "Active Listening Techniques",
     "source": "Coaching-Connections-1753980731.pdf",
     "chunk_index": 0,
     "start_char": 0,
     "end_char": 1000,
     "metadata": {
+      "category": "coaching",
       "score": 0.9
     },
-    "created_at": "2025-08-20 22:42:56.615593"
+    "created_at": "2025-08-20 22:51:50.105351"
   },
   {
     "id": "chunk_2",
-    "content": "SMART goals are Specific, Measurable, Achievable, Relevant, and Time-bound. This framework helps ensure goals are clear and attainable. Break down large goals into smaller, manageable steps.",
-    "title": "Goal Setting Framework",
+    "content": "Powerful questions are open-ended and thought-provoking. They help clients explore their thoughts and discover their own solutions. Examples include 'What would success look like?' and 'What's stopping you?'",
+    "title": "Powerful Questioning Methods",
     "source": "Coaching-Connections-1753980731.pdf",
     "chunk_index": 1,
     "start_char": 1000,
     "end_char": 2000,
     "metadata": {
-      "score": 0.8
+      "category": "coaching",
+      "score": 0.89
     },
-    "created_at": "2025-08-20 22:42:57.137371"
+    "created_at": "2025-08-20 22:51:51.785799"
   },
   {
     "id": "chunk_3",
-    "content": "Non-verbal communication accounts for 55% of how we convey meaning. Pay attention to body language and tone of voice. Active listening involves both hearing and understanding.",
-    "title": "Communication Skills",
-    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "content": "SMART goals are Specific, Measurable, Achievable, Relevant, and Time-bound. Break down large goals into smaller, manageable steps and track progress regularly.",
+    "title": "Goal Setting Strategies",
+    "source": "Coaching-Connections-1753980731.pdf",
     "chunk_index": 2,
     "start_char": 2000,
     "end_char": 3000,
     "metadata": {
-      "score": 0.7
+      "category": "goal-setting",
+      "score": 0.88
     },
-    "created_at": "2025-08-20 22:42:57.491753"
+    "created_at": "2025-08-20 22:51:52.395767"
   },
   {
     "id": "chunk_4",
-    "content": "Leadership is about inspiring and guiding others toward a common goal. Effective leaders lead by example and create an environment where team members can thrive and grow.",
-    "title": "Leadership Development",
+    "content": "Transformational leaders inspire and motivate their team members to exceed expectations. They create a vision, communicate it effectively, and lead by example.",
+    "title": "Transformational Leadership",
     "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
     "chunk_index": 3,
     "start_char": 3000,
     "end_char": 4000,
     "metadata": {
-      "score": 0.6
+      "category": "leadership",
+      "score": 0.87
     },
-    "created_at": "2025-08-20 22:42:57.972618"
+    "created_at": "2025-08-20 22:51:52.842360"
   },
   {
     "id": "chunk_5",
-    "content": "Time management is crucial for productivity and work-life balance. Prioritize tasks, eliminate distractions, and use techniques like the Pomodoro method to stay focused.",
-    "title": "Time Management",
+    "content": "Effective team building activities include trust exercises, problem-solving challenges, and collaborative projects. Focus on building communication and trust among team members.",
+    "title": "Team Building Activities",
     "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
     "chunk_index": 4,
     "start_char": 4000,
     "end_char": 5000,
     "metadata": {
-      "score": 0.5
+      "category": "leadership",
+      "score": 0.86
     },
-    "created_at": "2025-08-20 22:42:58.424828"
+    "created_at": "2025-08-20 22:51:53.789961"
+  },
+  {
+    "id": "chunk_6",
+    "content": "Conflict resolution involves identifying the root cause of disagreements, facilitating open communication, and finding mutually acceptable solutions.",
+    "title": "Conflict Resolution Skills",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 5,
+    "start_char": 5000,
+    "end_char": 6000,
+    "metadata": {
+      "category": "leadership",
+      "score": 0.85
+    },
+    "created_at": "2025-08-20 22:51:54.276984"
+  },
+  {
+    "id": "chunk_7",
+    "content": "Nonverbal communication includes body language, facial expressions, gestures, and tone of voice. It accounts for 55% of how we convey meaning in conversations.",
+    "title": "Nonverbal Communication",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 6,
+    "start_char": 6000,
+    "end_char": 7000,
+    "metadata": {
+      "category": "communication",
+      "score": 0.8400000000000001
+    },
+    "created_at": "2025-08-20 22:51:54.671745"
+  },
+  {
+    "id": "chunk_8",
+    "content": "Effective public speaking involves preparation, practice, and confidence. Use storytelling, maintain eye contact, and speak clearly with appropriate pacing.",
+    "title": "Public Speaking Tips",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 7,
+    "start_char": 7000,
+    "end_char": 8000,
+    "metadata": {
+      "category": "communication",
+      "score": 0.8300000000000001
+    },
+    "created_at": "2025-08-20 22:51:55.071009"
+  },
+  {
+    "id": "chunk_9",
+    "content": "Clear written communication uses simple language, proper structure, and active voice. Avoid jargon and ensure your message is easily understood by the intended audience.",
+    "title": "Written Communication",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 8,
+    "start_char": 8000,
+    "end_char": 9000,
+    "metadata": {
+      "category": "communication",
+      "score": 0.8200000000000001
+    },
+    "created_at": "2025-08-20 22:51:55.469897"
+  },
+  {
+    "id": "chunk_10",
+    "content": "The Pomodoro Technique involves working for 25 minutes followed by a 5-minute break. This helps maintain focus and prevent burnout during long work sessions.",
+    "title": "Pomodoro Technique",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 9,
+    "start_char": 9000,
+    "end_char": 10000,
+    "metadata": {
+      "category": "time-management",
+      "score": 0.81
+    },
+    "created_at": "2025-08-20 22:51:55.928849"
+  },
+  {
+    "id": "chunk_11",
+    "content": "Use a priority matrix to categorize tasks by urgency and importance. Focus on important and urgent tasks first, then important but not urgent tasks.",
+    "title": "Priority Matrix",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 10,
+    "start_char": 10000,
+    "end_char": 11000,
+    "metadata": {
+      "category": "time-management",
+      "score": 0.8
+    },
+    "created_at": "2025-08-20 22:51:56.459972"
+  },
+  {
+    "id": "chunk_12",
+    "content": "Effective delegation involves identifying the right person for the task, providing clear instructions, and following up on progress without micromanaging.",
+    "title": "Delegation Strategies",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 11,
+    "start_char": 11000,
+    "end_char": 12000,
+    "metadata": {
+      "category": "time-management",
+      "score": 0.79
+    },
+    "created_at": "2025-08-20 22:51:57.026928"
+  },
+  {
+    "id": "chunk_13",
+    "content": "Effective brainstorming involves generating many ideas without judgment, building on others' ideas, and encouraging creative thinking through various techniques.",
+    "title": "Brainstorming Techniques",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 12,
+    "start_char": 12000,
+    "end_char": 13000,
+    "metadata": {
+      "category": "creativity",
+      "score": 0.78
+    },
+    "created_at": "2025-08-20 22:51:57.370214"
+  },
+  {
+    "id": "chunk_14",
+    "content": "Design thinking involves empathizing with users, defining problems, ideating solutions, prototyping, and testing to create innovative solutions.",
+    "title": "Design Thinking Process",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 13,
+    "start_char": 13000,
+    "end_char": 14000,
+    "metadata": {
+      "category": "creativity",
+      "score": 0.77
+    },
+    "created_at": "2025-08-20 22:51:57.691185"
+  },
+  {
+    "id": "chunk_15",
+    "content": "Innovation management involves creating a culture that encourages new ideas, providing resources for experimentation, and implementing successful innovations.",
+    "title": "Innovation Management",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 14,
+    "start_char": 14000,
+    "end_char": 15000,
+    "metadata": {
+      "category": "creativity",
+      "score": 0.76
+    },
+    "created_at": "2025-08-20 22:51:58.098011"
+  },
+  {
+    "id": "chunk_16",
+    "content": "Maintaining work-life balance involves setting boundaries, prioritizing personal time, and ensuring that work doesn't consume all aspects of life.",
+    "title": "Work-Life Balance",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 15,
+    "start_char": 15000,
+    "end_char": 16000,
+    "metadata": {
+      "category": "productivity",
+      "score": 0.75
+    },
+    "created_at": "2025-08-20 22:51:58.569538"
+  },
+  {
+    "id": "chunk_17",
+    "content": "Effective stress management includes regular exercise, mindfulness practices, time management, and seeking support when needed.",
+    "title": "Stress Management",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 16,
+    "start_char": 16000,
+    "end_char": 17000,
+    "metadata": {
+      "category": "productivity",
+      "score": 0.74
+    },
+    "created_at": "2025-08-20 22:51:58.959943"
+  },
+  {
+    "id": "chunk_18",
+    "content": "Energy management involves understanding your natural rhythms, scheduling important tasks during peak energy times, and taking breaks to recharge.",
+    "title": "Energy Management",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 17,
+    "start_char": 17000,
+    "end_char": 18000,
+    "metadata": {
+      "category": "productivity",
+      "score": 0.73
+    },
+    "created_at": "2025-08-20 22:51:59.454274"
+  },
+  {
+    "id": "chunk_19",
+    "content": "Agile methodology involves iterative development, regular feedback, and adapting to change. It emphasizes collaboration, customer satisfaction, and working software.",
+    "title": "Agile Methodology",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 18,
+    "start_char": 18000,
+    "end_char": 19000,
+    "metadata": {
+      "category": "project-management",
+      "score": 0.72
+    },
+    "created_at": "2025-08-20 22:51:59.867661"
+  },
+  {
+    "id": "chunk_20",
+    "content": "Risk management involves identifying potential problems, assessing their impact, and developing strategies to mitigate or avoid them.",
+    "title": "Risk Management",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 19,
+    "start_char": 19000,
+    "end_char": 20000,
+    "metadata": {
+      "category": "project-management",
+      "score": 0.71
+    },
+    "created_at": "2025-08-20 22:52:00.312158"
+  },
+  {
+    "id": "chunk_21",
+    "content": "Effective stakeholder communication involves understanding their needs, providing regular updates, and managing expectations throughout the project.",
+    "title": "Stakeholder Communication",
+    "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+    "chunk_index": 20,
+    "start_char": 20000,
+    "end_char": 21000,
+    "metadata": {
+      "category": "project-management",
+      "score": 0.7
+    },
+    "created_at": "2025-08-20 22:52:00.668471"
   }
 ]
