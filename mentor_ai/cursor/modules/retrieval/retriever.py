@@ -266,7 +266,7 @@ class RegRetriever:
             # Initialize if not already done
             if not self._is_initialized:
                 import os
-                index_path = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
+                index_path = os.getenv("RAG_INDEX_PATH", "RAG/index")
                 logger.info(f"Attempting to initialize retriever with index path: {index_path}")
                 self.initialize(index_path)
             
