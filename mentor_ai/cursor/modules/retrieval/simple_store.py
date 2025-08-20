@@ -50,6 +50,10 @@ class SimpleVectorStore(VectorStore):
         # Convert query to numpy array
         query_array = np.array(query_embedding, dtype=np.float32).reshape(1, -1)
         
+        # Debug: check array shapes
+        logger.info(f"Query array shape: {query_array.shape}")
+        logger.info(f"Embeddings array shape: {self._embeddings_array.shape}")
+        
         # Normalize vectors for cosine similarity
         query_norm = query_array / np.linalg.norm(query_array, axis=1, keepdims=True)
         embeddings_norm = self._embeddings_array / np.linalg.norm(self._embeddings_array, axis=1, keepdims=True)
