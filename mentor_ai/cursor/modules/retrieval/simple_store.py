@@ -64,8 +64,13 @@ class SimpleVectorStore(VectorStore):
         logger.info(f"Similarities for top {top_k} results: {similarities[top_indices]}")
         logger.info(f"Top indices: {top_indices}")
         
-        # Return corresponding chunks
-        results = [self.chunks[i] for i in top_indices]
+        # Return corresponding chunks with scores
+        results = []
+        for i, idx in enumerate(top_indices):
+            chunk = self.chunks[idx]
+            # Add similarity score to chunk metadata
+            chunk.metadata["similarity_score"] = float(similarities[idx])
+            results.append(chunk)
         
         # Log the titles of returned chunks
         result_titles = [chunk.title for chunk in results]

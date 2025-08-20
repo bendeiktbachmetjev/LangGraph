@@ -286,11 +286,14 @@ class RegRetriever:
             # Convert to dictionary format for API response
             results = []
             for chunk in chunks:
+                # Get similarity score from metadata, fallback to 0.0
+                similarity_score = chunk.metadata.get("similarity_score", 0.0) if hasattr(chunk, 'metadata') and chunk.metadata else 0.0
+                
                 result = {
                     "title": getattr(chunk, 'title', 'Untitled'),
                     "content": chunk.content,
                     "source": getattr(chunk, 'source', 'Unknown'),
-                    "score": getattr(chunk, 'score', 0.0)
+                    "score": similarity_score
                 }
                 results.append(result)
             
