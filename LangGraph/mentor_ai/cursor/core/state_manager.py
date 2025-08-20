@@ -71,6 +71,9 @@ class StateManager:
                 updated_state["goals"] = llm_data["goals"]
             elif llm_data.get("goals") == "unavailable":
                 updated_state["goals"] = []
+            # Also store self-perceived negative qualities if provided
+            if isinstance(llm_data.get("negative_qualities"), list):
+                updated_state["negative_qualities"] = llm_data["negative_qualities"]
         elif node.node_id == "generate_plan":
             # Проверяем, что plan — dict и содержит 12 тем
             plan = llm_data.get("plan")

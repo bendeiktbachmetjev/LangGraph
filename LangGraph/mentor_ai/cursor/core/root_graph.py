@@ -69,10 +69,11 @@ def get_improve_skills_node():
 def get_improve_obstacles_node():
     return Node(
         node_id="improve_obstacles",
-        system_prompt="You are helping the user turn their main career obstacles into positive, actionable goals. If the answer is unclear or missing, politely ask again.",
+        system_prompt="You are helping the user turn their main career obstacles into positive, actionable goals. Capture self-perceived negative qualities neutrally. If unclear or missing, ask one concise clarification.",
         outputs={
             "reply": str,
             "goals": list,
+            "negative_qualities": list,
             "next": str
         },
         next_node=lambda state: "generate_plan" if state.get("goals") else "improve_obstacles"

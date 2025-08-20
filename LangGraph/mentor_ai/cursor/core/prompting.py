@@ -141,19 +141,19 @@ CRITICAL RULES:
 """
     elif node.node_id == "improve_obstacles":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Thank the user for sharing obstacles. Clearly explain that a personalized plan will be generated next. If obstacles are unclear, politely ask again.",
-  "goals": ["Obstacle 1", "Obstacle 2", ...],
+  "reply": "Thank the user for sharing. Briefly reflect and explain that a personalized plan will be generated next. No line breaks.",
+  "goals": ["Obstacle 1", "Obstacle 2", "..."],
+  "negative_qualities": ["Trait 1", "Trait 2", "..."],
   "next": "improve_obstacles | generate_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main career obstacles and turn them into 2–3 positive, actionable points.
-2. If goals is missing or unclear, politely ask again and set next to 'improve_obstacles'.
-3. If goals is provided, acknowledge and set next to 'generate_plan'.
-4. Do NOT ask about obstacles, skills, or anything else at this step.
-5. NEVER accuse the user of not answering a question you haven't asked yet.
-6. If the user provides their obstacles, acknowledge them and move to the next step.
+1. Extract the user's main obstacles and reframe them into 2–3 positive, actionable points in 'goals' (e.g., "Procrastination" → "Build a consistent focus routine").
+2. Separately capture self‑perceived negative qualities that may hinder progress in 'negative_qualities' (e.g., procrastination, fear of failure, perfectionism, low energy). Keep items concise; do not moralize.
+3. If obstacles are unclear or missing, politely ask one clarifying question and set next to 'improve_obstacles'.
+4. When there is enough clarity (goals not empty), acknowledge and set next to 'generate_plan'.
+5. Do NOT include full lists inside the reply; keep the reply short and supportive.
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
