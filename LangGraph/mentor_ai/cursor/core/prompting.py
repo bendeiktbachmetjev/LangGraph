@@ -194,9 +194,9 @@ Strictly follow this order and structure:
 }}
 
 EXAMPLE:
-{
+{{
   "reply": "Congratulations! Your 12-week plan is ready. Please start Week 1 chat.",
-  "plan": {
+  "plan": {{
     "week_1_topic": "Wheel of Life",
     "week_2_topic": "Zone of Genius",
     "week_3_topic": "Networking",
@@ -209,10 +209,10 @@ EXAMPLE:
     "week_10_topic": "Resilience",
     "week_11_topic": "Strategic Thinking",
     "week_12_topic": "Review & Celebrate"
-  },
+  }},
   "onboarding_chat_summary": "You want to grow in your career. Your main goal is to become a CTO. You are motivated and ready to start.",
   "next": "week1_chat"
-}
+}}
 
 CRITICAL RULES:
 1. Only output the JSON object, nothing else.

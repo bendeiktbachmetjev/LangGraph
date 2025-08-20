@@ -5,6 +5,7 @@ import logging
 from dotenv import load_dotenv
 from mentor_ai.app.storage.mongodb import mongodb_manager
 from mentor_ai.app.endpoints import session_router, chat_router
+from mentor_ai.app.endpoints.rag_test import router as rag_test_router
 import firebase_admin
 from firebase_admin import credentials
 import json
@@ -41,6 +42,7 @@ app.add_middleware(
 
 app.include_router(session_router)
 app.include_router(chat_router)
+app.include_router(rag_test_router, prefix="/api")
 
 @app.get("/")
 async def root():
