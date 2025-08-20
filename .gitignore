@@ -27,6 +27,12 @@ env/
 ENV/
 env.bak/
 venv.bak/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.production
 
 # IDE
 .vscode/
@@ -48,10 +54,7 @@ Thumbs.db
 *.log
 logs/
 
-# Environment variables (contains API keys)
-.env
-
-# Test cache
+# Testing
 .pytest_cache/
 .coverage
 htmlcov/
@@ -64,3 +67,7 @@ RAG/index/
 # Temporary files
 *.tmp
 *.temp
+MentorAIFirebase.json
+
+# Frontend (separate repository)
+frontend/
