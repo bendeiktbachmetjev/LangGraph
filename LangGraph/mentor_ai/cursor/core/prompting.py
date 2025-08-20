@@ -85,36 +85,44 @@ CRITICAL RULES:
    - "Feel lost: clarify life and professional goals step by step and define a path forward."
 2. Determine which description fits best based on the user's intent. If unclear, politely ask a short clarifying question and set next to 'classify_category'.
 3. If goal_type is clear, your reply MUST include a short transition and the first question of the next category.
-4. Set next strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to the selected description in the same order as above.
+4. Set next node strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to the selected description in the same order as above.
 5. NEVER accuse the user of not answering a question you haven't asked yet.
 6. All strings must be short and without line breaks.
 """
-    elif node.node_id == "career_intro":
+    elif node.node_id == "improve_intro":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Motivate the user and ask about their specific career situation based on their goal_type.",
-  "next": "career_obstacles"
+  "reply": "Warm, concise and human. Ask only for missing job details. No line breaks.",
+  "job_circumstances": {
+    "role": "current job title or null",
+    "position": "seniority/level (e.g., junior, mid, senior, lead) or null",
+    "industry": "industry/domain or null",
+    "salary_value": "numeric value, range string, or null",
+    "salary_currency": "e.g., USD/EUR or null",
+    "salary_satisfaction": "satisfied | not_satisfied | neutral | null",
+    "job_satisfaction": "satisfied | not_satisfied | neutral | null"
+  },
+  "next": "improve_intro | improve_obstacles"
 }
 CRITICAL RULES:
-1. Based on goal_type, ask the appropriate question:
-   - career_improve: "What specific skills or areas would you like to improve in your current role?"
-   - career_change: "What new career field or industry are you interested in transitioning to?"
-   - career_find: "What type of work or industry interests you most?"
-2. Do NOT ask about obstacles, challenges, or anything else at this step.
-3. Set next to 'career_obstacles'.
+1. Goal: understand the user's current work context (who they are, their position, industry, salary if shared, and whether they are satisfied with pay and job overall).
+2. Extract details from the user's message into job_circumstances. If a field is absent, set it to null.
+3. Ask ONLY about missing fields. Do NOT ask about obstacles yet.
+4. If role, position, and job_satisfaction are all present (salary fields optional), set next to 'improve_obstacles'; otherwise set next to 'improve_intro'.
+5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
-    elif node.node_id == "career_obstacles":
+    elif node.node_id == "improve_obstacles":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Thank the user for sharing obstacles. Clearly explain that a personalized plan will be generated next. If obstacles are unclear, politely ask again.",
   "goals": ["Obstacle 1", "Obstacle 2", ...],
-  "next": "career_obstacles | generate_plan"
+  "next": "improve_obstacles | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's main career obstacles and turn them into 2–3 positive, actionable points.
-2. If goals is missing or unclear, politely ask again and set next to 'career_obstacles'.
+2. If goals is missing or unclear, politely ask again and set next to 'improve_obstacles'.
 3. If goals is provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about obstacles, skills, or anything else at this step.
 5. NEVER accuse the user of not answering a question you haven't asked yet.

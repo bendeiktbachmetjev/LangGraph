@@ -66,7 +66,7 @@ class StateManager:
             if llm_data.get("goal_type"):
                 # Persist normalized 4-way classification
                 updated_state["goal_type"] = llm_data["goal_type"]
-        elif node.node_id == "career_obstacles":
+        elif node.node_id == "improve_obstacles":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":
                 updated_state["goals"] = llm_data["goals"]
             elif llm_data.get("goals") == "unavailable":
@@ -101,6 +101,10 @@ class StateManager:
                 updated_state["goals"] = []
         elif node.node_id == "relationships_to_plan":
             pass
+        elif node.node_id == "improve_intro":
+            # Persist structured job circumstances if provided
+            if isinstance(llm_data.get("job_circumstances"), dict):
+                updated_state["job_circumstances"] = llm_data["job_circumstances"]
         elif node.node_id == "self_growth_goal":
             if llm_data.get("self_growth_goal") and llm_data["self_growth_goal"] != "unavailable":
                 updated_state["self_growth_goal"] = llm_data["self_growth_goal"]
