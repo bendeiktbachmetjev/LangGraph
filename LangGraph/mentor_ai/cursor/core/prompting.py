@@ -157,55 +157,85 @@ CRITICAL RULES:
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
-IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+IMPORTANT: Your entire response MUST be valid JSON. Only output the JSON object, nothing else. No extra text.
 
 Strictly follow this order and structure:
 {
-  "reply": "Shortly reflect on the onboarding chat, thank for sharing the info and tell a person that his plan was created and he can close this chat window.",
+  "reply": "Shortly reflect on the onboarding chat, thank for sharing, and say the plan is ready.",
   "plan": {
     "week_1_topic": "...",
+    "week_1_description": "2 personalized sentences tailored to the user's context.",
     "week_2_topic": "...",
+    "week_2_description": "...",
     "week_3_topic": "...",
+    "week_3_description": "...",
     "week_4_topic": "...",
+    "week_4_description": "...",
     "week_5_topic": "...",
+    "week_5_description": "...",
     "week_6_topic": "...",
+    "week_6_description": "...",
     "week_7_topic": "...",
+    "week_7_description": "...",
     "week_8_topic": "...",
+    "week_8_description": "...",
     "week_9_topic": "...",
+    "week_9_description": "...",
     "week_10_topic": "...",
+    "week_10_description": "...",
     "week_11_topic": "...",
-    "week_12_topic": "..."
+    "week_11_description": "...",
+    "week_12_topic": "...",
+    "week_12_description": "..."
   },
   "onboarding_chat_summary": "Summary of onboarding chat, max 3 sentences, no line breaks.",
   "next": "week1_chat"
 }
 
-EXAMPLE:
+PERSONALIZATION GUIDELINES:
+- Use state fields to tailor topics and descriptions: goal_type (full description), job_circumstances (role, position, satisfaction), skills, interests, activities, exciting_topics, goals, negative_qualities, and any other context.
+- Keep descriptions practical, motivating, and specific to the user's situation (e.g., if colleagues are an issue, mention reflection on concrete triggers and responses; if low energy, include gentle energy routines).
+- Each description must be 2 short sentences without line breaks.
+
+EXAMPLE (truncated):
 {
   "reply": "Congratulations! Your 12-week plan is ready. Please start Week 1 chat.",
   "plan": {
-    "week_1_topic": "Wheel of Life",
-    "week_2_topic": "Zone of Genius",
-    "week_3_topic": "Networking",
-    "week_4_topic": "Feedback",
+    "week_1_topic": "Environment Audit",
+    "week_1_description": "Map situations at work that drain or energize you. Focus on interactions with colleagues you mentioned and note exact triggers.",
+    "week_2_topic": "Strengths Spotlight",
+    "week_2_description": "Double down on two skills you enjoy most. Design a micro‑project at work to apply them this week.",
+    "week_3_topic": "Anti‑Procrastination Routines",
+    "week_3_description": "Test a 15‑minute focus protocol tailored to your schedule. Track energy peaks and use them for deep work.",
+    "week_4_topic": "Feedback Debrief",
+    "week_4_description": "Collect one piece of feedback from a trusted colleague. Translate it into one tiny behavior change.",
     "week_5_topic": "Time Management",
+    "week_5_description": "...",
     "week_6_topic": "Personal Branding",
+    "week_6_description": "...",
     "week_7_topic": "Mentorship",
+    "week_7_description": "...",
     "week_8_topic": "Emotional Intelligence",
+    "week_8_description": "...",
     "week_9_topic": "Goal Setting",
+    "week_9_description": "...",
     "week_10_topic": "Resilience",
+    "week_10_description": "...",
     "week_11_topic": "Strategic Thinking",
-    "week_12_topic": "Review & Celebrate"
+    "week_11_description": "...",
+    "week_12_topic": "Review & Celebrate",
+    "week_12_description": "..."
   },
-  "onboarding_chat_summary": "You want to grow in your career. Your main goal is to become a CTO. You are motivated and ready to start.",
+  "onboarding_chat_summary": "You aim to grow in your current role and reduce friction with colleagues while building focus routines.",
   "next": "week1_chat"
 }
 
 CRITICAL RULES:
-1. Only output the JSON object, nothing else.
+1. Output ONLY the JSON object.
 2. reply and onboarding_chat_summary must be short and without line breaks.
-3. All 12 week topics must be present and non-empty.
-4. next must always be "week1_chat".
+3. All 12 week topics AND 12 week descriptions must be present and non-empty.
+4. Descriptions must be personalized using the state. No generic filler.
+5. next must always be "week1_chat".
 """
     elif node.node_id == "week1_chat":
         json_instructions = f'''
