@@ -60,8 +60,16 @@ class SimpleVectorStore(VectorStore):
         # Get top-k indices
         top_indices = np.argsort(similarities)[::-1][:top_k]
         
+        # Log similarities for debugging
+        logger.info(f"Similarities for top {top_k} results: {similarities[top_indices]}")
+        logger.info(f"Top indices: {top_indices}")
+        
         # Return corresponding chunks
         results = [self.chunks[i] for i in top_indices]
+        
+        # Log the titles of returned chunks
+        result_titles = [chunk.title for chunk in results]
+        logger.info(f"Returned chunk titles: {result_titles}")
         
         logger.debug(f"Search returned {len(results)} results with similarities: {similarities[top_indices]}")
         return results

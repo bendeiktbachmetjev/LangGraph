@@ -275,8 +275,13 @@ class RegRetriever:
             logger.info(f"Generated embedding for query: {query}")
             
             # Search vector store
+            logger.info(f"Searching with query embedding (first 5 values): {query_embedding[:5]}")
             chunks = self.vector_store.search(query_embedding, top_k=top_k)
             logger.info(f"Vector store returned {len(chunks)} chunks")
+            
+            # Log the titles of returned chunks
+            chunk_titles = [chunk.title for chunk in chunks]
+            logger.info(f"Returned chunk titles: {chunk_titles}")
             
             # Convert to dictionary format for API response
             results = []
