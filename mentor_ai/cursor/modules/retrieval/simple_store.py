@@ -58,9 +58,19 @@ class SimpleVectorStore(VectorStore):
         if len(self._embeddings_array.shape) == 1:
             # If 1D, reshape to 2D
             num_chunks = len(self.chunks)
-            embedding_dim = self._embeddings_array.size // num_chunks
-            logger.info(f"Reshaping 1D embeddings array to ({num_chunks}, {embedding_dim})")
-            self._embeddings_array = self._embeddings_array.reshape(num_chunks, embedding_dim)
+            total_elements = self._embeddings_array.size
+            
+            if num_chunks > 0 and total_elements > 0:
+                embedding_dim = total_elements // num_chunks
+                if embedding_dim > 0 and embedding_dim * num_chunks == total_elements:
+                    logger.info(f"Reshaping 1D embeddings array to ({num_chunks}, {embedding_dim})")
+                    self._embeddings_array = self._embeddings_array.reshape(num_chunks, embedding_dim)
+                else:
+                    logger.error(f"Cannot reshape: total_elements={total_elements}, num_chunks={num_chunks}, embedding_dim={embedding_dim}")
+                    raise ValueError(f"Invalid embeddings array shape: cannot reshape {self._embeddings_array.shape} to 2D")
+            else:
+                logger.error(f"Invalid dimensions: num_chunks={num_chunks}, total_elements={total_elements}")
+                raise ValueError(f"Invalid embeddings array: num_chunks={num_chunks}, total_elements={total_elements}")
         
         # Normalize vectors for cosine similarity
         query_norm = query_array / np.linalg.norm(query_array, axis=1, keepdims=True)
@@ -148,6 +158,21 @@ class SimpleVectorStore(VectorStore):
         embeddings_file = path / "embeddings.npy"
         if embeddings_file.exists():
             embeddings_array = np.load(embeddings_file)
+            logger.info(f"Loaded embeddings array shape: {embeddings_array.shape}")
+            
+            # Ensure embeddings array is 2D
+            if len(embeddings_array.shape) == 1:
+                num_chunks = len(self.chunks)
+                total_elements = embeddings_array.size
+                if num_chunks > 0 and total_elements > 0:
+                    embedding_dim = total_elements // num_chunks
+                    if embedding_dim > 0 and embedding_dim * num_chunks == total_elements:
+                        embeddings_array = embeddings_array.reshape(num_chunks, embedding_dim)
+                        logger.info(f"Reshaped embeddings array to: {embeddings_array.shape}")
+                    else:
+                        logger.error(f"Cannot reshape embeddings: {embeddings_array.shape}")
+                        raise ValueError(f"Invalid embeddings array shape")
+            
             self.embeddings = embeddings_array.tolist()
             self._embeddings_array = embeddings_array
         
