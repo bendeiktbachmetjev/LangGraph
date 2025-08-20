@@ -157,47 +157,55 @@ CRITICAL RULES:
 """
     elif node.node_id == "generate_plan":
         json_instructions = """
-IMPORTANT: Respond ONLY in valid JSON format. No extra text or explanations.
+IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
-Structure:
+Strictly follow this order and structure:
 {
-  "reply": "Shortly reflect on the onboarding chat, thank for sharing, and say the plan is ready.",
+  "reply": "Shortly reflect on the onboarding chat, thank for sharing the info and tell a person that his plan was created and he can close this chat window.",
   "plan": {
-    "week_1_topic": "Topic name",
-    "week_1_description": "Brief personalized description",
-    "week_2_topic": "Topic name", 
-    "week_2_description": "Brief personalized description",
-    "week_3_topic": "Topic name",
-    "week_3_description": "Brief personalized description",
-    "week_4_topic": "Topic name",
-    "week_4_description": "Brief personalized description",
-    "week_5_topic": "Topic name",
-    "week_5_description": "Brief personalized description",
-    "week_6_topic": "Topic name",
-    "week_6_description": "Brief personalized description",
-    "week_7_topic": "Topic name",
-    "week_7_description": "Brief personalized description",
-    "week_8_topic": "Topic name",
-    "week_8_description": "Brief personalized description",
-    "week_9_topic": "Topic name",
-    "week_9_description": "Brief personalized description",
-    "week_10_topic": "Topic name",
-    "week_10_description": "Brief personalized description",
-    "week_11_topic": "Topic name",
-    "week_11_description": "Brief personalized description",
-    "week_12_topic": "Topic name",
-    "week_12_description": "Brief personalized description"
+    "week_1_topic": "...",
+    "week_2_topic": "...",
+    "week_3_topic": "...",
+    "week_4_topic": "...",
+    "week_5_topic": "...",
+    "week_6_topic": "...",
+    "week_7_topic": "...",
+    "week_8_topic": "...",
+    "week_9_topic": "...",
+    "week_10_topic": "...",
+    "week_11_topic": "...",
+    "week_12_topic": "..."
   },
   "onboarding_chat_summary": "Summary of onboarding chat, max 3 sentences, no line breaks.",
   "next": "week1_chat"
 }
 
+EXAMPLE:
+{
+  "reply": "Congratulations! Your 12-week plan is ready. Please start Week 1 chat.",
+  "plan": {
+    "week_1_topic": "Wheel of Life",
+    "week_2_topic": "Zone of Genius",
+    "week_3_topic": "Networking",
+    "week_4_topic": "Feedback",
+    "week_5_topic": "Time Management",
+    "week_6_topic": "Personal Branding",
+    "week_7_topic": "Mentorship",
+    "week_8_topic": "Emotional Intelligence",
+    "week_9_topic": "Goal Setting",
+    "week_10_topic": "Resilience",
+    "week_11_topic": "Strategic Thinking",
+    "week_12_topic": "Review & Celebrate"
+  },
+  "onboarding_chat_summary": "You want to grow in your career. Your main goal is to become a CTO. You are motivated and ready to start.",
+  "next": "week1_chat"
+}
+
 CRITICAL RULES:
-1. Generate 12 week topics and 12 week descriptions based on the user's state.
-2. Use goal_type, job_circumstances, skills, interests, goals, negative_qualities to personalize.
-3. Keep descriptions short (1-2 sentences) and practical.
-4. All fields must be present and non-empty.
-5. next must be "week1_chat".
+1. Only output the JSON object, nothing else.
+2. reply and onboarding_chat_summary must be short and without line breaks.
+3. All 12 week topics must be present and non-empty.
+4. next must always be "week1_chat".
 """
     elif node.node_id == "week1_chat":
         json_instructions = f'''

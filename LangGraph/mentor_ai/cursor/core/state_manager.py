@@ -77,13 +77,7 @@ class StateManager:
         elif node.node_id == "generate_plan":
             # Проверяем, что plan — dict и содержит 12 тем
             plan = llm_data.get("plan")
-            def has_full_weeks(p):
-                return (
-                    isinstance(p, dict)
-                    and all(p.get(f"week_{i}_topic") for i in range(1, 13))
-                    and all(p.get(f"week_{i}_description") for i in range(1, 13))
-                )
-            if has_full_weeks(plan):
+            if isinstance(plan, dict) and len(plan) == 12 and all(plan.get(f"week_{i}_topic") for i in range(1, 13)):
                 updated_state["plan"] = plan
             else:
                 logger.error(f"Invalid plan structure in generate_plan: {plan}")
