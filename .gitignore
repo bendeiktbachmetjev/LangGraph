@@ -60,7 +60,7 @@ logs/
 htmlcov/
 
 # RAG index files (can be regenerated)
-RAG/index/
+# RAG/index/  # Commented out to allow index files in repository
 *.npy
 *.json
 
