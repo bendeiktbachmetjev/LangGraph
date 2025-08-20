@@ -113,6 +113,8 @@ class StateManager:
                 updated_state["interests"] = llm_data["interests"]
             if isinstance(llm_data.get("activities"), list):
                 updated_state["activities"] = llm_data["activities"]
+            if isinstance(llm_data.get("exciting_topics"), list):
+                updated_state["exciting_topics"] = llm_data["exciting_topics"]
         elif node.node_id == "self_growth_goal":
             if llm_data.get("self_growth_goal") and llm_data["self_growth_goal"] != "unavailable":
                 updated_state["self_growth_goal"] = llm_data["self_growth_goal"]

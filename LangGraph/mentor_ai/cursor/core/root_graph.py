@@ -60,6 +60,7 @@ def get_improve_skills_node():
             "skills": list,
             "interests": list,
             "activities": list,
+            "exciting_topics": list,
             "next": str
         },
         next_node=lambda state: "improve_obstacles" if (state.get("skills") or state.get("interests")) else "improve_skills"

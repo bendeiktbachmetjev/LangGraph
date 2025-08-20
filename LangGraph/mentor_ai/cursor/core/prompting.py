@@ -125,16 +125,18 @@ IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
   "skills": ["skill 1", "skill 2", "..."],
   "interests": ["interest 1", "interest 2", "..."],
   "activities": ["activity 1", "activity 2", "..."],
+  "exciting_topics": ["topic 1", "topic 2", "..."],
   "next": "improve_skills | improve_obstacles"
 }
 CRITICAL RULES:
 1. Goal: understand the user's strengths and interests beyond the job: practical skills, topics they enjoy, and what they do in free time.
-2. Extract items from the user's message into arrays. Use concise noun phrases. If something is absent, use an empty array.
-3. Ask ONLY for the most important missing piece (e.g., "What skills do you use most confidently?" or "What do you enjoy doing in your free time?"). Avoid long lists of questions.
-4. Decide yourself when information is sufficient:
+2. Additionally capture “exciting topics” — things that strongly energize the user (non‑sexual meaning): problems they are obsessed with, topics that make their eyes light up, areas they find especially “sexy” intellectually. Save them to 'exciting_topics'.
+3. Extract items from the user's message into arrays. Use concise noun phrases. If something is absent, use an empty array.
+4. Ask ONLY for the most important missing piece (e.g., "What skills do you use most confidently?", "What do you enjoy in your free time?", or "What topics really excite you?"). Avoid long lists of questions.
+5. Decide yourself when information is sufficient:
    - If at least one of skills or interests is non-empty and the user appears ready to proceed (or explicitly asks to move on) → set next to 'improve_obstacles'.
    - Otherwise, keep next as 'improve_skills'.
-5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
+6. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "improve_obstacles":
         json_instructions = """
