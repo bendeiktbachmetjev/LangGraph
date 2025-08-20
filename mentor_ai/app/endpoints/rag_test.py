@@ -352,3 +352,77 @@ async def test_plan_generation_with_rag():
             "error": f"Test failed: {str(e)}",
             "message": "Plan generation test failed"
         }
+
+@router.post("/rag/test/chat")
+async def test_chat_with_rag():
+    """Test full chat flow with RAG integration"""
+    try:
+        from ...cursor.core.graph_processor import GraphProcessor
+        from ...cursor.core.root_graph import root_graph
+        
+        # Simulate a complete chat flow
+        test_message = "Hi, I am John, I am 28 years old and I want to improve my leadership skills to become a team leader. I have skills in communication, project management, and teamwork. My goals are to improve leadership skills, build team management experience, and develop strategic thinking. Please generate my 12-week plan."
+        
+        # Initialize state
+        current_state = {
+            "session_id": "test_chat_rag_session",
+            "user_name": "John",
+            "user_age": 28,
+            "goal_type": "career_improve",
+            "career_goal": "Become a team leader",
+            "skills": ["communication", "project management", "teamwork"],
+            "goals": ["Improve leadership skills", "Build team management experience", "Develop strategic thinking"]
+        }
+        
+        # Step 1: Process through retrieve_reg node
+        print("Processing retrieve_reg node...")
+        reply1, state1, next1 = GraphProcessor.process_node(
+            "retrieve_reg",
+            test_message,
+            current_state
+        )
+        
+        retrieved_chunks = state1.get("retrieved_chunks", [])
+        print(f"Retrieved {len(retrieved_chunks)} chunks")
+        
+        # Step 2: Process through generate_plan node
+        print("Processing generate_plan node...")
+        reply2, state2, next2 = GraphProcessor.process_node(
+            "generate_plan",
+            test_message,
+            state1
+        )
+        
+        plan = state2.get("plan", {})
+        reply_text = state2.get("reply", "")
+        
+        # Check if all 12 weeks are present
+        week_keys = [f"week_{i}_topic" for i in range(1, 13)]
+        missing_weeks = [week for week in week_keys if week not in plan]
+        
+        return {
+            "success": True,
+            "flow": {
+                "retrieve_reg": {
+                    "next_node": next1,
+                    "retrieved_chunks_count": len(retrieved_chunks),
+                    "sample_chunks": retrieved_chunks[:2]
+                },
+                "generate_plan": {
+                    "next_node": next2,
+                    "plan_weeks_count": len(plan),
+                    "all_12_weeks_present": len(missing_weeks) == 0,
+                    "missing_weeks": missing_weeks,
+                    "reply": reply_text
+                }
+            },
+            "plan": plan,
+            "message": "Full chat flow with RAG completed successfully"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Chat flow test failed: {str(e)}",
+            "message": "Full chat flow test failed"
+        }
