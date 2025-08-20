@@ -77,16 +77,22 @@ IMPORTANT: Respond in JSON format with EXACTLY this structure:
 
 User message: "{user_message}"
 
+CATEGORIES (choose the closest one):
+• improve — Strengthen your current path: discover and amplify your best strengths in your existing role, grow where you already are.
+• change — Reroute based on your talents: transition to a new role/field that aligns better with your natural abilities.
+• find — Explore your strengths first: you may not have a job now; identify your core strengths and interests to choose a direction.
+• lost — Find meaningful goals: you feel uncertain or overwhelmed; clarify life and professional goals step by step.
+
 CRITICAL RULES:
-1. Based on the user's message, set goal_type:
-   - mentions like "improve", "current role", "grow in current job" → "improve"
-   - mentions like "change", "switch field", "new career" → "change" 
-   - mentions like "no job", "find path", "searching my path" → "find"
-   - mentions like "lost", "don't know", "unsure" → "lost"
+1. Map the user's intent to the closest category:
+   - Mentions of improving/growing in the current job → "improve"
+   - Mentions of switching/changing field or career → "change"
+   - Mentions of having no job or wanting to discover strengths/path → "find"
+   - Mentions of being lost/unsure/don't know what to do → "lost"
 2. If unclear, politely clarify and set next to 'classify_category'.
-3. If goal_type is clear, your reply MUST include a transition and the first question of the next category.
+3. If goal_type is clear, your reply MUST include a short transition and the first question of the next category.
 4. Set next strictly to one of: 'improve_intro', 'change_intro', 'find_intro', 'lost_intro' according to goal_type in the same order.
-5. goal_type MUST be a string, never null.
+5. goal_type MUST be a non-empty string.
 6. NEVER accuse the user of not answering a question you haven't asked yet.
 7. If the user provides their goal preference, acknowledge it and move to the appropriate next step.
 """
