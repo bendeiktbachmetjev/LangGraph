@@ -24,11 +24,11 @@ try:
         "change_intro",
         "change_skills", 
         "change_obstacles",
-        "self_growth_intro",
-        "self_growth_goal",
-        "self_growth_obstacles",
-        "no_goal_intro",
-        "no_goal_reason",
+        "find_intro",
+        "find_skills",
+        "find_obstacles",
+        "lost_intro",
+        "lost_skills",
         "generate_plan",
         "week1_chat"
     ]
@@ -56,7 +56,7 @@ try:
     print("✅ Architecture is correctly simplified")
     
     # Test node transitions
-    from root_graph import get_change_obstacles_node, get_self_growth_obstacles_node
+    from root_graph import get_change_obstacles_node, get_find_obstacles_node
     
     # Test change_obstacles transition
     change_obstacles_node = get_change_obstacles_node()
@@ -78,22 +78,22 @@ try:
         print(f"❌ change_obstacles incorrectly transitions to {next_node_without_goals}")
         sys.exit(1)
     
-    # Test self_growth_obstacles transition
-    self_growth_obstacles_node = get_self_growth_obstacles_node()
+    # Test find_obstacles transition
+    find_obstacles_node = get_find_obstacles_node()
     
-    next_node_with_goals = self_growth_obstacles_node.next_node(test_state_with_goals)
-    next_node_without_goals = self_growth_obstacles_node.next_node(test_state_without_goals)
+    next_node_with_goals = find_obstacles_node.next_node(test_state_with_goals)
+    next_node_without_goals = find_obstacles_node.next_node(test_state_without_goals)
     
     if next_node_with_goals == "generate_plan":
-        print("✅ self_growth_obstacles correctly transitions to generate_plan when goals are present")
+        print("✅ find_obstacles correctly transitions to generate_plan when goals are present")
     else:
-        print(f"❌ self_growth_obstacles incorrectly transitions to {next_node_with_goals}")
+        print(f"❌ find_obstacles incorrectly transitions to {next_node_with_goals}")
         sys.exit(1)
     
-    if next_node_without_goals == "self_growth_obstacles":
-        print("✅ self_growth_obstacles correctly stays in place when goals are missing")
+    if next_node_without_goals == "find_obstacles":
+        print("✅ find_obstacles correctly stays in place when goals are missing")
     else:
-        print(f"❌ self_growth_obstacles incorrectly transitions to {next_node_without_goals}")
+        print(f"❌ find_obstacles incorrectly transitions to {next_node_without_goals}")
         sys.exit(1)
     
     print("\n🎉 All architecture tests passed!")

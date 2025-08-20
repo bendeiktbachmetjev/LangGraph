@@ -74,6 +74,10 @@ class StateManager:
             # Also store self-perceived negative qualities if provided
             if isinstance(llm_data.get("negative_qualities"), list):
                 updated_state["negative_qualities"] = llm_data["negative_qualities"]
+        elif node.node_id == "retrieve_reg":
+            # Store retrieved chunks for use in generate_plan
+            if llm_data.get("retrieved_chunks"):
+                updated_state["retrieved_chunks"] = llm_data["retrieved_chunks"]
         elif node.node_id == "generate_plan":
             # Проверяем, что plan — dict и содержит 12 тем
             plan = llm_data.get("plan")
@@ -91,10 +95,15 @@ class StateManager:
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "change_skills":
-            if llm_data.get("relation_people") and llm_data["relation_people"] != "unavailable":
-                updated_state["relation_people"] = llm_data["relation_people"]
-            elif llm_data.get("relation_people") == "unavailable":
-                updated_state["relation_people"] = "unavailable"
+            # Save skills/interests/activities if provided
+            if isinstance(llm_data.get("skills"), list):
+                updated_state["skills"] = llm_data["skills"]
+            if isinstance(llm_data.get("interests"), list):
+                updated_state["interests"] = llm_data["interests"]
+            if isinstance(llm_data.get("activities"), list):
+                updated_state["activities"] = llm_data["activities"]
+            if isinstance(llm_data.get("exciting_topics"), list):
+                updated_state["exciting_topics"] = llm_data["exciting_topics"]
         elif node.node_id == "change_obstacles":
             if llm_data.get("goals") and llm_data["goals"] != "unavailable":
                 updated_state["goals"] = llm_data["goals"]
@@ -107,6 +116,14 @@ class StateManager:
             # Persist structured job circumstances if provided
             if isinstance(llm_data.get("job_circumstances"), dict):
                 updated_state["job_circumstances"] = llm_data["job_circumstances"]
+        elif node.node_id == "change_intro":
+            # Persist structured career change circumstances if provided
+            if isinstance(llm_data.get("career_change_circumstances"), dict):
+                updated_state["career_change_circumstances"] = llm_data["career_change_circumstances"]
+        elif node.node_id == "find_intro":
+            # Persist structured background circumstances if provided
+            if isinstance(llm_data.get("background_circumstances"), dict):
+                updated_state["background_circumstances"] = llm_data["background_circumstances"]
         elif node.node_id == "improve_skills":
             # Save skills/interests/activities if provided
             if isinstance(llm_data.get("skills"), list):
@@ -117,25 +134,28 @@ class StateManager:
                 updated_state["activities"] = llm_data["activities"]
             if isinstance(llm_data.get("exciting_topics"), list):
                 updated_state["exciting_topics"] = llm_data["exciting_topics"]
-        elif node.node_id == "self_growth_goal":
-            if llm_data.get("self_growth_goal") and llm_data["self_growth_goal"] != "unavailable":
-                updated_state["self_growth_goal"] = llm_data["self_growth_goal"]
-            elif llm_data.get("self_growth_goal") == "unavailable":
-                updated_state["self_growth_goal"] = "unavailable"
-        elif node.node_id == "self_growth_obstacles":
+        elif node.node_id == "find_skills":
+            # Save passions and interests if provided
+            if isinstance(llm_data.get("passions"), list):
+                updated_state["passions"] = llm_data["passions"]
+            if isinstance(llm_data.get("exciting_topics"), list):
+                updated_state["exciting_topics"] = llm_data["exciting_topics"]
+            if isinstance(llm_data.get("content_consumption"), list):
+                updated_state["content_consumption"] = llm_data["content_consumption"]
+        elif node.node_id == "find_obstacles":
             if llm_data.get("obstacles") and llm_data["obstacles"] != "unavailable":
                 updated_state["obstacles"] = llm_data["obstacles"]
                 # Если obstacles определены, сразу готовимся к генерации плана
                 updated_state["next"] = "generate_plan"
             elif llm_data.get("obstacles") == "unavailable":
                 updated_state["obstacles"] = []
-        elif node.node_id == "no_goal_reason":
-            if llm_data.get("no_goal_reason") and llm_data["no_goal_reason"] != "unavailable":
-                updated_state["no_goal_reason"] = llm_data["no_goal_reason"]
+        elif node.node_id == "lost_skills":
+            if llm_data.get("lost_skills") and llm_data["lost_skills"] != "unavailable":
+                updated_state["lost_skills"] = llm_data["lost_skills"]
                 # Если причина определена, сразу готовимся к генерации плана
                 updated_state["next"] = "generate_plan"
-            elif llm_data.get("no_goal_reason") == "unavailable":
-                updated_state["no_goal_reason"] = "unavailable"
+            elif llm_data.get("lost_skills") == "unavailable":
+                updated_state["lost_skills"] = "unavailable"
         
         # Update timestamp
         updated_state["updated_at"] = datetime.now(timezone.utc)

@@ -11,7 +11,7 @@
 ### 1. root_graph.py
 - **Удален узел**: `relationships_to_plan`
 - **Изменен переход**: `change_obstacles` теперь сразу переходит к `generate_plan`
-- **Изменен переход**: `self_growth_obstacles` теперь сразу переходит к `generate_plan`
+- **Изменен переход**: `find_obstacles` теперь сразу переходит к `generate_plan`
 - **Удалены функции**: `get_relationships_to_plan_node()`, `get_self_growth_to_plan_node()`, `get_no_goal_to_plan_node()`
 
 ### 2. prompting.py
@@ -20,14 +20,14 @@
 
 ### 3. state_manager.py
 - **Удалена обработка**: `relationships_to_plan` узла
-- **Логика сохранена**: `change_obstacles` и `self_growth_obstacles` уже имели правильную логику установки `next = "generate_plan"`
+- **Логика сохранена**: `change_obstacles` и `find_obstacles` уже имели правильную логику установки `next = "generate_plan"`
 
 ## Результат
 Теперь архитектура единообразна:
 - `improve_obstacles` → `generate_plan`
 - `change_obstacles` → `generate_plan` 
-- `self_growth_obstacles` → `generate_plan`
-- `no_goal_reason` → `generate_plan`
+- `find_obstacles` → `generate_plan`
+- `lost_skills` → `generate_plan`
 
 Все узлы сбора информации сразу переходят к генерации плана, что упрощает архитектуру и делает её более понятной.
 

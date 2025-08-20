@@ -27,6 +27,22 @@ class Settings:
     LLM_TEMPERATURE: float = 0.7
     LLM_MAX_TOKENS: int = 2000
     
+    # RAG Configuration
+    REG_ENABLED: bool = os.getenv("REG_ENABLED", "False").lower() == "true"
+    EMBEDDINGS_PROVIDER: str = os.getenv("EMBEDDINGS_PROVIDER", "openai")
+    EMBEDDINGS_MODEL: str = os.getenv("EMBEDDINGS_MODEL", "text-embedding-3-small")
+    RAG_INDEX_PATH: str = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
+    RAG_CORPUS_PATH: str = os.getenv("RAG_CORPUS_PATH", "LangGraph/RAG/corpus")
+    
+    # RAG Limits
+    RETRIEVE_TOP_K: int = int(os.getenv("RETRIEVE_TOP_K", "5"))
+    MAX_CHARS_PER_CHUNK: int = int(os.getenv("MAX_CHARS_PER_CHUNK", "1000"))
+    MAX_CONTEXT_CHARS: int = int(os.getenv("MAX_CONTEXT_CHARS", "3000"))
+    
+    # PDF Processing
+    PDF_MAX_PAGES: int = int(os.getenv("PDF_MAX_PAGES", "100"))
+    PDF_EXTRACTOR: str = os.getenv("PDF_EXTRACTOR", "pdfminer")
+    
     @classmethod
     def validate(cls):
         """Validate required settings"""
@@ -34,6 +50,11 @@ class Settings:
             raise ValueError("OPENAI_API_KEY is required")
         if not cls.MONGODB_URI:
             raise ValueError("MONGODB_URI is required")
+        
+        # Validate RAG settings if enabled
+        if cls.REG_ENABLED:
+            if cls.EMBEDDINGS_PROVIDER == "openai" and not cls.OPENAI_API_KEY:
+                raise ValueError("OPENAI_API_KEY is required for OpenAI embeddings")
 
 # Create settings instance
 settings = Settings() 

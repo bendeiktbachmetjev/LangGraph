@@ -112,9 +112,9 @@ Do you currently have a main personal goal? If yes, what kind of goal is it?
 - state.goal_type: "career" | "self_growth" | "relationships" | "no_goal" (determined by LLM analysis)
 - next:
     if state.goal_type == "career" → improve_intro
-    if state.goal_type == "self_growth" → self_growth_intro
+    if state.goal_type == "self_growth" → find_intro
     if state.goal_type == "relationships" → change_intro
-    if state.goal_type == "no_goal" → no_goal_intro
+    if state.goal_type == "no_goal" → lost_intro
 
 # Node: exit_to_plan
 ## System
@@ -134,7 +134,7 @@ Ask why the user currently feels they have no clear goals and analyze their natu
 What do you think is the reason you don't currently have a goal?
 ## Outputs
 - reply: string
-- state.no_goal_reason: string (extracted by LLM from natural response)
+- state.lost_skills: string (extracted by LLM from natural response)
 - next: ask_personal_values
 
 # Node: ask_personal_values

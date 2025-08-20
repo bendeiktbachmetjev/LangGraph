@@ -138,7 +138,7 @@ def test_career_category_clarification():
     chat_data = resp.json()
     # Бот должен переспросить, а не перейти к intro
     assert "goal" in chat_data["reply"].lower() or "could you clarify" in chat_data["reply"].lower() or "not sure" in chat_data["reply"].lower() or "please specify" in chat_data["reply"].lower()
-    # Не должен быть переход к improve_intro/self_growth_intro/...
+    # Не должен быть переход к improve_intro/find_intro/...
     assert not ("career" in chat_data["reply"].lower() and "steps" in chat_data["reply"].lower()) 
 
 def test_career_full_flow_http():

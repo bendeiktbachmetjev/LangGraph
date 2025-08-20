@@ -68,7 +68,7 @@ async def get_user_goal(
     session_id: str = Path(..., description="Session ID"),
     user_id: str = Depends(get_current_user)
 ):
-    """Get the user's main goal for the session (career_goal, self_growth_area, relation_issues, no_goal_reason)"""
+    """Get the user's main goal for the session (career_goal, self_growth_area, relation_issues, lost_skills)"""
     state = await mongodb_manager.get_session(session_id)
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -78,7 +78,7 @@ async def get_user_goal(
         raise HTTPException(status_code=403, detail="Access denied to this session")
     
     # Определяем цель в зависимости от ветки
-    goal = state.get("career_goal") or state.get("self_growth_goal") or state.get("relation_issues") or state.get("no_goal_reason")
+    goal = state.get("career_goal") or state.get("find_skills") or state.get("relation_issues") or state.get("lost_skills")
     
     # Ограничиваем цель до 4 слов максимум
     if goal:

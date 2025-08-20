@@ -10,3 +10,6 @@ python-multipart==0.0.6
 httpx==0.25.2
 firebase-admin
 motor==3.3.2
+# RAG dependencies
+pdfminer.six>=20250506
+numpy>=1.26.4

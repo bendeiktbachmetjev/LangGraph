@@ -156,13 +156,26 @@ CRITICAL RULES:
 5. Do NOT include full lists inside the reply; keep the reply short and supportive.
 """
     elif node.node_id == "generate_plan":
-        json_instructions = """
+        # Check if we have retrieved chunks to include
+        retrieved_chunks = state.get("retrieved_chunks", [])
+        
+        knowledge_section = ""
+        if retrieved_chunks:
+            knowledge_section = "\n\nKNOWLEDGE SNIPPETS:\n"
+            for i, chunk in enumerate(retrieved_chunks[:5], 1):  # Limit to 5 snippets
+                title = chunk.get("title", "Unknown")
+                content = chunk.get("content", "")[:200]  # Limit content length
+                knowledge_section += f"{i}. {title}: {content}\n"
+        
+        json_instructions = f"""
 IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
+{knowledge_section}
+
 Strictly follow this order and structure:
-{
+{{
   "reply": "Shortly reflect on the onboarding chat, thank for sharing the info and tell a person that his plan was created and he can close this chat window.",
-  "plan": {
+  "plan": {{
     "week_1_topic": "...",
     "week_2_topic": "...",
     "week_3_topic": "...",
@@ -175,10 +188,10 @@ Strictly follow this order and structure:
     "week_10_topic": "...",
     "week_11_topic": "...",
     "week_12_topic": "..."
-  },
+  }},
   "onboarding_chat_summary": "Summary of onboarding chat, max 3 sentences, no line breaks.",
   "next": "week1_chat"
-}
+}}
 
 EXAMPLE:
 {
@@ -240,112 +253,157 @@ CRITICAL RULES:
 '''
     elif node.node_id == "change_intro":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Motivate the user and IMMEDIATELY ask with whom they want to improve relationships.",
-  "next": "change_skills"
+  "reply": "Warm, concise and human. Ask only for missing career change details. No line breaks.",
+  "career_change_circumstances": {
+    "current_role": "current job title or null",
+    "current_industry": "current industry/domain or null",
+    "desired_role": "target job title or null",
+    "desired_industry": "target industry/domain or null",
+    "years_experience": "years in current field or null",
+    "career_change_reason": "why they want to change or null",
+    "career_satisfaction": "satisfied | not_satisfied | neutral | null"
+  },
+  "next": "change_intro | change_skills"
 }
 CRITICAL RULES:
-1. Do NOT just motivate. Your reply MUST end with a clear question: 'With whom would you like to improve your relationships?'.
-2. Set next to 'change_skills'.
+1. Goal: understand the user's current career context and desired career change (current role, desired role, why they want to change, and their satisfaction with current career).
+2. Extract details from the user's message into career_change_circumstances. If a field is absent, set it to null.
+3. Ask ONLY about missing fields. Do NOT ask about specific obstacles yet.
+4. Decide yourself when information is sufficient to move on:
+   - If current_role, desired_role, and career_change_reason are present → set next to 'change_skills'.
+   - OR if the user explicitly signals they don't want to share more details now (e.g., "that's enough", "prefer to move on") → acknowledge and set next to 'change_skills'.
+   - OR if the user sounds ready to proceed (e.g., asks for next steps) → set next to 'change_skills'.
+   - Otherwise, keep next as 'change_intro' and politely ask for the most important missing item.
+5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "change_skills":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
-  "relation_people": "extracted people as a string or null if not provided",
+  "reply": "Warm, concise and human. Reflect briefly and ask only for missing details. No line breaks.",
+  "skills": ["skill 1", "skill 2", "..."],
+  "interests": ["interest 1", "interest 2", "..."],
+  "activities": ["activity 1", "activity 2", "..."],
+  "exciting_topics": ["topic 1", "topic 2", "..."],
   "next": "change_skills | change_obstacles"
 }
 CRITICAL RULES:
-1. ONLY extract with whom the user wants to improve relationships.
-2. If relation_people is missing or unclear, politely ask again and set next to "change_skills".
-3. If relation_people is provided, acknowledge, ask what issues does the user have with these people and set next to "change_obstacles".
-4. NEVER accuse the user of not answering a question you haven't asked yet.
-5. If the user provides the people they want to improve relationships with, acknowledge it and move to the next step.
+1. Goal: understand the user's strengths and interests for career change: practical skills, topics they enjoy, and what they do in free time.
+2. Additionally capture "exciting topics" — things that strongly energize the user (non‑sexual meaning): problems they are obsessed with, topics that make their eyes light up, areas they find especially "sexy" intellectually. Save them to 'exciting_topics'.
+3. Extract items from the user's message into arrays. Use concise noun phrases. If something is absent, use an empty array.
+4. Ask ONLY for the most important missing piece (e.g., "What skills do you use most confidently?", "What do you enjoy in your free time?", or "What topics really excite you?"). Avoid long lists of questions.
+5. Decide yourself when information is sufficient to proceed:
+   - If any TWO of these are non-empty: skills, interests, activities, exciting_topics → set next to 'change_obstacles'.
+   - OR if the user signals readiness to move on, or further probing brings diminishing returns → set next to 'change_obstacles'.
+   - Otherwise, keep next as 'change_skills' and ask for the single most valuable missing piece.
+6. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
     elif node.node_id == "change_obstacles":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Thank the user for sharing their relationship issues. Clearly TELL that a personalized plan will be generated next. If issues are unclear, politely ask again.",
-  "goals": ["Goal 1", "Goal 2", ...],
+  "reply": "Thank the user for sharing. Briefly reflect and explain that a personalized plan will be generated next. No line breaks.",
+  "goals": ["Obstacle 1", "Obstacle 2", "..."],
+  "negative_qualities": ["Trait 1", "Trait 2", "..."],
   "next": "change_obstacles | generate_plan"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main relationship issues to "goals" in JSON file (but don't include "goals" in the reply)
-2. If goals is missing or unclear, politely ask again and set next to 'change_obstacles'.
-3. If goals is provided, acknowledge and set next to 'generate_plan'.
-4. Do NOT ask about issues, people, or anything else at this step.
-5. NEVER accuse the user of not answering a question you haven't asked yet.
-6. If the user provides their relationship issues, acknowledge them and move to the next step.
+1. Extract the user's main career change obstacles and reframe them into 2–3 positive, actionable points in 'goals' (e.g., "Fear of starting over" → "Build confidence in new skills").
+2. Separately capture self‑perceived negative qualities that may hinder career change progress in 'negative_qualities' (e.g., fear of failure, lack of confidence, perfectionism, low energy). Keep items concise; do not moralize.
+3. If obstacles are unclear or missing, politely ask one clarifying question and set next to 'change_obstacles'.
+4. When there is enough clarity (goals not empty), acknowledge and set next to 'generate_plan'.
+5. Do NOT include full lists inside the reply; keep the reply short and supportive.
 """
 
-    elif node.node_id == "self_growth_intro":
+    elif node.node_id == "find_intro":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Motivate the user and IMMEDIATELY ask about their main self-improvement goal.",
-  "next": "self_growth_goal"
+  "reply": "Warm, concise and human. Ask only for missing background details. No line breaks.",
+  "background_circumstances": {
+    "formal_education": "degree, diploma, or null",
+    "education_field": "field of study or null",
+    "skills": "what they can do, practical abilities or null",
+    "work_experience": "previous jobs, internships, or null",
+    "volunteer_experience": "volunteer work or null",
+    "hobbies_interests": "what they enjoy doing or null",
+    "current_situation": "brief description of current status or null"
+  },
+  "next": "find_intro | find_skills"
 }
 CRITICAL RULES:
-1. Do NOT just motivate. Your reply MUST end with a clear question: 'What is your main self-improvement goal?'.
-2. Set next to 'self_growth_goal'.
+1. Goal: understand the user's background and current situation (education, skills, experience, interests) to help them find their path.
+2. Extract details from the user's message into background_circumstances. If a field is absent, set it to null.
+3. Ask ONLY about missing fields. Keep questions short and supportive.
+4. Decide yourself when information is sufficient to move on:
+   - If formal_education, skills, and current_situation are present → set next to 'find_skills'.
+   - OR if the user explicitly signals they don't want to share more details now → acknowledge and set next to 'find_skills'.
+   - OR if the user sounds ready to proceed → set next to 'find_skills'.
+   - Otherwise, keep next as 'find_intro' and politely ask for the most important missing item.
+5. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
-    elif node.node_id == "self_growth_goal":
+    elif node.node_id == "find_skills":
         json_instructions = """
-IMPORTANT: Respond in JSON format with EXACTLY this structure:
+IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
 {
-  "reply": "Your response to the user",
-  "goals": ["Goal 1", "Goal 2", ...],
-  "next": "self_growth_goal or self_growth_obstacles"
+  "reply": "Warm, concise and human. Ask about their passions and what excites them. No line breaks.",
+  "passions": ["passion 1", "passion 2", "..."],
+  "exciting_topics": ["topic 1", "topic 2", "..."],
+  "content_consumption": ["YouTube channels", "books", "podcasts", "websites", "..."],
+  "next": "find_skills | find_obstacles"
 }
 CRITICAL RULES:
-1. ONLY extract the user's main self-improvement goals.
-2. If "goals" is missing or unclear, politely ask again and set next to "self_growth_goal".
-3. If "goals" is provided, acknowledge, ask about obstacles and set next to "self_growth_obstacles".
-4. NEVER accuse the user of not answering a question you haven't asked yet.
-5. If the user provides their self-improvement goals, acknowledge them and move to the next step.
+1. Goal: discover what truly excites and energizes the user - their passions, interests, and what they consume.
+2. Ask about what makes their eyes light up, what they could talk about for hours, what content they consume (YouTube, books, podcasts, etc.).
+3. Extract items into arrays. Use concise phrases. If something is absent, use an empty array.
+4. Ask ONLY for the most important missing piece. Be curious and supportive.
+5. Decide yourself when information is sufficient to proceed:
+   - If any TWO of these are non-empty: passions, exciting_topics, content_consumption → set next to 'find_obstacles'.
+   - OR if the user signals readiness to move on → set next to 'find_obstacles'.
+   - Otherwise, keep next as 'find_skills' and ask for the single most valuable missing piece.
+6. Keep reply short, supportive, and clear. No accusations about unanswered questions.
 """
-    elif node.node_id == "self_growth_obstacles":
+    elif node.node_id == "find_obstacles":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Thank the user for sharing their self-growth obstacles. Clearly explain that a personalized plan will be generated next. If obstacles are unclear, politely ask again.",
   "obstacles": ["Obstacle 1", "Obstacle 2", ...],
-  "next": "self_growth_obstacles | generate_plan"
+  "next": "find_obstacles | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's main self-growth obstacles and turn them into 2–3 positive, actionable points (not just a description of the problem).
-2. If obstacles is missing or unclear, politely ask again and set next to 'self_growth_obstacles'.
+2. If obstacles is missing or unclear, politely ask again and set next to 'find_obstacles'.
 3. If obstacles are provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about obstacles, skills, or anything else at this step.
 5. NEVER accuse the user of not answering a question you haven't asked yet.
 6. If the user provides their self-growth obstacles, acknowledge them and move to the next step.
 """
-    elif node.node_id == "no_goal_intro":
+    elif node.node_id == "lost_intro":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Be supportive and IMMEDIATELY ask why the user currently has no goal.",
-  "next": "no_goal_reason"
+  "next": "lost_skills"
 }
 CRITICAL RULES:
 1. Do NOT just support. Your reply MUST end with a clear question: 'What do you think is the main reason you don't have a specific goal right now?'.
-2. Set next to 'no_goal_reason'.
+2. Set next to 'lost_skills'.
 """
-    elif node.node_id == "no_goal_reason":
+    elif node.node_id == "lost_skills":
         json_instructions = """
 IMPORTANT: Respond in JSON format with EXACTLY this structure:
 {
   "reply": "Thank the user for sharing their reason for not having a goal. Clearly explain that a personalized exploration plan will be generated next. If the reason is unclear, politely ask again.",
-  "no_goal_reason": "extracted reason as a string or null if not provided",
-  "next": "no_goal_reason | generate_plan"
+  "lost_skills": "extracted reason as a string or null if not provided",
+  "next": "lost_skills | generate_plan"
 }
 CRITICAL RULES:
 1. ONLY extract the user's reason for not having a specific goal.
-2. If no_goal_reason is missing or unclear, politely ask again and set next to 'no_goal_reason'.
-3. If no_goal_reason is provided, acknowledge and set next to 'generate_plan'.
+2. If lost_skills is missing or unclear, politely ask again and set next to 'lost_skills'.
+3. If lost_skills is provided, acknowledge and set next to 'generate_plan'.
 4. Do NOT ask about goals, skills, or anything else at this step.
 5. NEVER accuse the user of not answering a question you haven't asked yet.
 6. If the user provides their reason for not having a goal, acknowledge it and move to the next step.

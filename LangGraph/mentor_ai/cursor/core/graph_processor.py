@@ -34,17 +34,23 @@ class GraphProcessor:
             node = root_graph[node_id]
             logger.info(f"Processing node: {node_id}")
             
-            # Generate prompt for LLM
-            prompt = generate_llm_prompt(node, current_state, user_message)
-            logger.debug(f"Generated prompt: {prompt[:200]}...")
-            
-            # Call LLM
-            llm_response = llm_client.call_llm(prompt)
-            logger.debug(f"LLM response: {llm_response}")
-            
-            # Parse LLM response
-            llm_data = StateManager.parse_llm_response(llm_response, node)
-            logger.debug(f"Parsed LLM data: {llm_data}")
+            # Check if node has an executor (non-LLM node)
+            if node.executor:
+                logger.info(f"Executing non-LLM node: {node_id}")
+                llm_data = node.executor(user_message, current_state)
+                logger.debug(f"Executor result: {llm_data}")
+            else:
+                # Generate prompt for LLM
+                prompt = generate_llm_prompt(node, current_state, user_message)
+                logger.debug(f"Generated prompt: {prompt[:200]}...")
+                
+                # Call LLM
+                llm_response = llm_client.call_llm(prompt)
+                logger.debug(f"LLM response: {llm_response}")
+                
+                # Parse LLM response
+                llm_data = StateManager.parse_llm_response(llm_response, node)
+                logger.debug(f"Parsed LLM data: {llm_data}")
             
             # Update state
             updated_state = StateManager.update_state(current_state, llm_data, node)

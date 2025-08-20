@@ -52,7 +52,7 @@ class SessionState(BaseModel):
     relation_issues: Optional[str] = None
     self_growth_area: Optional[str] = None
     self_growth_field: Optional[str] = None
-    no_goal_reason: Optional[str] = None
+    lost_skills: Optional[str] = None
     seed_goals: Optional[List[str]] = None
     phase: Literal["incomplete", "plan_ready"] = "incomplete"
     created_at: datetime = Field(default_factory=datetime.utcnow)
