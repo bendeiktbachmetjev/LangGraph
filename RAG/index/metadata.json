@@ -2,5 +2,7 @@
   "version": "1.0",
   "store_type": "SimpleVectorStore",
   "total_documents": 5,
-  "embedding_dimension": 1536
+  "embedding_dimension": 1536,
+  "created_at": 1755718979.05826,
+  "embedding_model": "text-embedding-3-small"
 }

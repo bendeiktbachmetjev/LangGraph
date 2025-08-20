@@ -66,6 +66,20 @@ class LLMClient:
             return True
         except json.JSONDecodeError:
             return False
+    
+    def get_embedding(self, text: str) -> list:
+        """
+        Get embedding for the given text using OpenAI embeddings API
+        """
+        try:
+            response = self.client.embeddings.create(
+                model="text-embedding-3-small",
+                input=text
+            )
+            return response.data[0].embedding
+        except Exception as e:
+            logger.error(f"Error getting embedding: {e}")
+            raise ValueError(f"Failed to get embedding: {e}")
 
 # Global LLM client instance
 llm_client = LLMClient() 
