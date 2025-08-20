@@ -54,6 +54,14 @@ class SimpleVectorStore(VectorStore):
         logger.info(f"Query array shape: {query_array.shape}")
         logger.info(f"Embeddings array shape: {self._embeddings_array.shape}")
         
+        # Ensure embeddings array has correct shape (num_docs, embedding_dim)
+        if len(self._embeddings_array.shape) == 1:
+            # If 1D, reshape to 2D
+            num_chunks = len(self.chunks)
+            embedding_dim = self._embeddings_array.size // num_chunks
+            logger.info(f"Reshaping 1D embeddings array to ({num_chunks}, {embedding_dim})")
+            self._embeddings_array = self._embeddings_array.reshape(num_chunks, embedding_dim)
+        
         # Normalize vectors for cosine similarity
         query_norm = query_array / np.linalg.norm(query_array, axis=1, keepdims=True)
         embeddings_norm = self._embeddings_array / np.linalg.norm(self._embeddings_array, axis=1, keepdims=True)
