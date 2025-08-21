@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "store_type": "SimpleVectorStore",
+  "total_documents": 544,
+  "embedding_dimension": 1536,
+  "created_at": 1755719974.1173928,
+  "embedding_model": "text-embedding-3-small",
+  "source_files": [
+    "Coaching-Connections-1753980731.pdf",
+    "Creative Management for Creative Teams - Mark McGuinness.pdf"
+  ],
+  "chunk_size": 600,
+  "overlap": 100
+}

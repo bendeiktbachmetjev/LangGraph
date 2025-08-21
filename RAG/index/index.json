@@ -1,0 +1,45 @@
+{
+  "documents": [
+    {
+      "id": "doc_1",
+      "title": "Coaching Techniques",
+      "content": "Effective coaching involves active listening and asking powerful questions that help clients discover their own solutions. The key is to create a safe space where clients feel comfortable exploring their thoughts and feelings.",
+      "source": "Coaching-Connections-1753980731.pdf",
+      "chunk_id": "chunk_1"
+    },
+    {
+      "id": "doc_2",
+      "title": "Goal Setting Framework",
+      "content": "SMART goals are Specific, Measurable, Achievable, Relevant, and Time-bound. This framework helps ensure goals are clear and attainable. Break down large goals into smaller, manageable steps.",
+      "source": "Coaching-Connections-1753980731.pdf",
+      "chunk_id": "chunk_2"
+    },
+    {
+      "id": "doc_3",
+      "title": "Communication Skills",
+      "content": "Non-verbal communication accounts for 55% of how we convey meaning. Pay attention to body language and tone of voice. Active listening involves both hearing and understanding.",
+      "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+      "chunk_id": "chunk_3"
+    },
+    {
+      "id": "doc_4",
+      "title": "Leadership Development",
+      "content": "Leadership is about inspiring and guiding others toward a common goal. Effective leaders lead by example and create an environment where team members can thrive and grow.",
+      "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+      "chunk_id": "chunk_4"
+    },
+    {
+      "id": "doc_5",
+      "title": "Time Management",
+      "content": "Time management is crucial for productivity and work-life balance. Prioritize tasks, eliminate distractions, and use techniques like the Pomodoro method to stay focused.",
+      "source": "Creative Management for Creative Teams - Mark McGuinness.pdf",
+      "chunk_id": "chunk_5"
+    }
+  ],
+  "embeddings": {},
+  "metadata": {
+    "created_at": 1755717107.216278,
+    "total_documents": 2,
+    "version": "1.0"
+  }
+}
