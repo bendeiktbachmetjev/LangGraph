@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 class LLMResponse(BaseModel):
     """Base model for LLM responses"""
@@ -23,6 +23,17 @@ class CollectBasicInfoResponse(LLMResponse):
 
 class ClassifyCategoryResponse(LLMResponse):
     goal_type: str  # 'improve' | 'change' | 'find' | 'lost'
+    
+    class Config:
+        extra = "forbid"
+
+class RetrievalChunk(BaseModel):
+    """Model for retrieved knowledge chunks from RAG system"""
+    id: str = Field(..., description="Unique identifier for the chunk")
+    title: str = Field(..., description="Title or heading of the chunk")
+    snippet: str = Field(..., description="Content snippet for LLM context")
+    source: str = Field(..., description="Source document or file name")
+    score: Optional[float] = Field(default=None, description="Relevance score from search")
     
     class Config:
         extra = "forbid" 

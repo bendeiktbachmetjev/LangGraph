@@ -13,8 +13,18 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# Import settings locally to avoid import issues
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+class LocalSettings:
+    RAG_CORPUS_PATH = os.getenv("RAG_CORPUS_PATH", "LangGraph/RAG/corpus")
+    RAG_INDEX_PATH = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
+
+settings = LocalSettings()
+
 from mentor_ai.cursor.modules.retrieval.ingest import DocumentIngester
-from mentor_ai.app.config import settings
 
 # Configure logging
 logging.basicConfig(

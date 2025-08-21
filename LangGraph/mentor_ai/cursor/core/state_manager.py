@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from .types import CollectBasicInfoResponse, ClassifyCategoryResponse
 from .root_graph import Node
+from .memory_manager import MemoryManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -94,6 +95,50 @@ class StateManager:
             # Append new week1 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week2_chat":
+            # Append new week2 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week3_chat":
+            # Append new week3 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week4_chat":
+            # Append new week4 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week5_chat":
+            # Append new week5 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week6_chat":
+            # Append new week6 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week7_chat":
+            # Append new week7 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week8_chat":
+            # Append new week8 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week9_chat":
+            # Append new week9 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week10_chat":
+            # Append new week10 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week11_chat":
+            # Append new week11 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+        elif node.node_id == "week12_chat":
+            # Append new week12 messages to the main history array
+            if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "change_skills":
             # Save skills/interests/activities if provided
             if isinstance(llm_data.get("skills"), list):
@@ -161,6 +206,125 @@ class StateManager:
         updated_state["updated_at"] = datetime.now(timezone.utc)
         
         return updated_state
+    
+    @staticmethod
+    def update_state_with_memory(current_state: Dict[str, Any], llm_data: Dict[str, Any], 
+                                node: Node, user_message: str = None, assistant_reply: str = None) -> Dict[str, Any]:
+        """
+        Update current state with data from LLM response and manage memory system
+        
+        Args:
+            current_state: Current session state
+            llm_data: Parsed LLM response data
+            node: Current node
+            user_message: Optional user message to add to memory
+            assistant_reply: Optional assistant reply to add to memory
+            
+        Returns:
+            Updated state with memory management
+        """
+        # First, perform standard state update
+        updated_state = StateManager.update_state(current_state, llm_data, node)
+        
+        # Initialize memory fields if not present
+        if "prompt_context" not in updated_state:
+            updated_state["prompt_context"] = MemoryManager.initialize_prompt_context()
+        if "message_count" not in updated_state:
+            updated_state["message_count"] = 0
+        if "current_week" not in updated_state:
+            updated_state["current_week"] = 1
+        
+        # Add messages to memory if provided
+        if user_message:
+            new_message = {"role": "user", "content": user_message}
+            updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
+            
+        if assistant_reply:
+            new_message = {"role": "assistant", "content": assistant_reply}
+            updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
+        
+        # Evaluate important facts from user message
+        if user_message:
+            user_msg_dict = {"role": "user", "content": user_message}
+            important_facts = MemoryManager.evaluate_important_facts(updated_state, user_msg_dict)
+            for fact in important_facts:
+                updated_state = MemoryManager.add_important_fact(updated_state, fact)
+        
+        # Check for week transition and create weekly summary if needed
+        updated_state = StateManager._handle_week_transition(updated_state, node)
+        
+        logger.info(f"Updated state with memory for session {updated_state.get('session_id', 'unknown')}")
+        
+        return updated_state
+    
+    @staticmethod
+    def _handle_week_transition(state: Dict[str, Any], node: Node) -> Dict[str, Any]:
+        """
+        Handle week transitions and create weekly summaries
+        
+        Args:
+            state: Current session state
+            node: Current node
+            
+        Returns:
+            Updated state with weekly summary if transition occurred
+        """
+        # Detect week transitions based on node
+        week_nodes = {
+            "week1_chat": 1, "week2_chat": 2, "week3_chat": 3, "week4_chat": 4,
+            "week5_chat": 5, "week6_chat": 6, "week7_chat": 7, "week8_chat": 8,
+            "week9_chat": 9, "week10_chat": 10, "week11_chat": 11, "week12_chat": 12
+        }
+        
+        if node.node_id in week_nodes:
+            new_week = week_nodes[node.node_id]
+            current_week = state.get("current_week", 1)
+            
+            # If transitioning to a new week, create summary of previous week
+            if new_week > current_week:
+                session_id = state.get("session_id", "unknown")
+                
+                # Create summary for the completed week
+                weekly_summary = MemoryManager.create_weekly_summary(
+                    session_id, state, current_week
+                )
+                
+                # Store weekly summary in prompt_context
+                if "prompt_context" not in state:
+                    state["prompt_context"] = MemoryManager.initialize_prompt_context()
+                
+                state["prompt_context"]["weekly_summaries"][current_week] = weekly_summary
+                state["current_week"] = new_week
+                
+                logger.info(f"Created weekly summary for week {current_week}, session {session_id}")
+        
+        return state
+    
+    @staticmethod
+    def get_memory_stats(state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get memory system statistics for debugging and monitoring
+        
+        Args:
+            state: Current session state
+            
+        Returns:
+            Dictionary with memory statistics
+        """
+        prompt_context = state.get("prompt_context", {})
+        
+        stats = {
+            "message_count": state.get("message_count", 0),
+            "current_week": state.get("current_week", 1),
+            "running_summary_exists": prompt_context.get("running_summary") is not None,
+            "recent_messages_count": len(prompt_context.get("recent_messages", [])),
+            "important_facts_count": len(prompt_context.get("important_facts", [])),
+            "weekly_summaries_count": len(prompt_context.get("weekly_summaries", {})),
+            "history_count": len(state.get("history", [])),
+            "estimated_tokens": MemoryManager.get_token_estimate(state)
+        }
+        
+        return stats
     
     @staticmethod
     def get_next_node(llm_data: Dict[str, Any], current_node: Node, updated_state: Dict[str, Any]) -> str:
