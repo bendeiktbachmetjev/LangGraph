@@ -57,6 +57,7 @@ def test_get_next_node():
     """Test determining next node"""
     node = root_graph["collect_basic_info"]
     llm_data = {"next": "classify_category"}
+    updated_state = {"user_name": "John", "user_age": 25}
     
-    next_node = StateManager.get_next_node(llm_data, node)
+    next_node = StateManager.get_next_node(llm_data, node, updated_state)
     assert next_node == "classify_category" 

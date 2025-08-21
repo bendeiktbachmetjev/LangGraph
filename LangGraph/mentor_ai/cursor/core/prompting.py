@@ -1,28 +1,50 @@
 from typing import Dict, Any
 from .root_graph import Node
+from .memory_manager import MemoryManager
 
 def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) -> str:
     """
     Generate a prompt for LLM based on the current node, state, and user message.
-    Now uses full chat history for context.
+    Uses optimized prompt_context for memory efficiency while preserving full history for frontend.
     """
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
     
-    # Собираем историю сообщений
-    history_lines = []
-    history = state.get("history", [])
-    for msg in history:
-        if not isinstance(msg, dict):
-            continue
-        role = msg.get("role")
-        content = msg.get("content")
-        if not content:
-            continue
-        if role == "user":
-            history_lines.append(f"User: {content}")
-        elif role == "assistant":
-            history_lines.append(f"Assistant: {content}")
+    # Use optimized prompt_context if available, fallback to history for backward compatibility
+    context_lines = []
+    if "prompt_context" in state and state["prompt_context"]:
+        # Use optimized memory context
+        formatted_context = MemoryManager.format_prompt_context(state)
+        if formatted_context:
+            context_lines.append(formatted_context)
+        else:
+            # If prompt_context exists but is empty, fallback to history
+            history = state.get("history", [])
+            for msg in history:
+                if not isinstance(msg, dict):
+                    continue
+                role = msg.get("role")
+                content = msg.get("content")
+                if not content:
+                    continue
+                if role == "user":
+                    context_lines.append(f"User: {content}")
+                elif role == "assistant":
+                    context_lines.append(f"Assistant: {content}")
+    else:
+        # Fallback to original history method for backward compatibility
+        history = state.get("history", [])
+        for msg in history:
+            if not isinstance(msg, dict):
+                continue
+            role = msg.get("role")
+            content = msg.get("content")
+            if not content:
+                continue
+            if role == "user":
+                context_lines.append(f"User: {content}")
+            elif role == "assistant":
+                context_lines.append(f"Assistant: {content}")
     
     # Optionally, include state for LLM context (except sensitive fields)
     state_str = f"Current state: {state}" if state else ""
@@ -220,37 +242,7 @@ CRITICAL RULES:
 3. All 12 week topics must be present and non-empty.
 4. next must always be "week1_chat".
 """
-    elif node.node_id == "week1_chat":
-        json_instructions = f'''
-IMPORTANT: You are a real human coach. Your main goal is to help the user reflect, grow, and take action. Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions. Encourage the user to share their thoughts, feelings, and experiences. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
-Strictly follow this order and structure:
-{{
-  "reply": "Short, natural, supportive, and human. Sometimes ask a deep or reflective question. No line breaks.",
-  "history": {history if history else []},
-  "next": "week1_chat"
-}}
-
-EXAMPLE:
-{{
-  "reply": "Welcome to Week 1! This week is about persuasion. What does persuasion mean to you personally? Can you recall a time when you influenced someone or changed their mind?",
-  "history": [
-    {{"role": "user", "content": "Hello!"}},
-    {{"role": "assistant", "content": "Welcome to Week 1."}}
-  ],
-  "next": "week1_chat"
-}}
-
-CRITICAL RULES:
-1. Only output the JSON object, nothing else.
-2. reply must be short, natural, and without line breaks.
-3. Do not be robotic or repetitive. Vary your questions and style.
-4. Sometimes ask open, deep, or reflective questions, but not every time.
-5. Encourage the user to think, reflect, and share, but keep the tone supportive and human.
-6. All fields must be present and non-empty.
-7. All strings must not contain unescaped quotes or special characters.
-8. next must always be "week1_chat".
-'''
     elif node.node_id == "change_intro":
         json_instructions = """
 IMPORTANT: Respond ONLY in JSON with EXACTLY this structure:
@@ -408,9 +400,762 @@ CRITICAL RULES:
 5. NEVER accuse the user of not answering a question you haven't asked yet.
 6. If the user provides their reason for not having a goal, acknowledge it and move to the next step.
 """
+    elif node.node_id == "week1_chat":
+        # Get week 1 topic from plan
+        plan = state.get("plan", {})
+        week1_topic = plan.get("week_1_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 1 and move to Week 2. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Great work on Week 1! You've made excellent progress on {week1_topic}. Let's move to Week 2 where we'll focus on a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week2_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week2_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 1. Your main goal is to help the user reflect, grow, and take action on the topic: "{week1_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week1_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week1_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week1_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 1! This week we're focusing on {week1_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 1."}}
+  ],
+  "next": "week1_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week1_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week1_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week1_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week1_chat".
+'''
+    elif node.node_id == "week2_chat":
+        # Get week 2 topic from plan
+        plan = state.get("plan", {})
+        week2_topic = plan.get("week_2_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 2 and move to Week 3. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Excellent work on Week 2! You've made great progress on {week2_topic}. Let's move to Week 3 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week3_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week3_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 2. Your main goal is to help the user reflect, grow, and take action on the topic: "{week2_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week2_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week2_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week2_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 2! This week we're focusing on {week2_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 2."}}
+  ],
+  "next": "week2_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week2_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week2_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week2_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week2_chat".
+'''
+    elif node.node_id == "week3_chat":
+        # Get week 3 topic from plan
+        plan = state.get("plan", {})
+        week3_topic = plan.get("week_3_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 3 and move to Week 4. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Fantastic work on Week 3! You've made excellent progress on {week3_topic}. Let's move to Week 4 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week4_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week4_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 3. Your main goal is to help the user reflect, grow, and take action on the topic: "{week3_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week3_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week3_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week3_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 3! This week we're focusing on {week3_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 3."}}
+  ],
+  "next": "week3_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week3_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week3_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week3_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week3_chat".
+'''
+    elif node.node_id == "week4_chat":
+        # Get week 4 topic from plan
+        plan = state.get("plan", {})
+        week4_topic = plan.get("week_4_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 4 and move to Week 5. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Excellent work on Week 4! You've made great progress on {week4_topic}. Let's move to Week 5 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week5_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week5_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 4. Your main goal is to help the user reflect, grow, and take action on the topic: "{week4_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week4_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week4_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week4_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 4! This week we're focusing on {week4_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 4."}}
+  ],
+  "next": "week4_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week4_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week4_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week4_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week4_chat".
+'''
+    elif node.node_id == "week5_chat":
+        # Get week 5 topic from plan
+        plan = state.get("plan", {})
+        week5_topic = plan.get("week_5_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 5 and move to Week 6. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Great work on Week 5! You've made excellent progress on {week5_topic}. Let's move to Week 6 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week6_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week6_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 5. Your main goal is to help the user reflect, grow, and take action on the topic: "{week5_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week5_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week5_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week5_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 5! This week we're focusing on {week5_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 5."}}
+  ],
+  "next": "week5_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week5_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week5_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week5_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week5_chat".
+'''
+    elif node.node_id == "week6_chat":
+        # Get week 6 topic from plan
+        plan = state.get("plan", {})
+        week6_topic = plan.get("week_6_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 6 and move to Week 7. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Excellent work on Week 6! You've made great progress on {week6_topic}. Let's move to Week 7 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week7_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week7_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 6. Your main goal is to help the user reflect, grow, and take action on the topic: "{week6_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week6_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week6_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week6_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 6! This week we're focusing on {week6_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 6."}}
+  ],
+  "next": "week6_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week6_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week6_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week6_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week6_chat".
+'''
+    elif node.node_id == "week7_chat":
+        # Get week 7 topic from plan
+        plan = state.get("plan", {})
+        week7_topic = plan.get("week_7_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 7 and move to Week 8. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Fantastic work on Week 7! You've made excellent progress on {week7_topic}. Let's move to Week 8 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week8_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week8_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 7. Your main goal is to help the user reflect, grow, and take action on the topic: "{week7_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week7_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week7_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week7_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 7! This week we're focusing on {week7_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 7."}}
+  ],
+  "next": "week7_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week7_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week7_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week7_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week7_chat".
+'''
+    elif node.node_id == "week8_chat":
+        # Get week 8 topic from plan
+        plan = state.get("plan", {})
+        week8_topic = plan.get("week_8_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 8 and move to Week 9. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Excellent work on Week 8! You've made great progress on {week8_topic}. Let's move to Week 9 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week9_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week9_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 8. Your main goal is to help the user reflect, grow, and take action on the topic: "{week8_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week8_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week8_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week8_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 8! This week we're focusing on {week8_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 8."}}
+  ],
+  "next": "week8_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week8_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week8_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week8_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week8_chat".
+'''
+    elif node.node_id == "week9_chat":
+        # Get week 9 topic from plan
+        plan = state.get("plan", {})
+        week9_topic = plan.get("week_9_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 9 and move to Week 10. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Great work on Week 9! You've made excellent progress on {week9_topic}. Let's move to Week 10 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week10_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week10_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 9. Your main goal is to help the user reflect, grow, and take action on the topic: "{week9_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week9_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week9_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week9_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 9! This week we're focusing on {week9_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 9."}}
+  ],
+  "next": "week9_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week9_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week9_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week9_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week9_chat".
+'''
+    elif node.node_id == "week10_chat":
+        # Get week 10 topic from plan
+        plan = state.get("plan", {})
+        week10_topic = plan.get("week_10_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 10 and move to Week 11. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Excellent work on Week 10! You've made great progress on {week10_topic}. Let's move to Week 11 where we'll explore a new topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week11_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week11_chat" to transition to the next week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 10. Your main goal is to help the user reflect, grow, and take action on the topic: "{week10_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week10_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week10_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week10_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 10! This week we're focusing on {week10_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 10."}}
+  ],
+  "next": "week10_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week10_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week10_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week10_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week10_chat".
+'''
+    elif node.node_id == "week11_chat":
+        # Get week 11 topic from plan
+        plan = state.get("plan", {})
+        week11_topic = plan.get("week_11_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to move to next week
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 11 and move to Week 12. Provide a brief summary and transition message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Fantastic work on Week 11! You've made excellent progress on {week11_topic}. Let's move to Week 12, our final week! No line breaks.",
+  "history": {history if history else []},
+  "next": "week12_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, supportive, and acknowledge their progress.
+3. next must be "week12_chat" to transition to the final week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 11. Your main goal is to help the user reflect, grow, and take action on the topic: "{week11_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week11_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week11_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week11_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 11! This week we're focusing on {week11_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 11."}}
+  ],
+  "next": "week11_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week11_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week11_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week11_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week11_chat".
+'''
+    elif node.node_id == "week12_chat":
+        # Get week 12 topic from plan
+        plan = state.get("plan", {})
+        week12_topic = plan.get("week_12_topic", "personal development")
+        onboarding_summary = state.get("onboarding_chat_summary", "")
+        
+        # Check if user wants to finish the program
+        if "move to next week" in user_message.lower() or "next week" in user_message.lower() or "finish program" in user_message.lower():
+            json_instructions = f'''
+IMPORTANT: The user wants to finish Week 12 and complete the program. Provide a final summary and congratulations message.
+
+Strictly follow this order and structure:
+{{
+  "reply": "Congratulations! You've completed all 12 weeks of your coaching program. You've made incredible progress on {week12_topic} and your overall development. This is a significant achievement! No line breaks.",
+  "history": {history if history else []},
+  "next": "week12_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be celebratory and acknowledge their completion of the program.
+3. next must remain "week12_chat" since this is the final week.
+4. All fields must be present and non-empty.
+'''
+        else:
+            json_instructions = f'''
+IMPORTANT: You are a real human coach for Week 12. Your main goal is to help the user reflect, grow, and take action on the topic: "{week12_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week12_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+
+Context: {onboarding_summary}
+
+Strictly follow this order and structure:
+{{
+  "reply": "Short, natural, supportive, and human. Focus on the topic: {week12_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "history": {history if history else []},
+  "next": "week12_chat"
+}}
+
+EXAMPLE:
+{{
+  "reply": "Welcome to Week 12! This week we're focusing on {week12_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
+  "history": [
+    {{"role": "user", "content": "Hello!"}},
+    {{"role": "assistant", "content": "Welcome to Week 12."}}
+  ],
+  "next": "week12_chat"
+}}
+
+CRITICAL RULES:
+1. Only output the JSON object, nothing else.
+2. reply must be short, natural, and without line breaks.
+3. Always focus your questions and responses on the topic: {week12_topic}.
+4. Do not be robotic or repetitive. Vary your questions and style.
+5. Sometimes ask open, deep, or reflective questions about {week12_topic}, but not every time.
+6. Encourage the user to think, reflect, and share about {week12_topic}, but keep the tone supportive and human.
+7. All fields must be present and non-empty.
+8. All strings must not contain unescaped quotes or special characters.
+9. next must always be "week12_chat".
+'''
     else:
         json_instructions = ""
     
     # Compose full prompt
+    prompt_parts = [system]
+    
+    # Add context (either optimized or fallback)
+    prompt_parts.extend(context_lines)
+    
+    # Add state and instructions
+    if state_str:
+        prompt_parts.append(state_str)
+    prompt_parts.append(state_verification)
+    prompt_parts.append(json_instructions)
+    
+    prompt = "\n".join(prompt_parts)
+    return prompt
+
+def generate_llm_prompt_with_history(node: Node, state: Dict[str, Any], user_message: str) -> str:
+    """
+    Generate a prompt using full history (for backward compatibility or when memory is disabled).
+    This is the original implementation preserved for fallback scenarios.
+    """
+    # System prompt (for LLM context)
+    system = f"System: {node.system_prompt}"
+    
+    # Собираем историю сообщений (original method)
+    history_lines = []
+    history = state.get("history", [])
+    for msg in history:
+        if not isinstance(msg, dict):
+            continue
+        role = msg.get("role")
+        content = msg.get("content")
+        if not content:
+            continue
+        if role == "user":
+            history_lines.append(f"User: {content}")
+        elif role == "assistant":
+            history_lines.append(f"Assistant: {content}")
+    
+    # State and instructions (same as before)
+    state_str = f"Current state: {state}" if state else ""
+    
+    state_verification = """
+CRITICAL STATE VERIFICATION RULES:
+1. ALWAYS check the current state before accusing the user of not answering a question.
+2. If you haven't asked a specific question yet, DO NOT accuse the user of not answering it.
+3. Only ask for information that is actually missing from the state.
+4. If the user provides information, acknowledge it and move to the next step.
+5. Never assume the user didn't answer if you haven't explicitly asked the question.
+"""
+    
+    # Simple JSON instructions for fallback
+    json_instructions = f"""
+User message: "{user_message}"
+
+Please respond in JSON format with appropriate fields for this node.
+"""
+    
+    # Compose full prompt using original method
     prompt = "\n".join([system] + history_lines + ([state_str] if state_str else []) + [state_verification] + [json_instructions])
     return prompt 

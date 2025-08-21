@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict, Any
 from datetime import datetime
 from uuid import UUID
 
@@ -57,7 +57,14 @@ class SessionState(BaseModel):
     phase: Literal["incomplete", "plan_ready"] = "incomplete"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # Preserve for frontend compatibility
     history: List[dict] = Field(default_factory=list, description="Chat history: list of {'role': 'user'|'assistant', 'content': str}")
+    
+    # New optimized fields for LLM prompts
+    prompt_context: Dict[str, Any] = Field(default_factory=dict, description="Optimized context for LLM prompts")
+    message_count: int = 0  # Counter for triggering summary updates
+    current_week: int = 1  # Track current week for weekly summaries
 
 class MongoDBDocument(BaseModel):
     """MongoDB document model"""
@@ -68,4 +75,11 @@ class MongoDBDocument(BaseModel):
     phase: Literal["incomplete", "plan_ready"] = "incomplete"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    history: List[dict] = Field(default_factory=list, description="Chat history: list of {'role': 'user'|'assistant', 'content': str}") 
+    
+    # Preserve for frontend compatibility
+    history: List[dict] = Field(default_factory=list, description="Chat history: list of {'role': 'user'|'assistant', 'content': str}")
+    
+    # New optimized fields for LLM prompts
+    prompt_context: Dict[str, Any] = Field(default_factory=dict, description="Optimized context for LLM prompts")
+    message_count: int = 0  # Counter for triggering summary updates
+    current_week: int = 1  # Track current week for weekly summaries 

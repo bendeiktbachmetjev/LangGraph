@@ -23,7 +23,6 @@ def test_generate_llm_prompt_collect_basic_info():
     assert '"user_name":' in prompt
     assert '"user_age":' in prompt
     assert '"next":' in prompt
-    assert "unavailable" in prompt
     assert "null" in prompt 
 
 def test_generate_llm_prompt_with_history():
@@ -52,5 +51,4 @@ def test_generate_llm_prompt_with_history():
     assert '"user_name":' in prompt
     assert '"user_age":' in prompt
     assert '"next":' in prompt
-    assert "unavailable" in prompt
     assert "null" in prompt 

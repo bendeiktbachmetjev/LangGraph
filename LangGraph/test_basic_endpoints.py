@@ -7,7 +7,8 @@ import requests
 import json
 
 # Test configuration
-BASE_URL = "http://localhost:8000"
+import os
+BASE_URL = os.getenv("API_URL", "http://localhost:8000")
 
 def test_basic_endpoints():
     """Test basic API endpoints without authentication"""
@@ -62,7 +63,9 @@ def test_basic_endpoints():
         print("\n🎉 Basic endpoint tests completed!")
         
     except requests.exceptions.ConnectionError:
-        print("❌ Could not connect to server. Make sure the server is running on localhost:8000")
+        print(f"❌ Could not connect to server at {BASE_URL}")
+        print("💡 To test local server: API_URL=http://localhost:8000 python test_basic_endpoints.py")
+        print("💡 To test Railway: API_URL=https://spotted-mom-production.up.railway.app python test_basic_endpoints.py")
     except Exception as e:
         print(f"❌ Test failed: {e}")
 

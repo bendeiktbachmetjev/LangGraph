@@ -35,9 +35,18 @@ async def chat_with_session(
     if state.get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Access denied to this session")
     
-    # Ensure history exists
+    # Ensure history exists for frontend compatibility
     if "history" not in state or not isinstance(state["history"], list):
         state["history"] = []
+    
+    # Initialize memory fields if not present (for new sessions)
+    if "prompt_context" not in state:
+        from mentor_ai.cursor.core.memory_manager import MemoryManager
+        state["prompt_context"] = MemoryManager.initialize_prompt_context()
+    if "message_count" not in state:
+        state["message_count"] = 0
+    if "current_week" not in state:
+        state["current_week"] = 1
     
     # Determine current node (default: collect_basic_info)
     node_id = state.get("current_node", "collect_basic_info")
@@ -46,11 +55,7 @@ async def chat_with_session(
     updated_state = state
     next_node = node_id
 
-    # Append user message to history once
-    if user_message:
-        updated_state["history"].append({"role": "user", "content": user_message})
-
-    # Process exactly one node per request to avoid double assistant messages
+    # Process exactly one node per request with memory management
     try:
         reply, updated_state, next_node = GraphProcessor.process_node(
             node_id=next_node,
@@ -60,10 +65,104 @@ async def chat_with_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
 
-    if reply:
+    # Ensure history is updated for frontend compatibility
+    # Note: Memory management handles prompt_context automatically
+    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "user", "content": user_message})
+    if reply and not any(msg.get("content") == reply for msg in updated_state.get("history", [])):
         updated_state["history"].append({"role": "assistant", "content": reply})
 
     updated_state["current_node"] = next_node
     await mongodb_manager.update_session(session_id, updated_state)
 
     return ChatResponse(reply=reply, session_id=session_id)
+
+@router.get("/chat/{session_id}/memory-stats")
+async def get_memory_stats(
+    session_id: str = Path(..., description="Session ID"),
+    user_id: str = Depends(get_current_user)
+):
+    """Get memory statistics for a session"""
+    # Get current state from MongoDB
+    state = await mongodb_manager.get_session(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # Verify session belongs to user
+    if state.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Access denied to this session")
+    
+    # Get memory statistics
+    from mentor_ai.cursor.core.graph_processor import GraphProcessor
+    memory_stats = GraphProcessor.get_memory_stats(state)
+    
+    return {
+        "session_id": session_id,
+        "memory_stats": memory_stats
+    }
+
+@router.post("/chat/{session_id}/memory-control")
+async def control_memory_usage(
+    session_id: str = Path(..., description="Session ID"),
+    request: dict = ...,  # {"use_memory": bool, "message": str}
+    user_id: str = Depends(get_current_user)
+):
+    """Process message with optional memory control"""
+    # Get current state from MongoDB
+    state = await mongodb_manager.get_session(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # Verify session belongs to user
+    if state.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Access denied to this session")
+    
+    # Ensure history exists for frontend compatibility
+    if "history" not in state or not isinstance(state["history"], list):
+        state["history"] = []
+    
+    # Initialize memory fields if not present
+    if "prompt_context" not in state:
+        from mentor_ai.cursor.core.memory_manager import MemoryManager
+        state["prompt_context"] = MemoryManager.initialize_prompt_context()
+    if "message_count" not in state:
+        state["message_count"] = 0
+    if "current_week" not in state:
+        state["current_week"] = 1
+    
+    # Extract parameters
+    use_memory = request.get("use_memory", True)
+    user_message = request.get("message", "")
+    
+    # Determine current node
+    node_id = state.get("current_node", "collect_basic_info")
+    reply = None
+    updated_state = state
+    next_node = node_id
+
+    # Process with memory control
+    try:
+        reply, updated_state, next_node = GraphProcessor.process_node_with_memory_control(
+            node_id=next_node,
+            user_message=user_message,
+            current_state=updated_state,
+            use_memory=use_memory
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
+
+    # Ensure history is updated for frontend compatibility
+    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "user", "content": user_message})
+    if reply and not any(msg.get("content") == reply for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "assistant", "content": reply})
+
+    updated_state["current_node"] = next_node
+    await mongodb_manager.update_session(session_id, updated_state)
+
+    return {
+        "reply": reply,
+        "session_id": session_id,
+        "memory_used": use_memory,
+        "memory_stats": GraphProcessor.get_memory_stats(updated_state)
+    }

@@ -32,11 +32,26 @@ class RegRetriever:
         """
         try:
             if not self._is_initialized:
-                self.vector_store.load(index_path)
-                self._is_initialized = True
-                logger.info(f"Initialized retriever with index from {index_path}")
-        except FileNotFoundError:
-            logger.warning(f"Index not found at {index_path}. Retriever will return empty results.")
+                import os
+                logger.info(f"Checking if index path exists: {index_path}")
+                logger.info(f"Current working directory: {os.getcwd()}")
+                logger.info(f"Directory contents: {os.listdir('.')}")
+                
+                if os.path.exists(index_path):
+                    logger.info(f"Index path exists. Contents: {os.listdir(index_path)}")
+                    self.vector_store.load(index_path)
+                    self._is_initialized = True
+                    logger.info(f"Successfully initialized retriever with index from {index_path}")
+                else:
+                    logger.error(f"Index path does not exist: {index_path}")
+                    self._is_initialized = True  # Mark as initialized to avoid repeated warnings
+        except FileNotFoundError as e:
+            logger.warning(f"Index not found at {index_path}: {e}")
+            self._is_initialized = True  # Mark as initialized to avoid repeated warnings
+        except Exception as e:
+            logger.error(f"Error initializing retriever: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             self._is_initialized = True  # Mark as initialized to avoid repeated warnings
     
     def retrieve(self, state: Dict[str, Any], user_message: str = "") -> RetrievalResult:
@@ -84,8 +99,9 @@ class RegRetriever:
         all_chunks = []
         for query in queries:
             try:
-                # Get embedding for query
+                # Get embedding for query using the same method as search()
                 query_embedding = self._get_embedding(query)
+                logger.debug(f"Generated embedding for query: {query}")
                 
                 # Search vector store
                 chunks = self.vector_store.search(
@@ -98,6 +114,8 @@ class RegRetriever:
                 
             except Exception as e:
                 logger.error(f"Error searching for query '{query}': {e}")
+                import traceback
+                logger.error(f"Full traceback: {traceback.format_exc()}")
         
         # Remove duplicates and limit results
         unique_chunks = self._deduplicate_chunks(all_chunks)
@@ -251,30 +269,44 @@ class RegRetriever:
             # Initialize if not already done
             if not self._is_initialized:
                 import os
-                index_path = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
+                index_path = os.getenv("RAG_INDEX_PATH", "RAG/index")
+                logger.info(f"Attempting to initialize retriever with index path: {index_path}")
                 self.initialize(index_path)
             
             # Get embedding for query
             query_embedding = self._get_embedding(query)
+            logger.info(f"Generated embedding for query: {query}")
             
             # Search vector store
+            logger.info(f"Searching with query embedding (first 5 values): {query_embedding[:5]}")
             chunks = self.vector_store.search(query_embedding, top_k=top_k)
+            logger.info(f"Vector store returned {len(chunks)} chunks")
+            
+            # Log the titles of returned chunks
+            chunk_titles = [chunk.title for chunk in chunks]
+            logger.info(f"Returned chunk titles: {chunk_titles}")
             
             # Convert to dictionary format for API response
             results = []
             for chunk in chunks:
+                # Get similarity score from metadata, fallback to 0.0
+                similarity_score = chunk.metadata.get("similarity_score", 0.0) if hasattr(chunk, 'metadata') and chunk.metadata else 0.0
+                
                 result = {
                     "title": getattr(chunk, 'title', 'Untitled'),
                     "content": chunk.content,
                     "source": getattr(chunk, 'source', 'Unknown'),
-                    "score": getattr(chunk, 'score', 0.0)
+                    "score": similarity_score
                 }
                 results.append(result)
             
+            logger.info(f"Returning {len(results)} search results")
             return results
             
         except Exception as e:
             logger.error(f"Error in search: {e}")
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             # Return mock data for testing
             return [
                 {

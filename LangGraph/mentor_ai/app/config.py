@@ -31,8 +31,8 @@ class Settings:
     REG_ENABLED: bool = os.getenv("REG_ENABLED", "False").lower() == "true"
     EMBEDDINGS_PROVIDER: str = os.getenv("EMBEDDINGS_PROVIDER", "openai")
     EMBEDDINGS_MODEL: str = os.getenv("EMBEDDINGS_MODEL", "text-embedding-3-small")
-    RAG_INDEX_PATH: str = os.getenv("RAG_INDEX_PATH", "LangGraph/RAG/index")
-    RAG_CORPUS_PATH: str = os.getenv("RAG_CORPUS_PATH", "LangGraph/RAG/corpus")
+    RAG_INDEX_PATH: str = os.getenv("RAG_INDEX_PATH", "RAG/index")
+    RAG_CORPUS_PATH: str = os.getenv("RAG_CORPUS_PATH", "RAG/corpus")
     
     # RAG Limits
     RETRIEVE_TOP_K: int = int(os.getenv("RETRIEVE_TOP_K", "5"))
