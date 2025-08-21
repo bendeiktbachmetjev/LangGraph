@@ -208,19 +208,25 @@ class MemoryManager:
         return "\n\n".join(context_sections)
     
     @staticmethod
-    def get_token_estimate(state: Dict[str, Any]) -> int:
+    def get_token_estimate(state: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Estimate token usage for current prompt_context
+        Estimate token usage for current prompt_context and return statistics
         
         Args:
             state: Current session state
             
         Returns:
-            Estimated token count
+            Dictionary with token estimate and statistics
         """
         prompt_context = state.get("prompt_context", {})
         if not prompt_context:
-            return 0
+            return {
+                "estimated_tokens": 0,
+                "running_summary_exists": False,
+                "recent_messages_count": 0,
+                "important_facts_count": 0,
+                "weekly_summaries_count": 0
+            }
         
         # Rough token estimation (4 characters ≈ 1 token)
         total_chars = 0
@@ -248,7 +254,13 @@ class MemoryManager:
         # Convert to estimated tokens
         estimated_tokens = total_chars // 4
         
-        return estimated_tokens
+        return {
+            "estimated_tokens": estimated_tokens,
+            "running_summary_exists": bool(running_summary),
+            "recent_messages_count": len(recent_messages),
+            "important_facts_count": len(important_facts),
+            "weekly_summaries_count": len(weekly_summaries)
+        }
     
     @staticmethod
     def initialize_prompt_context() -> Dict[str, Any]:

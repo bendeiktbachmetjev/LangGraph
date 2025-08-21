@@ -140,15 +140,20 @@ class TestMemoryManager:
         assert "- User wants to become CTO (Week 0)" in formatted
         assert "Weekly Summaries:" in formatted
         assert "Week 1: Week 1 focused on goal setting" in formatted
-    
+
     def test_get_token_estimate_empty(self):
         """Test token estimation for empty prompt_context"""
         state = {"session_id": "test123"}
-        
-        tokens = MemoryManager.get_token_estimate(state)
-        
-        assert tokens == 0
-    
+
+        stats = MemoryManager.get_token_estimate(state)
+
+        assert isinstance(stats, dict)
+        assert stats["estimated_tokens"] == 0
+        assert stats["running_summary_exists"] is False
+        assert stats["recent_messages_count"] == 0
+        assert stats["important_facts_count"] == 0
+        assert stats["weekly_summaries_count"] == 0
+
     def test_get_token_estimate_with_data(self):
         """Test token estimation with data"""
         state = {
@@ -167,12 +172,16 @@ class TestMemoryManager:
                 }
             }
         }
-        
-        tokens = MemoryManager.get_token_estimate(state)
-        
+
+        stats = MemoryManager.get_token_estimate(state)
+
         # Should return positive number
-        assert tokens > 0
-        assert isinstance(tokens, int)
+        assert isinstance(stats, dict)
+        assert stats["estimated_tokens"] > 0
+        assert stats["running_summary_exists"] is True
+        assert stats["recent_messages_count"] == 2
+        assert stats["important_facts_count"] == 1
+        assert stats["weekly_summaries_count"] == 1
     
     def test_add_important_fact_new_session(self):
         """Test adding important fact to new session"""
