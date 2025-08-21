@@ -1,28 +1,50 @@
 from typing import Dict, Any
 from .root_graph import Node
+from .memory_manager import MemoryManager
 
 def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) -> str:
     """
     Generate a prompt for LLM based on the current node, state, and user message.
-    Now uses full chat history for context.
+    Uses optimized prompt_context for memory efficiency while preserving full history for frontend.
     """
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
     
-    # Собираем историю сообщений
-    history_lines = []
-    history = state.get("history", [])
-    for msg in history:
-        if not isinstance(msg, dict):
-            continue
-        role = msg.get("role")
-        content = msg.get("content")
-        if not content:
-            continue
-        if role == "user":
-            history_lines.append(f"User: {content}")
-        elif role == "assistant":
-            history_lines.append(f"Assistant: {content}")
+    # Use optimized prompt_context if available, fallback to history for backward compatibility
+    context_lines = []
+    if "prompt_context" in state and state["prompt_context"]:
+        # Use optimized memory context
+        formatted_context = MemoryManager.format_prompt_context(state)
+        if formatted_context:
+            context_lines.append(formatted_context)
+        else:
+            # If prompt_context exists but is empty, fallback to history
+            history = state.get("history", [])
+            for msg in history:
+                if not isinstance(msg, dict):
+                    continue
+                role = msg.get("role")
+                content = msg.get("content")
+                if not content:
+                    continue
+                if role == "user":
+                    context_lines.append(f"User: {content}")
+                elif role == "assistant":
+                    context_lines.append(f"Assistant: {content}")
+    else:
+        # Fallback to original history method for backward compatibility
+        history = state.get("history", [])
+        for msg in history:
+            if not isinstance(msg, dict):
+                continue
+            role = msg.get("role")
+            content = msg.get("content")
+            if not content:
+                continue
+            if role == "user":
+                context_lines.append(f"User: {content}")
+            elif role == "assistant":
+                context_lines.append(f"Assistant: {content}")
     
     # Optionally, include state for LLM context (except sensitive fields)
     state_str = f"Current state: {state}" if state else ""
@@ -1078,5 +1100,62 @@ CRITICAL RULES:
         json_instructions = ""
     
     # Compose full prompt
+    prompt_parts = [system]
+    
+    # Add context (either optimized or fallback)
+    prompt_parts.extend(context_lines)
+    
+    # Add state and instructions
+    if state_str:
+        prompt_parts.append(state_str)
+    prompt_parts.append(state_verification)
+    prompt_parts.append(json_instructions)
+    
+    prompt = "\n".join(prompt_parts)
+    return prompt
+
+def generate_llm_prompt_with_history(node: Node, state: Dict[str, Any], user_message: str) -> str:
+    """
+    Generate a prompt using full history (for backward compatibility or when memory is disabled).
+    This is the original implementation preserved for fallback scenarios.
+    """
+    # System prompt (for LLM context)
+    system = f"System: {node.system_prompt}"
+    
+    # Собираем историю сообщений (original method)
+    history_lines = []
+    history = state.get("history", [])
+    for msg in history:
+        if not isinstance(msg, dict):
+            continue
+        role = msg.get("role")
+        content = msg.get("content")
+        if not content:
+            continue
+        if role == "user":
+            history_lines.append(f"User: {content}")
+        elif role == "assistant":
+            history_lines.append(f"Assistant: {content}")
+    
+    # State and instructions (same as before)
+    state_str = f"Current state: {state}" if state else ""
+    
+    state_verification = """
+CRITICAL STATE VERIFICATION RULES:
+1. ALWAYS check the current state before accusing the user of not answering a question.
+2. If you haven't asked a specific question yet, DO NOT accuse the user of not answering it.
+3. Only ask for information that is actually missing from the state.
+4. If the user provides information, acknowledge it and move to the next step.
+5. Never assume the user didn't answer if you haven't explicitly asked the question.
+"""
+    
+    # Simple JSON instructions for fallback
+    json_instructions = f"""
+User message: "{user_message}"
+
+Please respond in JSON format with appropriate fields for this node.
+"""
+    
+    # Compose full prompt using original method
     prompt = "\n".join([system] + history_lines + ([state_str] if state_str else []) + [state_verification] + [json_instructions])
     return prompt 
