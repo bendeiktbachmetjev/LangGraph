@@ -25,14 +25,17 @@ MANIFEST
 venv/
 env/
 ENV/
+<<<<<<< HEAD
 env.bak/
 venv.bak/
+=======
 .venv/
 
 # Environment variables
 .env
 .env.local
 .env.production
+>>>>>>> 26c83d679dc0f7b1ac7cd3d363959452cffbd85a
 
 # IDE
 .vscode/
@@ -54,20 +57,33 @@ Thumbs.db
 *.log
 logs/
 
+<<<<<<< HEAD
+# Environment variables (contains API keys)
+.env
+
+# Test cache
+=======
 # Testing
+>>>>>>> 26c83d679dc0f7b1ac7cd3d363959452cffbd85a
 .pytest_cache/
 .coverage
 htmlcov/
 
+<<<<<<< HEAD
 # RAG index files (can be regenerated)
-# RAG/index/  # Commented out to allow index files in repository
-# *.npy  # Commented out to allow RAG index files
-# *.json  # Commented out to allow RAG index files
+RAG/index/
+*.npy
+*.json
 
 # Temporary files
 *.tmp
 *.temp
+=======
+# Temporary files
+*.tmp
+*.temp 
 MentorAIFirebase.json
 
 # Frontend (separate repository)
 frontend/
+>>>>>>> 26c83d679dc0f7b1ac7cd3d363959452cffbd85a
