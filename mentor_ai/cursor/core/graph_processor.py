@@ -4,6 +4,7 @@ from .root_graph import Node, root_graph
 from .prompting import generate_llm_prompt
 from .llm_client import llm_client
 from .state_manager import StateManager
+from .memory_manager import MemoryManager
 
 logger = logging.getLogger(__name__)
 
@@ -34,15 +35,22 @@ class GraphProcessor:
             node = root_graph[node_id]
             logger.info(f"Processing node: {node_id}")
             
+            # FIX: Update recent_messages FIRST for all nodes
+            temp_state = MemoryManager.update_prompt_context(
+                current_state, 
+                {"role": "user", "content": user_message}
+            )
+            logger.info(f"Updated recent_messages FIRST for session: {current_state.get('session_id')}")
+            
             # Check if node has an executor (non-LLM node)
             if node.executor:
                 logger.info(f"Executing non-LLM node: {node_id}")
-                llm_data = node.executor(user_message, current_state)
+                llm_data = node.executor(user_message, temp_state)
                 logger.debug(f"Executor result: {llm_data}")
             else:
-                # Generate prompt for LLM
-                prompt = generate_llm_prompt(node, current_state, user_message)
-                logger.debug(f"Generated prompt: {prompt[:200]}...")
+                # Generate prompt with UPDATED recent_messages
+                prompt = generate_llm_prompt(node, temp_state, user_message)
+                logger.debug(f"Generated prompt with updated recent_messages: {prompt[:200]}...")
                 
                 # Call LLM
                 llm_response = llm_client.call_llm(prompt)
@@ -52,9 +60,9 @@ class GraphProcessor:
                 llm_data = StateManager.parse_llm_response(llm_response, node)
                 logger.debug(f"Parsed LLM data: {llm_data}")
             
-            # Update state with memory management
+            # Update state with memory management (using temp_state that already has user message)
             updated_state = StateManager.update_state_with_memory(
-                current_state, llm_data, node, 
+                temp_state, llm_data, node, 
                 user_message=user_message, 
                 assistant_reply=llm_data.get("reply", "")
             )
@@ -105,19 +113,29 @@ class GraphProcessor:
             node = root_graph[node_id]
             logger.info(f"Processing node: {node_id} (memory: {use_memory})")
             
+            # FIX: Update recent_messages FIRST for all nodes (only if using memory)
+            if use_memory:
+                temp_state = MemoryManager.update_prompt_context(
+                    current_state, 
+                    {"role": "user", "content": user_message}
+                )
+                logger.info(f"Updated recent_messages FIRST for session: {current_state.get('session_id')}")
+            else:
+                temp_state = current_state
+            
             # Check if node has an executor (non-LLM node)
             if node.executor:
                 logger.info(f"Executing non-LLM node: {node_id}")
-                llm_data = node.executor(user_message, current_state)
+                llm_data = node.executor(user_message, temp_state)
                 logger.debug(f"Executor result: {llm_data}")
             else:
                 # Generate prompt for LLM (with or without memory optimization)
                 if use_memory:
-                    prompt = generate_llm_prompt(node, current_state, user_message)
+                    prompt = generate_llm_prompt(node, temp_state, user_message)
                 else:
                     # Use fallback method for backward compatibility
                     from .prompting import generate_llm_prompt_with_history
-                    prompt = generate_llm_prompt_with_history(node, current_state, user_message)
+                    prompt = generate_llm_prompt_with_history(node, temp_state, user_message)
                 
                 logger.debug(f"Generated prompt: {prompt[:200]}...")
                 
@@ -132,7 +150,7 @@ class GraphProcessor:
             # Update state (with or without memory management)
             if use_memory:
                 updated_state = StateManager.update_state_with_memory(
-                    current_state, llm_data, node, 
+                    temp_state, llm_data, node, 
                     user_message=user_message, 
                     assistant_reply=llm_data.get("reply", "")
                 )

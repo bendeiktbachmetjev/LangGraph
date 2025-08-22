@@ -234,11 +234,7 @@ class StateManager:
         if "current_week" not in updated_state:
             updated_state["current_week"] = 1
         
-        # Add messages to memory if provided
-        if user_message:
-            new_message = {"role": "user", "content": user_message}
-            updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
-            
+        # Add assistant reply to memory (user_message already added in GraphProcessor)
         if assistant_reply:
             new_message = {"role": "assistant", "content": assistant_reply}
             updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
