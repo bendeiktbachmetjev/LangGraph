@@ -10,6 +10,9 @@ def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) ->
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
     
+    # Ensure 'history' is always defined for any downstream f-strings
+    history = state.get("history", [])
+    
     # Use optimized prompt_context if available, fallback to history for backward compatibility
     context_lines = []
     if "prompt_context" in state and state["prompt_context"]:
