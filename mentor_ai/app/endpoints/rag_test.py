@@ -8,7 +8,7 @@ from firebase_admin import auth
 import time
 import sys
 import os
-import numpy as np
+import random
 import traceback
 import logging
 
@@ -217,9 +217,9 @@ async def test_rag_search_dev(request: RAGTestRequest):
             detail=f"RAG search failed: {str(e)}"
         )
 
-@router.post("/rag/test/real", response_model=RAGTestResponse)
-async def test_rag_search_real(request: RAGTestRequest):
-    """Real RAG search endpoint that uses the actual index"""
+@router.post("/rag/test/simple_real", response_model=RAGTestResponse)
+async def test_rag_search_simple_real(request: RAGTestRequest):
+    """Simple real RAG search endpoint without numpy dependency"""
     
     if not settings.REG_ENABLED:
         raise HTTPException(
@@ -248,9 +248,9 @@ async def test_rag_search_real(request: RAGTestRequest):
         
         vector_store.load(index_path)
         
-        # Create a simple random embedding for the query (since we don't have OpenAI API)
+        # Create a simple random embedding for the query (without numpy)
         # This is just for testing the vector store functionality
-        query_embedding = np.random.rand(1536).tolist()  # 1536 is the embedding dimension
+        query_embedding = [random.random() for _ in range(1536)]  # 1536 is the embedding dimension
         
         # Search vector store
         chunks = vector_store.search(query_embedding, top_k=request.top_k)
@@ -280,12 +280,11 @@ async def test_rag_search_real(request: RAGTestRequest):
         )
         
     except Exception as e:
-        import traceback
-        logger.error(f"Real RAG search failed: {e}")
+        logger.error(f"Simple real RAG search failed: {e}")
         logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=500, 
-            detail=f"Real RAG search failed: {str(e)}"
+            detail=f"Simple real RAG search failed: {str(e)}"
         )
 
 @router.post("/rag/test/agent")
