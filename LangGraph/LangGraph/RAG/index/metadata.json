@@ -1,6 +1,0 @@
-{
-  "version": "1.0",
-  "store_type": "SimpleVectorStore",
-  "total_documents": 372,
-  "embedding_dimension": 1536
-}
