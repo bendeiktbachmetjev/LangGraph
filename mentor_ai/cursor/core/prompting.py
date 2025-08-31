@@ -626,20 +626,26 @@ CRITICAL RULES:
         # Check if user wants to move to next week
         if "move to next week" in user_message.lower() or "next week" in user_message.lower():
             json_instructions = f'''
-IMPORTANT: The user wants to finish Week 5 and move to Week 6. Provide a brief summary and transition message.
+CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no comments, no extra text.
 
-Strictly follow this order and structure:
+The user wants to finish Week 5 and move to Week 6. Provide a brief summary and transition message.
+
+EXACT JSON STRUCTURE (copy this exactly and replace the values):
 {{
-  "reply": "Great work on Week 5! You've made excellent progress on {week5_topic}. Let's move to Week 6 where we'll explore a new topic. No line breaks.",
+  "reply": "Great work on Week 5! You've made excellent progress on {week5_topic}. Let's move to Week 6 where we'll explore a new topic.",
   "history": {history if history else []},
   "next": "week6_chat"
 }}
 
-CRITICAL RULES:
-1. Only output the JSON object, nothing else.
-2. reply must be short, supportive, and acknowledge their progress.
-3. next must be "week6_chat" to transition to the next week.
-4. All fields must be present and non-empty.
+CRITICAL JSON RULES:
+1. ONLY output the JSON object - nothing before or after
+2. Use ONLY standard quotes (") not fancy quotes (", ")
+3. Escape any quotes inside strings with backslash: \\"
+4. No line breaks inside string values
+5. No trailing commas
+6. All strings must be properly quoted
+7. All fields must be present and non-empty
+8. next must be "week6_chat"
 '''
         else:
             json_instructions = f'''
@@ -658,13 +664,14 @@ EXACT JSON STRUCTURE (copy this exactly and replace the values):
 
 CRITICAL JSON RULES:
 1. ONLY output the JSON object - nothing before or after
-2. Use ONLY standard quotes (") not fancy quotes (", ")
+2. Use ONLY double quotes (") for ALL strings - NEVER use single quotes (')
 3. Escape any quotes inside strings with backslash: \\"
 4. No line breaks inside string values
 5. No trailing commas
-6. All strings must be properly quoted
+6. All strings must be properly quoted with double quotes
 7. All fields must be present and non-empty
 8. next must always be "week5_chat"
+9. Example of correct format: {"key": "value", "array": [{"role": "user", "content": "text"}]}
 '''
     elif node.node_id == "week6_chat":
         # Get week 6 topic from plan
@@ -707,13 +714,14 @@ EXACT JSON STRUCTURE (copy this exactly and replace the values):
 
 CRITICAL JSON RULES:
 1. ONLY output the JSON object - nothing before or after
-2. Use ONLY standard quotes (") not fancy quotes (", ")
+2. Use ONLY double quotes (") for ALL strings - NEVER use single quotes (')
 3. Escape any quotes inside strings with backslash: \\"
 4. No line breaks inside string values
 5. No trailing commas
-6. All strings must be properly quoted
+6. All strings must be properly quoted with double quotes
 7. All fields must be present and non-empty
 8. next must always be "week6_chat"
+9. Example of correct format: {"key": "value", "array": [{"role": "user", "content": "text"}]}
 '''
     elif node.node_id == "week7_chat":
         # Get week 7 topic from plan

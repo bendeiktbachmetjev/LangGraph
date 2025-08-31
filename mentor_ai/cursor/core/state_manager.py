@@ -68,13 +68,31 @@ class StateManager:
             if last_brace_idx != -1:
                 response = response[:last_brace_idx + 1]
             
-            # Fix common quote issues
+            # Fix common quote issues - replace fancy quotes with standard ones
             response = response.replace('"', '"').replace('"', '"')
             response = response.replace(''', "'").replace(''', "'")
             
-            # Fix unescaped quotes in strings
+            # Fix single quotes in JSON - this is the main issue
             import re
-            # Find all string values and escape internal quotes
+            
+            # Replace single quotes around property names with double quotes
+            response = re.sub(r"'([^']+)':", r'"\1":', response)
+            
+            # Replace single quotes around string values with double quotes
+            # But be careful not to replace quotes inside already quoted strings
+            def fix_single_quotes(match):
+                content = match.group(1)
+                # Escape any double quotes inside the content
+                content = content.replace('"', '\\"')
+                return f'"{content}"'
+            
+            # Find patterns like 'content': 'some text' and fix them
+            response = re.sub(r"'([^']*)':\s*'([^']*)'", r'"\1": "\2"', response)
+            
+            # Fix remaining single quotes in array values
+            response = re.sub(r"'([^']*)'", r'"\1"', response)
+            
+            # Fix any remaining unescaped quotes in strings
             pattern = r'"([^"]*)"'
             def escape_quotes(match):
                 content = match.group(1)
@@ -95,12 +113,22 @@ class StateManager:
         Return a fallback response when JSON parsing fails
         """
         if node.node_id.startswith("week") and node.node_id.endswith("_chat"):
-            week_num = node.node_id.replace("week", "").replace("_chat", "")
-            return {
-                "reply": f"I apologize for the technical issue. Let's continue with Week {week_num}. How are you feeling about this week's topic?",
-                "history": [],
-                "next": node.node_id
-            }
+            week_num = int(node.node_id.replace("week", "").replace("_chat", ""))
+            # If user wants to move to next week, advance to next week
+            if week_num < 12:
+                next_week = week_num + 1
+                return {
+                    "reply": f"Great work on Week {week_num}! Let's move to Week {next_week} where we'll explore a new topic. You're doing great!",
+                    "history": [],
+                    "next": f"week{next_week}_chat"
+                }
+            else:
+                # If it's the last week, stay on current week
+                return {
+                    "reply": f"Excellent work on Week {week_num}! You've completed all the weeks. How are you feeling about your progress?",
+                    "history": [],
+                    "next": node.node_id
+                }
         else:
             return {
                 "reply": "I apologize for the technical issue. Let's continue our conversation. How can I help you today?",
