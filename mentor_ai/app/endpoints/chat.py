@@ -55,6 +55,10 @@ async def chat_with_session(
     updated_state = state
     next_node = node_id
 
+    # Add user message to state BEFORE processing
+    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "user", "content": user_message})
+
     # Process exactly one node per request with memory management
     try:
         reply, updated_state, next_node = GraphProcessor.process_node(
@@ -65,10 +69,7 @@ async def chat_with_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
 
-    # Ensure history is updated for frontend compatibility
-    # Note: Memory management handles prompt_context automatically
-    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
-        updated_state["history"].append({"role": "user", "content": user_message})
+    # Add assistant reply to history for frontend compatibility
     if reply and not any(msg.get("content") == reply for msg in updated_state.get("history", [])):
         updated_state["history"].append({"role": "assistant", "content": reply})
 
@@ -139,6 +140,10 @@ async def control_memory_usage(
     reply = None
     updated_state = state
     next_node = node_id
+
+    # Add user message to state BEFORE processing
+    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "user", "content": user_message})
 
     # Process with memory control
     try:
