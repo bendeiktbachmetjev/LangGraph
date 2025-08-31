@@ -231,7 +231,10 @@ async def test_rag_search_simple(request: RAGTestRequest):
     
     try:
         # Import here to avoid circular imports
-        from ...cursor.modules.retrieval.simple_store import SimpleVectorStore
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+        from cursor.modules.retrieval.simple_store import SimpleVectorStore
         
         # Initialize vector store
         vector_store = SimpleVectorStore()
