@@ -10,6 +10,9 @@ def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) ->
     # System prompt (for LLM context)
     system = f"System: {node.system_prompt}"
     
+    # Get history for JSON instructions
+    history = state.get("history", [])
+    
     # Use optimized prompt_context if available, fallback to history for backward compatibility
     context_lines = []
     if "prompt_context" in state and state["prompt_context"]:
@@ -19,7 +22,6 @@ def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) ->
             context_lines.append(formatted_context)
         else:
             # If prompt_context exists but is empty, fallback to history
-            history = state.get("history", [])
             for msg in history:
                 if not isinstance(msg, dict):
                     continue
@@ -33,7 +35,6 @@ def generate_llm_prompt(node: Node, state: Dict[str, Any], user_message: str) ->
                     context_lines.append(f"Assistant: {content}")
     else:
         # Fallback to original history method for backward compatibility
-        history = state.get("history", [])
         for msg in history:
             if not isinstance(msg, dict):
                 continue
