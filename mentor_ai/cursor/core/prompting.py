@@ -193,6 +193,13 @@ CRITICAL RULES:
         json_instructions = f"""
 IMPORTANT: Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
 
+COACHING TOPICS GUIDELINES:
+- Generate 12 coaching topics focused on SELF-DISCOVERY and PERSONAL GROWTH
+- Topics should help users understand themselves better in their chosen field
+- Focus on coaching skills, not technical/professional complexity
+- Topics should be about personal development, self-awareness, and growth mindset
+- Avoid technical skills training - this is a coaching program, not a professional course
+
 {knowledge_section}
 
 Strictly follow this order and structure:
@@ -220,18 +227,18 @@ EXAMPLE:
 {{
   "reply": "Congratulations! Your 12-week plan is ready. Please start Week 1 chat.",
   "plan": {{
-    "week_1_topic": "Wheel of Life",
-    "week_2_topic": "Zone of Genius",
-    "week_3_topic": "Networking",
-    "week_4_topic": "Feedback",
-    "week_5_topic": "Time Management",
-    "week_6_topic": "Personal Branding",
-    "week_7_topic": "Mentorship",
+    "week_1_topic": "Self-Discovery Fundamentals",
+    "week_2_topic": "Values & Purpose",
+    "week_3_topic": "Strengths Assessment",
+    "week_4_topic": "Goal Setting: Short Term",
+    "week_5_topic": "Goal Setting: Long Term",
+    "week_6_topic": "Overcoming Limiting Beliefs",
+    "week_7_topic": "Building Confidence",
     "week_8_topic": "Emotional Intelligence",
-    "week_9_topic": "Goal Setting",
-    "week_10_topic": "Resilience",
-    "week_11_topic": "Strategic Thinking",
-    "week_12_topic": "Review & Celebrate"
+    "week_9_topic": "Communication Skills",
+    "week_10_topic": "Resilience & Adaptability",
+    "week_11_topic": "Action Planning",
+    "week_12_topic": "Review & Integration"
   }},
   "onboarding_chat_summary": "You want to grow in your career. Your main goal is to become a CTO. You are motivated and ready to start.",
   "next": "week1_chat"
@@ -242,6 +249,9 @@ CRITICAL RULES:
 2. reply and onboarding_chat_summary must be short and without line breaks.
 3. All 12 week topics must be present and non-empty.
 4. next must always be "week1_chat".
+5. Topics must focus on COACHING and SELF-DISCOVERY, not technical skills.
+6. Topics should help users understand themselves better in their chosen field.
+7. Avoid technical/professional complexity - focus on personal growth and self-awareness.
 """
 
     elif node.node_id == "change_intro":
