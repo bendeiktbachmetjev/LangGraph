@@ -32,9 +32,80 @@ class StateManager:
                 return response_data
                 
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON response from LLM: {e}")
+            logger.error(f"JSON decode error: {e}")
+            logger.error(f"Raw LLM response: {llm_response}")
+            
+            # Try to fix common JSON issues
+            fixed_response = StateManager._fix_json_response(llm_response)
+            if fixed_response:
+                try:
+                    response_data = json.loads(fixed_response)
+                    logger.info("Successfully fixed JSON response")
+                    return response_data
+                except json.JSONDecodeError as e2:
+                    logger.error(f"Failed to fix JSON: {e2}")
+            
+            # If all else fails, return a fallback response
+            logger.warning("Using fallback response due to JSON parsing failure")
+            return StateManager._get_fallback_response(node)
         except Exception as e:
             raise ValueError(f"Error parsing LLM response: {e}")
+    
+    @staticmethod
+    def _fix_json_response(response: str) -> str:
+        """
+        Attempt to fix common JSON formatting issues
+        """
+        try:
+            # Remove any text before the first {
+            start_idx = response.find('{')
+            if start_idx == -1:
+                return None
+            response = response[start_idx:]
+            
+            # Find the last } and truncate after it
+            last_brace_idx = response.rfind('}')
+            if last_brace_idx != -1:
+                response = response[:last_brace_idx + 1]
+            
+            # Fix common quote issues
+            response = response.replace('"', '"').replace('"', '"')
+            response = response.replace(''', "'").replace(''', "'")
+            
+            # Fix unescaped quotes in strings
+            import re
+            # Find all string values and escape internal quotes
+            pattern = r'"([^"]*)"'
+            def escape_quotes(match):
+                content = match.group(1)
+                # Escape any unescaped quotes
+                content = content.replace('"', '\\"')
+                return f'"{content}"'
+            
+            response = re.sub(pattern, escape_quotes, response)
+            
+            return response
+        except Exception as e:
+            logger.error(f"Error fixing JSON: {e}")
+            return None
+    
+    @staticmethod
+    def _get_fallback_response(node: Node) -> Dict[str, Any]:
+        """
+        Return a fallback response when JSON parsing fails
+        """
+        if node.node_id.startswith("week") and node.node_id.endswith("_chat"):
+            week_num = node.node_id.replace("week", "").replace("_chat", "")
+            return {
+                "reply": f"I apologize for the technical issue. Let's continue with Week {week_num}. How are you feeling about this week's topic?",
+                "history": [],
+                "next": node.node_id
+            }
+        else:
+            return {
+                "reply": "I apologize for the technical issue. Let's continue our conversation. How can I help you today?",
+                "next": "collect_basic_info"
+            }
     
     @staticmethod
     def update_state(current_state: Dict[str, Any], llm_data: Dict[str, Any], node: Node) -> Dict[str, Any]:
