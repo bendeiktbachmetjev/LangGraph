@@ -96,71 +96,104 @@ class StateManager:
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "week2_chat":
-            # Append new week2 messages to the main history array
+            # Clear history when transitioning to week2 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 2:
+                updated_state["history"] = []
+            updated_state["current_week"] = 2
         elif node.node_id == "week3_chat":
-            # Append new week3 messages to the main history array
+            # Clear history when transitioning to week3 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 3:
+                updated_state["history"] = []
+            updated_state["current_week"] = 3
         elif node.node_id == "week4_chat":
-            # Append new week4 messages to the main history array
+            # Clear history when transitioning to week4 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 4:
+                updated_state["history"] = []
+            updated_state["current_week"] = 4
         elif node.node_id == "week5_chat":
-            # Append new week5 messages to the main history array
+            # Clear history when transitioning to week5 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 5:
+                updated_state["history"] = []
+            updated_state["current_week"] = 5
         elif node.node_id == "week6_chat":
-            # Append new week6 messages to the main history array
+            # Clear history when transitioning to week6 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 6:
+                updated_state["history"] = []
+            updated_state["current_week"] = 6
         elif node.node_id == "week7_chat":
-            # Append new week7 messages to the main history array
+            # Clear history when transitioning to week7 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 7:
+                updated_state["history"] = []
+            updated_state["current_week"] = 7
         elif node.node_id == "week8_chat":
-            # Append new week8 messages to the main history array
+            # Clear history when transitioning to week8 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 8:
+                updated_state["history"] = []
+            updated_state["current_week"] = 8
         elif node.node_id == "week9_chat":
-            # Append new week9 messages to the main history array
+            # Clear history when transitioning to week9 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 9:
+                updated_state["history"] = []
+            updated_state["current_week"] = 9
         elif node.node_id == "week10_chat":
-            # Append new week10 messages to the main history array
+            # Clear history when transitioning to week10 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 10:
+                updated_state["history"] = []
+            updated_state["current_week"] = 10
         elif node.node_id == "week11_chat":
-            # Append new week11 messages to the main history array
+            # Clear history when transitioning to week11 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 11:
+                updated_state["history"] = []
+            updated_state["current_week"] = 11
         elif node.node_id == "week12_chat":
-            # Append new week12 messages to the main history array
+            # Clear history when transitioning to week12 and append new messages
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
-            elif llm_data.get("history"):
-                updated_state["history"] = llm_data["history"]
+            # Update current week and clear history if transitioning
+            current_week = updated_state.get("current_week", 1)
+            if current_week != 12:
+                updated_state["history"] = []
+            updated_state["current_week"] = 12
         elif node.node_id == "change_skills":
             # Save skills/interests/activities if provided
             if isinstance(llm_data.get("skills"), list):
@@ -315,7 +348,7 @@ class StateManager:
                 if "prompt_context" not in state:
                     state["prompt_context"] = MemoryManager.initialize_prompt_context()
                 
-                state["prompt_context"]["weekly_summaries"][current_week] = weekly_summary
+                state["prompt_context"]["weekly_summaries"][str(current_week)] = weekly_summary
                 state["current_week"] = new_week
                 
                 logger.info(f"Created weekly summary for week {current_week}, session {session_id}")
