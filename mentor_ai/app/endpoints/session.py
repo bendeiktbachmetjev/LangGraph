@@ -63,6 +63,17 @@ async def create_session(user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail="Failed to create session")
     return SessionResponse(session_id=session_id, message="Session created successfully")
 
+@router.post("/session/test", response_model=SessionResponse)
+async def create_session_test():
+    """Temporary endpoint for creating session without authentication"""
+    # Create new session for testing
+    session_id = str(uuid4())
+    test_user_id = "test_user_123"
+    success = await mongodb_manager.create_session(session_id, test_user_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to create session")
+    return SessionResponse(session_id=session_id, message="Test session created successfully")
+
 @router.get("/goal/{session_id}")
 async def get_user_goal(
     session_id: str = Path(..., description="Session ID"),
