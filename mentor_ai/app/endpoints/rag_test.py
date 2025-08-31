@@ -5,6 +5,14 @@ from mentor_ai.cursor.modules.retrieval.retriever import RegRetriever
 from mentor_ai.app.config import settings
 import firebase_admin
 from firebase_admin import auth
+import os
+import json
+import time
+import numpy as np
+import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -44,7 +52,6 @@ async def test_rag_search(
     user_id: str = Depends(get_current_user)
 ):
     """Test RAG search functionality with a simple query"""
-    import time
     
     if not settings.REG_ENABLED:
         raise HTTPException(
@@ -105,8 +112,6 @@ async def rag_status():
 @router.get("/rag/debug")
 async def rag_debug():
     """Debug endpoint to check index files and paths"""
-    import os
-    import json
     
     debug_info = {
         "current_working_directory": os.getcwd(),
@@ -163,7 +168,6 @@ async def rag_debug():
 @router.post("/rag/test/dev", response_model=RAGTestResponse)
 async def test_rag_search_dev(request: RAGTestRequest):
     """Test RAG search functionality without authentication (development only)"""
-    import time
     
     if not settings.REG_ENABLED:
         raise HTTPException(
@@ -208,6 +212,75 @@ async def test_rag_search_dev(request: RAGTestRequest):
         )
         
     except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"RAG search failed: {str(e)}"
+        )
+
+@router.post("/rag/test/simple", response_model=RAGTestResponse)
+async def test_rag_search_simple(request: RAGTestRequest):
+    """Test RAG search functionality with simple vector search (no OpenAI API required)"""
+    
+    if not settings.REG_ENABLED:
+        raise HTTPException(
+            status_code=400, 
+            detail="RAG system is not enabled. Set REG_ENABLED=true in configuration."
+        )
+    
+    start_time = time.time()
+    
+    try:
+        # Import here to avoid circular imports
+        from ...cursor.modules.retrieval.simple_store import SimpleVectorStore
+        
+        # Initialize vector store
+        vector_store = SimpleVectorStore()
+        
+        # Load index
+        index_path = settings.RAG_INDEX_PATH
+        if not os.path.exists(index_path):
+            raise HTTPException(
+                status_code=500,
+                detail=f"RAG index not found at {index_path}"
+            )
+        
+        vector_store.load(index_path)
+        
+        # Create a simple random embedding for the query (since we don't have OpenAI API)
+        # This is just for testing the vector store functionality
+        query_embedding = np.random.rand(1536).tolist()  # 1536 is the embedding dimension
+        
+        # Search vector store
+        chunks = vector_store.search(query_embedding, top_k=request.top_k)
+        
+        # Convert results to response format
+        snippets = []
+        sources = set()
+        
+        for chunk in chunks:
+            snippet = RAGSnippetResponse(
+                title=getattr(chunk, 'title', 'Untitled'),
+                content=chunk.content[:500] + "..." if len(chunk.content) > 500 else chunk.content,
+                source=getattr(chunk, 'source', 'Unknown'),
+                score=chunk.metadata.get("similarity_score", 0.0) if hasattr(chunk, 'metadata') and chunk.metadata else 0.0
+            )
+            snippets.append(snippet)
+            sources.add(snippet.source)
+        
+        search_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        
+        return RAGTestResponse(
+            query=request.query,
+            snippets=snippets,
+            sources=list(sources),
+            total_found=len(snippets),
+            search_time_ms=search_time
+        )
+        
+    except Exception as e:
+        import traceback
+        logger.error(f"RAG search failed: {e}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=500, 
             detail=f"RAG search failed: {str(e)}"
