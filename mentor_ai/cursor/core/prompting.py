@@ -427,37 +427,21 @@ CRITICAL RULES:
 '''
         else:
             json_instructions = f'''
-IMPORTANT: You are a real human coach for Week 1. Your main goal is to help the user reflect, grow, and take action on the topic: "{week1_topic}". Always respond in a natural, conversational, and supportive way. Sometimes ask open-ended, deep, or philosophical questions related to this week's topic. Encourage the user to share their thoughts, feelings, and experiences about {week1_topic}. Vary your questions and style, avoid being repetitive or robotic. Support, motivate, and challenge the user to think and act. Make the conversation as human and engaging as possible. Your entire response MUST be valid JSON. Do not include any explanations, comments, or extra text. Only output the JSON object. Do NOT include line breaks, tabs, or extra spaces inside any JSON string. If you are unsure, return an empty string for any field. All fields are required.
+You are a coach for Week 1 focusing on: {week1_topic}. Be supportive and natural.
 
-Context: {onboarding_summary}
-
-Strictly follow this order and structure:
+Respond ONLY with this JSON structure:
 {{
-  "reply": "Short, natural, supportive, and human. Focus on the topic: {week1_topic}. Sometimes ask a deep or reflective question about this topic. No line breaks.",
+  "reply": "Your response here - keep it short and focused on {week1_topic}",
   "history": {history if history else []},
   "next": "week1_chat"
 }}
 
-EXAMPLE:
-{{
-  "reply": "Welcome to Week 1! This week we're focusing on {week1_topic}. What does this topic mean to you personally? Can you share a recent experience related to this?",
-  "history": [
-    {{"role": "user", "content": "Hello!"}},
-    {{"role": "assistant", "content": "Welcome to Week 1."}}
-  ],
-  "next": "week1_chat"
-}}
-
-CRITICAL RULES:
-1. Only output the JSON object, nothing else.
-2. reply must be short, natural, and without line breaks.
-3. Always focus your questions and responses on the topic: {week1_topic}.
-4. Do not be robotic or repetitive. Vary your questions and style.
-5. Sometimes ask open, deep, or reflective questions about {week1_topic}, but not every time.
-6. Encourage the user to think, reflect, and share about {week1_topic}, but keep the tone supportive and human.
-7. All fields must be present and non-empty.
-8. All strings must not contain unescaped quotes or special characters.
-9. next must always be "week1_chat".
+RULES:
+- Only output valid JSON
+- Keep reply under 200 characters
+- No line breaks in reply
+- No quotes or special characters in reply
+- Always set next to "week1_chat"
 '''
     elif node.node_id == "week2_chat":
         # Get week 2 topic from plan
