@@ -23,7 +23,10 @@ class DocumentIngester:
     """Handles document ingestion and indexing."""
     
     def __init__(self, vector_store: Optional[VectorStore] = None):
-        from ...app.config import settings
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        from app.config import settings
         self.vector_store = vector_store or SimpleVectorStore()
         self.pdf_reader = PDFReader(max_pages=settings.PDF_MAX_PAGES)
         
@@ -137,7 +140,10 @@ class DocumentIngester:
     
     def _get_document_metadata(self, file_path: Path) -> Dict[str, Any]:
         """Get metadata for a document."""
-        from ...app.config import settings
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        from app.config import settings
         # Try to load metadata from meta directory
         meta_file = Path(settings.RAG_CORPUS_PATH) / "meta" / f"{file_path.stem}.json"
         
@@ -158,7 +164,10 @@ class DocumentIngester:
     
     def _create_chunks(self, text: str, title: str, source: str, metadata: Dict[str, Any]) -> List[DocumentChunk]:
         """Create document chunks from text."""
-        from ...app.config import settings
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        from app.config import settings
         chunks = []
         
         # Split text into sentences
@@ -229,16 +238,21 @@ class DocumentIngester:
     
     def _get_embeddings(self, texts: List[str]) -> List[List[float]]:
         """Get embeddings for a list of texts."""
-        from ...app.config import settings
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        from app.config import settings
         embeddings = []
         
         for text in texts:
             try:
-                response = openai.Embedding.create(
+                from openai import OpenAI
+                client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                response = client.embeddings.create(
                     model=settings.EMBEDDINGS_MODEL,
                     input=text
                 )
-                embeddings.append(response['data'][0]['embedding'])
+                embeddings.append(response.data[0].embedding)
             except Exception as e:
                 logger.error(f"Error getting embedding: {e}")
                 # Return zero vector as fallback

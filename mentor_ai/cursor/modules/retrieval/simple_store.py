@@ -118,8 +118,16 @@ class SimpleVectorStore(VectorStore):
         # Save chunks as JSON
         chunks_file = path / "chunks.json"
         chunks_data = [chunk.dict() for chunk in self.chunks]
+        
+        # Custom JSON encoder to handle datetime objects
+        class DateTimeEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if hasattr(obj, 'isoformat'):
+                    return obj.isoformat()
+                return super().default(obj)
+        
         with open(chunks_file, 'w', encoding='utf-8') as f:
-            json.dump(chunks_data, f, ensure_ascii=False, indent=2)
+            json.dump(chunks_data, f, ensure_ascii=False, indent=2, cls=DateTimeEncoder)
         
         # Save embeddings as numpy array
         embeddings_file = path / "embeddings.npy"
