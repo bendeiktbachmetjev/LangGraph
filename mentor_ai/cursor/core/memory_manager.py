@@ -103,12 +103,22 @@ class MemoryManager:
         """
         
         try:
+            # Try to create summary using LLM
             summary_response = llm_client.call_llm(summary_prompt)
             summary = summary_response.strip()
             logger.info(f"Created weekly summary for week {week_number}, session {session_id}")
         except Exception as e:
-            logger.error(f"Failed to create weekly summary: {e}")
-            summary = f"Week {week_number} conversation summary"
+            logger.error(f"Failed to create weekly summary with LLM: {e}")
+            # Fallback: create a basic summary from conversation history
+            if current_history:
+                # Extract key points from conversation
+                user_messages = [msg.get('content', '') for msg in current_history if msg.get('role') == 'user']
+                assistant_messages = [msg.get('content', '') for msg in current_history if msg.get('role') == 'assistant']
+                
+                # Create a simple summary
+                summary = f"Week {week_number} summary: User engaged in {len(user_messages)} conversations. Key topics discussed: {', '.join(user_messages[:3]) if user_messages else 'No specific topics'}"
+            else:
+                summary = f"Week {week_number} conversation summary"
         
         weekly_summary = {
             "summary": summary,
