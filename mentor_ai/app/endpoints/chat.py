@@ -52,27 +52,10 @@ async def chat_with_session(
     node_id = state.get("current_node", "collect_basic_info")
     user_message = request.message
     reply = None
-    updated_state = state.copy()
+    updated_state = state
     next_node = node_id
 
-    # FIRST: Update state with user message BEFORE processing
-    # This ensures the agent sees the latest user message
-    if user_message:
-        # Add user message to history first
-        if not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
-            updated_state["history"].append({"role": "user", "content": user_message})
-        
-        # Update memory system with user message
-        from mentor_ai.cursor.core.memory_manager import MemoryManager
-        new_message = {"role": "user", "content": user_message}
-        updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
-        
-        # Evaluate important facts from user message
-        important_facts = MemoryManager.evaluate_important_facts(updated_state, new_message)
-        for fact in important_facts:
-            updated_state = MemoryManager.add_important_fact(updated_state, fact)
-
-    # SECOND: Now process the node with updated state
+    # Process exactly one node per request with memory management
     try:
         reply, updated_state, next_node = GraphProcessor.process_node(
             node_id=next_node,
@@ -82,73 +65,10 @@ async def chat_with_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
 
-    # THIRD: Add assistant reply to history
-    if reply and not any(msg.get("content") == reply for msg in updated_state.get("history", [])):
-        updated_state["history"].append({"role": "assistant", "content": reply})
-
-    updated_state["current_node"] = next_node
-    await mongodb_manager.update_session(session_id, updated_state)
-
-    return ChatResponse(reply=reply, session_id=session_id)
-
-@router.post("/chat/{session_id}/test", response_model=ChatResponse)
-async def test_chat_without_auth(
-    session_id: str = Path(..., description="Session ID"),
-    request: ChatRequest = ...
-):
-    """Temporary endpoint for testing without authentication"""
-    # Get current state from MongoDB
-    state = await mongodb_manager.get_session(session_id)
-    if not state:
-        raise HTTPException(status_code=404, detail="Session not found")
-    
-    # Ensure history exists for frontend compatibility
-    if "history" not in state or not isinstance(state["history"], list):
-        state["history"] = []
-    
-    # Initialize memory fields if not present (for new sessions)
-    if "prompt_context" not in state:
-        from mentor_ai.cursor.core.memory_manager import MemoryManager
-        state["prompt_context"] = MemoryManager.initialize_prompt_context()
-    if "message_count" not in state:
-        state["message_count"] = 0
-    if "current_week" not in state:
-        state["current_week"] = 1
-    
-    # Determine current node (default: collect_basic_info)
-    node_id = state.get("current_node", "collect_basic_info")
-    user_message = request.message
-    reply = None
-    updated_state = state.copy()
-    next_node = node_id
-
-    # FIRST: Update state with user message BEFORE processing
-    if user_message:
-        # Add user message to history first
-        if not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
-            updated_state["history"].append({"role": "user", "content": user_message})
-        
-        # Update memory system with user message
-        from mentor_ai.cursor.core.memory_manager import MemoryManager
-        new_message = {"role": "user", "content": user_message}
-        updated_state = MemoryManager.update_prompt_context(updated_state, new_message)
-        
-        # Evaluate important facts from user message
-        important_facts = MemoryManager.evaluate_important_facts(updated_state, new_message)
-        for fact in important_facts:
-            updated_state = MemoryManager.add_important_fact(updated_state, fact)
-
-    # SECOND: Now process the node with updated state
-    try:
-        reply, updated_state, next_node = GraphProcessor.process_node(
-            node_id=next_node,
-            user_message=user_message,
-            current_state=updated_state
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"LLM processing error: {e}")
-
-    # THIRD: Add assistant reply to history
+    # Ensure history is updated for frontend compatibility
+    # Note: Memory management handles prompt_context automatically
+    if user_message and not any(msg.get("content") == user_message for msg in updated_state.get("history", [])):
+        updated_state["history"].append({"role": "user", "content": user_message})
     if reply and not any(msg.get("content") == reply for msg in updated_state.get("history", [])):
         updated_state["history"].append({"role": "assistant", "content": reply})
 

@@ -52,13 +52,13 @@ class GraphProcessor:
                 llm_data = StateManager.parse_llm_response(llm_response, node)
                 logger.debug(f"Parsed LLM data: {llm_data}")
             
-            # Update state with assistant reply only (user message already processed in endpoint)
+            # Update state with memory management
             updated_state = StateManager.update_state_with_memory(
                 current_state, llm_data, node, 
-                user_message=None,  # User message already processed
+                user_message=user_message, 
                 assistant_reply=llm_data.get("reply", "")
             )
-            logger.info(f"State updated with assistant reply for session: {current_state.get('session_id')}")
+            logger.info(f"State updated with memory for session: {current_state.get('session_id')}")
             
             # Log memory statistics for monitoring
             memory_stats = StateManager.get_memory_stats(updated_state)

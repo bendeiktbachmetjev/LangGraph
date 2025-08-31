@@ -99,45 +99,67 @@ class StateManager:
             # Append new week2 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week3_chat":
             # Append new week3 messages to the main history array
             if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "week4_chat":
             # Append new week4 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week5_chat":
             # Append new week5 messages to the main history array
             if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "week6_chat":
             # Append new week6 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week7_chat":
             # Append new week7 messages to the main history array
             if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "week8_chat":
             # Append new week8 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week9_chat":
             # Append new week9 messages to the main history array
             if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "week10_chat":
             # Append new week10 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week11_chat":
             # Append new week11 messages to the main history array
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
         elif node.node_id == "week12_chat":
             # Append new week12 messages to the main history array
             if llm_data.get("history"):
+                updated_state["history"] = llm_data["history"]
+            elif llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
         elif node.node_id == "change_skills":
             # Save skills/interests/activities if provided

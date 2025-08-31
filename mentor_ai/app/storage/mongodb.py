@@ -101,6 +101,21 @@ class MongoDBManager:
                         "content": "Hi there! 👋 This is your onboarding chat. Feel free to introduce yourself. May I ask your name and your age?"
                     }
                 ],
+                # Initialize prompt_context for memory optimization
+                "prompt_context": {
+                    "running_summary": None,
+                    "recent_messages": [
+                        {
+                            "role": "assistant",
+                            "content": "Hi there! 👋 This is your onboarding chat. Feel free to introduce yourself. May I ask your name and your age?"
+                        }
+                    ],
+                    "important_facts": [],
+                    "weekly_summaries": {}
+                },
+                # Initialize memory fields
+                "message_count": 1,
+                "current_week": 1,
                 # Explicitly start from the first node
                 "current_node": "collect_basic_info",
                 "created_at": datetime.utcnow(),

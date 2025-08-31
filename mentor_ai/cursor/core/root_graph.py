@@ -256,10 +256,10 @@ def get_retrieve_reg_node():
 def get_week1_chat_node():
     return Node(
         node_id="week1_chat",
-        system_prompt="You are the user's mentor for Week 1. Use the onboarding_chat_summary and the topic for week 1 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week1_history.",
+        system_prompt="You are the user's mentor for Week 1. Use the onboarding_chat_summary and the topic for week 1 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week1_history": list,
+            "history": list,
             "next": "week1_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week1_chat"
@@ -268,10 +268,10 @@ def get_week1_chat_node():
 def get_week2_chat_node():
     return Node(
         node_id="week2_chat",
-        system_prompt="You are the user's mentor for Week 2. Use the onboarding_chat_summary and the topic for week 2 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week2_history.",
+        system_prompt="You are the user's mentor for Week 2. Use the onboarding_chat_summary and the topic for week 2 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week2_history": list,
+            "history": list,
             "next": "week2_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week2_chat"
@@ -280,10 +280,10 @@ def get_week2_chat_node():
 def get_week3_chat_node():
     return Node(
         node_id="week3_chat",
-        system_prompt="You are the user's mentor for Week 3. Use the onboarding_chat_summary and the topic for week 3 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week3_history.",
+        system_prompt="You are the user's mentor for Week 3. Use the onboarding_chat_summary and the topic for week 3 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week3_history": list,
+            "history": list,
             "next": "week3_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week3_chat"
@@ -292,10 +292,10 @@ def get_week3_chat_node():
 def get_week4_chat_node():
     return Node(
         node_id="week4_chat",
-        system_prompt="You are the user's mentor for Week 4. Use the onboarding_chat_summary and the topic for week 4 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week4_history.",
+        system_prompt="You are the user's mentor for Week 4. Use the onboarding_chat_summary and the topic for week 4 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week4_history": list,
+            "history": list,
             "next": "week4_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week4_chat"
@@ -304,10 +304,10 @@ def get_week4_chat_node():
 def get_week5_chat_node():
     return Node(
         node_id="week5_chat",
-        system_prompt="You are the user's mentor for Week 5. Use the onboarding_chat_summary and the topic for week 5 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week5_history.",
+        system_prompt="You are the user's mentor for Week 5. Use the onboarding_chat_summary and the topic for week 5 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week5_history": list,
+            "history": list,
             "next": "week5_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week5_chat"
@@ -316,10 +316,10 @@ def get_week5_chat_node():
 def get_week6_chat_node():
     return Node(
         node_id="week6_chat",
-        system_prompt="You are the user's mentor for Week 6. Use the onboarding_chat_summary and the topic for week 6 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week6_history.",
+        system_prompt="You are the user's mentor for Week 6. Use the onboarding_chat_summary and the topic for week 6 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week6_history": list,
+            "history": list,
             "next": "week6_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week6_chat"
@@ -328,10 +328,10 @@ def get_week6_chat_node():
 def get_week7_chat_node():
     return Node(
         node_id="week7_chat",
-        system_prompt="You are the user's mentor for Week 7. Use the onboarding_chat_summary and the topic for week 7 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week7_history.",
+        system_prompt="You are the user's mentor for Week 7. Use the onboarding_chat_summary and the topic for week 7 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week7_history": list,
+            "history": list,
             "next": "week7_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week7_chat"
@@ -340,10 +340,10 @@ def get_week7_chat_node():
 def get_week8_chat_node():
     return Node(
         node_id="week8_chat",
-        system_prompt="You are the user's mentor for Week 8. Use the onboarding_chat_summary and the topic for week 8 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week8_history.",
+        system_prompt="You are the user's mentor for Week 8. Use the onboarding_chat_summary and the topic for week 8 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week8_history": list,
+            "history": list,
             "next": "week8_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week8_chat"
@@ -352,10 +352,10 @@ def get_week8_chat_node():
 def get_week9_chat_node():
     return Node(
         node_id="week9_chat",
-        system_prompt="You are the user's mentor for Week 9. Use the onboarding_chat_summary and the topic for week 9 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week9_history.",
+        system_prompt="You are the user's mentor for Week 9. Use the onboarding_chat_summary and the topic for week 9 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week9_history": list,
+            "history": list,
             "next": "week9_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week9_chat"
@@ -364,10 +364,10 @@ def get_week9_chat_node():
 def get_week10_chat_node():
     return Node(
         node_id="week10_chat",
-        system_prompt="You are the user's mentor for Week 10. Use the onboarding_chat_summary and the topic for week 10 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week10_history.",
+        system_prompt="You are the user's mentor for Week 10. Use the onboarding_chat_summary and the topic for week 10 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week10_history": list,
+            "history": list,
             "next": "week10_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week10_chat"
@@ -376,10 +376,10 @@ def get_week10_chat_node():
 def get_week11_chat_node():
     return Node(
         node_id="week11_chat",
-        system_prompt="You are the user's mentor for Week 11. Use the onboarding_chat_summary and the topic for week 11 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week11_history.",
+        system_prompt="You are the user's mentor for Week 11. Use the onboarding_chat_summary and the topic for week 11 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week11_history": list,
+            "history": list,
             "next": "week11_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week11_chat"
@@ -388,10 +388,10 @@ def get_week11_chat_node():
 def get_week12_chat_node():
     return Node(
         node_id="week12_chat",
-        system_prompt="You are the user's mentor for Week 12. Use the onboarding_chat_summary and the topic for week 12 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in week12_history.",
+        system_prompt="You are the user's mentor for Week 12. Use the onboarding_chat_summary and the topic for week 12 from the plan to start a focused conversation. Encourage the user to discuss and reflect on this week's topic. Save all messages in history.",
         outputs={
             "reply": str,
-            "week12_history": list,
+            "history": list,
             "next": "week12_chat"  # Stay in this node for ongoing chat
         },
         next_node=lambda state: "week12_chat"
