@@ -231,113 +231,193 @@ class StateManager:
         elif node.node_id == "week3_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week3_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 3:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 3")
+            else:
+                print(f"🔄 Staying in week 3, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 3
+            print(f"✅ Set current_week to 3, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week4_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week4_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 4:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 4")
+            else:
+                print(f"🔄 Staying in week 4, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 4
+            print(f"✅ Set current_week to 4, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week5_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week5_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 5:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 5")
+            else:
+                print(f"🔄 Staying in week 5, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 5
+            print(f"✅ Set current_week to 5, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week6_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week6_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 6:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 6")
+            else:
+                print(f"🔄 Staying in week 6, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 6
+            print(f"✅ Set current_week to 6, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week7_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week7_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 7:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 7")
+            else:
+                print(f"🔄 Staying in week 7, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 7
+            print(f"✅ Set current_week to 7, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week8_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week8_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 8:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 8")
+            else:
+                print(f"🔄 Staying in week 8, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 8
+            print(f"✅ Set current_week to 8, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week9_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week9_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 9:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 9")
+            else:
+                print(f"🔄 Staying in week 9, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 9
+            print(f"✅ Set current_week to 9, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week10_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week10_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 10:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 10")
+            else:
+                print(f"🔄 Staying in week 10, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 10
+            print(f"✅ Set current_week to 10, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week11_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week11_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 11:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 11")
+            else:
+                print(f"🔄 Staying in week 11, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 11
+            print(f"✅ Set current_week to 11, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "week12_chat":
             # Update current week and clear history if transitioning
             current_week = updated_state.get("current_week", 1)
+            print(f"🔍 Week12_chat: current_week={current_week}, history_before={len(updated_state.get('history', []))}")
+            
             if current_week != 12:
                 # Clear history when transitioning to a new week
                 updated_state["history"] = []
                 print(f"🧹 Cleared history when transitioning from week {current_week} to week 12")
+            else:
+                print(f"🔄 Staying in week 12, not clearing history")
+            
             # Append new messages after clearing
             if llm_data.get("history"):
                 updated_state["history"] = llm_data["history"]
+                print(f"📝 Updated history with {len(llm_data['history'])} messages")
+            
             updated_state["current_week"] = 12
+            print(f"✅ Set current_week to 12, final history count: {len(updated_state.get('history', []))}")
         elif node.node_id == "change_skills":
             # Save skills/interests/activities if provided
             if isinstance(llm_data.get("skills"), list):
