@@ -197,39 +197,37 @@ class RegRetriever:
     
     def _get_embedding(self, text: str) -> List[float]:
         """
-        Get embedding for text using OpenAI API.
-        
-        Args:
-            text: Text to embed
-            
-        Returns:
-            Embedding vector
+        Get embedding for text, with fallback to zero vector if API key unavailable
         """
         try:
-            from openai import OpenAI
-            
-            # Import settings locally
+            # Import settings directly to avoid import issues
             import os
             from dotenv import load_dotenv
+            
+            # Load environment variables
             load_dotenv()
             
-            api_key = os.getenv("OPENAI_API_KEY", "")
-            model = os.getenv("EMBEDDINGS_MODEL", "text-embedding-3-small")
-            
+            # Check if OpenAI API key is available
+            api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
-                logger.warning("No OpenAI API key found, returning zero vector")
-                return [0.0] * 1536
+                print("No OpenAI API key found, returning zero vector")
+                # Return zero vector as fallback
+                return [0.0] * 1536  # OpenAI text-embedding-3-small dimension
             
-            client = OpenAI(api_key=api_key)
+            # Try to get real embedding
+            import openai
+            client = openai.OpenAI(api_key=api_key)
+            
             response = client.embeddings.create(
-                model=model,
+                model="text-embedding-3-small",
                 input=text
             )
             return response.data[0].embedding
+            
         except Exception as e:
-            logger.error(f"Error getting embedding: {e}")
+            print(f"Error getting embedding: {e}, returning zero vector")
             # Return zero vector as fallback
-            return [0.0] * 1536  # Default dimension for text-embedding-3-small
+            return [0.0] * 1536  # OpenAI text-embedding-3-small dimension
     
     def _deduplicate_chunks(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
         """

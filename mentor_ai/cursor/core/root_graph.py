@@ -202,10 +202,19 @@ def get_retrieve_reg_node():
     """Node for retrieving relevant coaching knowledge from RAG system."""
     def retrieve_reg_executor(user_message: str, current_state: Dict[str, Any]) -> Dict[str, Any]:
         """Executor function for retrieve_reg node."""
-        from ...app.config import settings
+        try:
+            # Import here to avoid circular imports - use absolute imports
+            from mentor_ai.app.config import settings
+        except ImportError:
+            # Fallback for local testing
+            import sys
+            import os
+            sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+            from app.config import settings
         
         # Check if RAG is enabled
         if not settings.REG_ENABLED:
+            print("⚠️  RAG is disabled (REG_ENABLED=false)")
             return {
                 "retrieved_chunks": [],
                 "next": "generate_plan",
@@ -216,15 +225,25 @@ def get_retrieve_reg_node():
             # Import here to avoid circular imports
             from ..modules.retrieval.retriever import RegRetriever
             
+            print(f"🔍 Initializing RAG retriever...")
+            print(f"   Index path: {settings.RAG_INDEX_PATH}")
+            print(f"   Corpus path: {settings.RAG_CORPUS_PATH}")
+            
             # Initialize retriever
             retriever = RegRetriever()
             retriever.initialize(settings.RAG_INDEX_PATH)
             
+            print(f"🔍 Retrieving relevant documents...")
+            
             # Retrieve relevant documents
             result = retriever.retrieve(current_state, user_message)
             
+            print(f"🔍 Retrieved {len(result.chunks)} chunks")
+            
             # Convert to snippets for LLM context
             snippets = result.to_snippets(max_chars=settings.MAX_CONTEXT_CHARS)
+            
+            print(f"🔍 Created {len(snippets)} snippets for LLM context")
             
             return {
                 "retrieved_chunks": snippets,
@@ -236,6 +255,9 @@ def get_retrieve_reg_node():
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Error in retrieve_reg executor: {e}")
+            print(f"❌ RAG retrieval failed: {e}")
+            
+            # Return empty result and continue to next node
             return {
                 "retrieved_chunks": [],
                 "next": "generate_plan", 
